@@ -22,15 +22,13 @@ export default function AccessibilityButton({
       onClick={onClick}
       aria-pressed={active}
       aria-label={label}
-      className={`group relative flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-400 ${
-        active
+      className={`group relative flex flex-col items-center justify-center w-14 h-14 rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-offset-2 focus-visible:ring-blue-400 ${active
           ? 'bg-gradient-to-br from-pink-500 to-pink-600 text-white shadow-lg scale-105'
           : 'bg-white dark:bg-gray-800 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700'
-      }`}
+        }`}
     >
-      <span className={`flex items-center justify-center w-10 h-10 rounded-md transition-colors ${
-        active ? 'bg-white/10' : 'bg-transparent'
-      }`}>{icon}</span>
+      <span className={`flex items-center justify-center w-10 h-10 rounded-md transition-colors ${active ? 'bg-white/10' : 'bg-transparent'
+        }`}>{icon}</span>
 
       <span className="mt-1 text-[11px] font-medium text-gray-600 dark:text-gray-300 text-center select-none">
         {label}

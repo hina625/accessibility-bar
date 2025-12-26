@@ -48,12 +48,12 @@ export default function ColorPanel() {
       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
         Text & Heading Colors
       </label>
-      
+
       <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto custom-scrollbar">
         {colorCombinations.map((combo, index) => {
           const isActive =
             textColor === combo.textColor && headingColor === combo.headingColor;
-          
+
           return (
             <button
               key={index}
@@ -61,11 +61,10 @@ export default function ColorPanel() {
                 setTextColor(combo.textColor);
                 setHeadingColor(combo.headingColor);
               }}
-              className={`group relative flex flex-col items-center p-2 rounded-lg border-2 transition-all hover:scale-105 ${
-                isActive
+              className={`group relative flex flex-col items-center p-2 rounded-lg border-2 transition-all hover:scale-105 ${isActive
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
                   : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
               title={combo.name}
               aria-label={`Select ${combo.name} color combination`}
             >
