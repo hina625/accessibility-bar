@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+  "build:embed": "vite build --config vite.embed.config.mjs",
     "build": "next build",
     "start": "next start"
   },
@@ -17,8 +18,11 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^5.1.2",
     "babel-plugin-react-compiler": "1.0.0",
+    "esbuild": "^0.27.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vite": "^5.4.21"
   }
 }

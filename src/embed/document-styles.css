@@ -1,0 +1,178 @@
+/* Accessibility styles that need to be in the main document */
+.high-contrast body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: contrast(1.5);
+}
+
+.high-contrast body *:not(.a11y-embed-host):not(.a11y-embed-host *) {
+  border-color: currentColor !important;
+}
+
+.reduce-motion body *:not(.a11y-embed-host):not(.a11y-embed-host *),
+.reduce-motion body *:not(.a11y-embed-host):not(.a11y-embed-host *)::before,
+.reduce-motion body *:not(.a11y-embed-host):not(.a11y-embed-host *)::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.dark-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
+  color-scheme: dark;
+}
+
+.dark-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+.dark-mode body :is(h1, h2, h3, h4, h5, h6, p, span, div, li, td, th):not(.a11y-embed-host *) {
+  color: #ffffff !important;
+}
+
+[data-font-style="readable"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+  line-height: 1.8 !important;
+  letter-spacing: 0.5px !important;
+}
+
+[data-font-style="readable"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: 'Georgia', 'Times New Roman', serif !important;
+}
+
+[data-font-style="dyslexic"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+  font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
+  line-height: 1.6 !important;
+  letter-spacing: 1px !important;
+  word-spacing: 2px !important;
+}
+
+[data-font-style="dyslexic"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
+}
+
+[data-font-style="serif"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: 'Times New Roman', Georgia, serif !important;
+}
+
+[data-font-style="sans"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+[data-font-style="mono"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
+/* Exclude accessibility bar from all document-level effects */
+.a11y-embed-host,
+.a11y-embed-host *,
+.accessibility-bar,
+.accessibility-bar * {
+  font-size: 14px !important;
+  font-family: Arial, Helvetica, sans-serif !important;
+  line-height: normal !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  text-align: left !important;
+  color: inherit !important;
+  background-color: transparent !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+.grayscale-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: grayscale(100%);
+}
+
+.invert-colors body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.invert-colors body :is(img, video, iframe):not(.a11y-embed-host *) {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+.highlight-links a:not(.a11y-embed-host *):not(.accessibility-bar *) {
+  background-color: #ffeb3b !important;
+  color: #000 !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+}
+
+.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.a11y-embed-host *):not(.accessibility-bar *) {
+  background-color: #ffff00 !important;
+  color: #000 !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
+  display: inline-block !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+:root {
+  --text-spacing: 1rem;
+  --cursor-size: 1;
+}
+
+.large-cursor body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="var(--cursor-color, black)" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') 0 0, auto !important;
+}
+
+.a11y-embed-host,
+.a11y-embed-host *,
+.accessibility-bar,
+.accessibility-bar * {
+  cursor: default !important;
+}
+
+[data-color-blind="protanopia"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: url(#protanopia-filter);
+}
+
+[data-color-blind="deuteranopia"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: url(#deuteranopia-filter);
+}
+
+[data-color-blind="tritanopia"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: url(#tritanopia-filter);
+}
+
+.large-buttons button:not(.a11y-embed-host *),
+.large-buttons a[role="button"]:not(.a11y-embed-host *),
+.large-buttons input[type="button"]:not(.a11y-embed-host *),
+.large-buttons input[type="submit"]:not(.a11y-embed-host *),
+.large-buttons .button:not(.a11y-embed-host *) {
+  min-height: 48px !important;
+  min-width: 48px !important;
+  padding: 12px 24px !important;
+  font-size: 1.1em !important;
+}
+
+.large-buttons :is(input[type="text"], input[type="email"], input[type="password"], textarea, select):not(.a11y-embed-host *) {
+  min-height: 48px !important;
+  font-size: 1.1em !important;
+  padding: 12px !important;
+}
+
+.reading-mask body:not(.a11y-embed-host):not(.accessibility-bar)::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s;
+}
+
+.keyboard-navigation *:focus:not(.a11y-embed-host *) {
+  outline: 3px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+
+.on-page-dictionary :is(p, span, div):not(.a11y-embed-host *):not(.accessibility-bar *) {
+  cursor: help !important;
+}

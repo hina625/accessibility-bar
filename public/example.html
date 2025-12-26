@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Accessibility Bar — Embed Example</title>
+    <style>
+        body {
+            font-family: Inter, system-ui, -apple-system, Arial, sans-serif;
+            margin: 0;
+            padding: 24px;
+            background: #f7fafc;
+            color: #0f172a;
+        }
+
+        .card {
+            max-width: 960px;
+            margin: 24px auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 6px 18px rgba(2, 6, 23, 0.08);
+        }
+
+        .status {
+            position: fixed;
+            left: 12px;
+            bottom: 12px;
+            background: #111827;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            z-index: 9999999
+        }
+
+        .hint {
+            font-size: 13px;
+            color: #475569
+        }
+
+        .demo {
+            line-height: 1.7
+        }
+
+        .init-btn {
+            margin-top: 12px;
+            display: inline-block;
+            padding: 8px 12px;
+            background: #2563eb;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <h1>Accessibility Bar — Embed Example</h1>
+        <p class="hint">This page demonstrates the drop-in embed bundle. The embed script is loaded from
+            <code>/embed-bundle.js</code> and will call <code>AccessibilityBarEmbed.init()</code> automatically when
+            available.</p>
+
+        <div class="demo">
+            <h2>Sample content</h2>
+            <p>This is demo text to show how the accessibility controls (font size, contrast, zoom, etc.) affect the
+                page. Try the controls after the accessibility button appears at the bottom-right.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus
+                ante dapibus diam.</p>
+
+            <div>
+                <button id="manual-init" class="init-btn">Manually initialize Accessibility Bar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="a11y-status" class="status">embed: waiting...</div>
+
+    <script src="/embed-bundle.js"></script>
+    <script>
+        (function () {
+            const statusEl = document.getElementById('a11y-status');
+
+            function setStatus(msg) {
+                if (statusEl) statusEl.textContent = 'embed: ' + msg;
+            }
+
+            function tryInit() {
+                if (window.AccessibilityBarEmbed && typeof window.AccessibilityBarEmbed.init === 'function') {
+                    try {
+                        window.AccessibilityBarEmbed.init({ targetSelector: 'body' });
+                        setStatus('initialized');
+                        return true;
+                    } catch (err) {
+                        setStatus('error');
+                        console.error('Init error:', err);
+                        if (window.AccessibilityBarEmbed) window.AccessibilityBarEmbed.__lastError = err;
+                        return false;
+                    }
+                }
+                return false;
+            }
+
+
+            window.addEventListener('load', function () {
+                if (tryInit()) return;
+                let attempts = 0;
+                const id = setInterval(function () {
+                    attempts++;
+                    if (tryInit() || attempts > 60) {
+                        clearInterval(id);
+                        if (!window.AccessibilityBarEmbed) setStatus('not found');
+                    } else {
+                        setStatus('waiting... (' + attempts + ')');
+                    }
+                }, 100);
+            });
+
+            document.getElementById('manual-init')?.addEventListener('click', function () {
+                if (tryInit()) alert('Accessibility Bar initialized');
+                else alert('AccessibilityBarEmbed not available yet.');
+            });
+        })();
+    </script>
+</body>
+
+</html>
