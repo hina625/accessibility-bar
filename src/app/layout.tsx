@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Lexend } from "next/font/google";
 import "./globals.css";
 import Script from 'next/script';
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
@@ -12,6 +12,11 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const lexend = Lexend({
+  variable: "--font-lexend",
   subsets: ["latin"],
 });
 
@@ -28,8 +33,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} antialiased font-sans`}
       >
+        <a
+          href="#accessible-content"
+          className="skip-link focus:translate-y-0"
+        >
+          Skip to Content
+        </a>
         <svg width="0" height="0" style={{ position: 'absolute' }}>
           <defs>
             <filter id="protanopia-filter">
@@ -53,7 +64,7 @@ export default function RootLayout({
         <Script id="init-embed" strategy="afterInteractive">
           {`window.addEventListener('load', function(){ if(window.AccessibilityBarEmbed) window.AccessibilityBarEmbed.init({ targetSelector: 'body' }); });`}
         </Script>
-      </body>
-    </html>
+      </body >
+    </html >
   );
 }

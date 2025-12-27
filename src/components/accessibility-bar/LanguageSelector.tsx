@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 interface Language {
@@ -18,7 +18,7 @@ const languages: Language[] = [
   { code: 'fr', name: 'French', flag: '🇫🇷', nativeName: 'Français' },
   { code: 'de', name: 'German', flag: '🇩🇪', nativeName: 'Deutsch' },
   { code: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिन्दी' },
-  { code: 'zh', name: 'Chinese', flag: '🇨🇳', nativeName: '中文' },
+  { code: 'zh-CN', name: 'Chinese', flag: '🇨🇳', nativeName: '中文' },
   { code: 'ja', name: 'Japanese', flag: '🇯🇵', nativeName: '日本語' },
   { code: 'pt', name: 'Portuguese', flag: '🇵🇹', nativeName: 'Português' },
   { code: 'ru', name: 'Russian', flag: '🇷🇺', nativeName: 'Русский' },
@@ -28,13 +28,23 @@ const languages: Language[] = [
 export default function LanguageSelector() {
   const { language, setLanguage } = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [isOpen]);
+
   const selectedLang = languages.find(lang => lang.code === language) || languages[0];
 
   return (
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 w-full rounded-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        className="flex items-center gap-2 px-3 py-2 w-full rounded-md border border-gray-300 bg-white text-[18px] font-normal text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
         aria-label="Select language"
         aria-expanded={isOpen}
       >
@@ -65,14 +75,13 @@ export default function LanguageSelector() {
                     setLanguage(lang.code);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 ${
-                    language === lang.code ? 'bg-pink-50 dark:bg-pink-900/20' : ''
-                  }`}
+                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 ${language === lang.code ? 'bg-pink-50 dark:bg-pink-900/20' : ''
+                    }`}
                 >
                   <span className="text-xl">{lang.flag}</span>
                   <div className="flex-1 text-left">
-                    <div className="font-medium text-gray-900 dark:text-gray-100">{lang.name}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{lang.nativeName}</div>
+                    <div className="text-[18px] font-normal text-black dark:text-gray-100">{lang.name}</div>
+                    <div className="text-[13px] font-normal text-black dark:text-gray-400">{lang.nativeName}</div>
                   </div>
                   {language === lang.code && (
                     <svg className="h-5 w-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">

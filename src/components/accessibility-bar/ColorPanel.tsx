@@ -45,8 +45,8 @@ export default function ColorPanel() {
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Text & Heading Colors
+      <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+        Text & Heading Colours
       </label>
 
       <div className="grid grid-cols-4 gap-2 max-h-64 overflow-y-auto custom-scrollbar">
@@ -62,11 +62,11 @@ export default function ColorPanel() {
                 setHeadingColor(combo.headingColor);
               }}
               className={`group relative flex flex-col items-center p-2 rounded-lg border-2 transition-all hover:scale-105 ${isActive
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-md'
+                : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
               title={combo.name}
-              aria-label={`Select ${combo.name} color combination`}
+              aria-label={`Select ${combo.name} colour combination`}
             >
               <div className="flex gap-1 mb-1.5">
                 <div
@@ -78,7 +78,7 @@ export default function ColorPanel() {
                   style={{ backgroundColor: combo.headingColor }}
                 />
               </div>
-              <span className="text-[10px] text-gray-600 dark:text-gray-400 text-center leading-tight">
+              <span className="text-[10px] font-normal text-black dark:text-gray-400 text-center leading-tight">
                 {combo.name.split(' ')[0]}
               </span>
               {isActive && (
@@ -103,8 +103,8 @@ export default function ColorPanel() {
 
       <div className="flex items-center gap-3 pt-2 border-t border-gray-200 dark:border-gray-700">
         <div className="flex-1">
-          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-            Text Color
+          <label className="block text-xs font-normal text-black dark:text-gray-400 mb-1">
+            Text Colour
           </label>
           <div className="flex items-center gap-2 flex-wrap">
             <input
@@ -112,7 +112,7 @@ export default function ColorPanel() {
               value={textColor}
               onChange={(e) => setTextColor(e.target.value)}
               className="w-10 h-10 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
-              aria-label="Text color picker"
+              aria-label="Text colour picker"
             />
             <input
               type="text"
@@ -125,8 +125,8 @@ export default function ColorPanel() {
           </div>
         </div>
         <div className="flex-1">
-          <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-            Heading Color
+          <label className="block text-xs font-normal text-black dark:text-gray-400 mb-1">
+            Heading Colour
           </label>
           <div className="flex items-center gap-2 flex-wrap">
             <input
@@ -134,7 +134,7 @@ export default function ColorPanel() {
               value={headingColor}
               onChange={(e) => setHeadingColor(e.target.value)}
               className="w-10 h-10 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
-              aria-label="Heading color picker"
+              aria-label="Heading colour picker"
             />
             <input
               type="text"

@@ -1,6 +1,7 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { translations } from '@/contexts/accessibility/translations';
 
 interface BackgroundColor {
   color: string;
@@ -36,19 +37,20 @@ const lightColors: BackgroundColor[] = [
 
 const getContrastColor = (bgColor: string): string => {
   if (!bgColor) return '#000000';
-  
+
   const hex = bgColor.replace('#', '');
   const r = parseInt(hex.substr(0, 2), 16);
   const g = parseInt(hex.substr(2, 2), 16);
   const b = parseInt(hex.substr(4, 2), 16);
-  
+
   const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-  
+
   return brightness > 128 ? '#000000' : '#FFFFFF';
 };
 
 export default function PageBackgroundColor() {
-  const { backgroundColor, setBackgroundColor, setTextColor, setHeadingColor, colorBlindFilter, setColorBlindFilter } = useAccessibility();
+  const { backgroundColor, setBackgroundColor, setTextColor, setHeadingColor, colorBlindFilter, setColorBlindFilter, language } = useAccessibility();
+  const t = translations[language] || translations['en'];
 
   const handleBackgroundColorChange = (bgColor: BackgroundColor) => {
     if (colorBlindFilter !== 'none') {
@@ -61,14 +63,14 @@ export default function PageBackgroundColor() {
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Page Background
+      <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+        {t.controls.bg}
       </label>
 
       <div className="space-y-4">
         <div>
-          <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">
-            Dark
+          <h4 className="text-sm font-normal text-black dark:text-gray-400 mb-2 uppercase">
+            {t.common.dark}
           </h4>
           <div className="grid grid-cols-5 gap-2">
             {darkColors.map((bgColor, index) => {
@@ -77,17 +79,16 @@ export default function PageBackgroundColor() {
                 <button
                   key={index}
                   onClick={() => handleBackgroundColorChange(bgColor)}
-                  className={`group relative flex items-center justify-center w-full aspect-square rounded-lg border-2 transition-all hover:scale-105 ${
-                    isActive
-                      ? 'border-blue-500 shadow-lg ring-2 ring-blue-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                  }`}
+                  className={`group relative flex items-center justify-center w-full aspect-square rounded-lg border-2 transition-all hover:scale-105 ${isActive
+                    ? 'border-blue-500 shadow-lg ring-2 ring-blue-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                    }`}
                   style={{ backgroundColor: bgColor.color }}
                   title={bgColor.name}
-                  aria-label={`Select ${bgColor.name} background`}
+                  aria-label={`${t.common.dark} ${bgColor.name}`}
                 >
                   <span
-                    className="text-2xl font-bold"
+                    className="text-[15px] font-normal"
                     style={{ color: bgColor.textColor }}
                   >
                     A
@@ -114,8 +115,8 @@ export default function PageBackgroundColor() {
         </div>
 
         <div>
-          <h4 className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">
-            Light
+          <h4 className="text-xs font-normal text-black dark:text-gray-400 mb-2 uppercase">
+            {t.common.light}
           </h4>
           <div className="grid grid-cols-5 gap-2">
             {lightColors.map((bgColor, index) => {
@@ -124,17 +125,16 @@ export default function PageBackgroundColor() {
                 <button
                   key={index}
                   onClick={() => handleBackgroundColorChange(bgColor)}
-                  className={`group relative flex items-center justify-center w-full aspect-square rounded-lg border-2 transition-all hover:scale-105 ${
-                    isActive
-                      ? 'border-blue-500 shadow-lg ring-2 ring-blue-300'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
-                  }`}
+                  className={`group relative flex items-center justify-center w-full aspect-square rounded-lg border-2 transition-all hover:scale-105 ${isActive
+                    ? 'border-blue-500 shadow-lg ring-2 ring-blue-300'
+                    : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+                    }`}
                   style={{ backgroundColor: bgColor.color }}
                   title={bgColor.name}
-                  aria-label={`Select ${bgColor.name} background`}
+                  aria-label={`${t.common.light} ${bgColor.name}`}
                 >
                   <span
-                    className="text-2xl font-bold"
+                    className="text-[15px] font-normal"
                     style={{ color: bgColor.textColor }}
                   >
                     A
@@ -162,8 +162,8 @@ export default function PageBackgroundColor() {
       </div>
 
       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-2">
-          Custom Background Color
+        <label className="block text-sm font-normal text-black dark:text-gray-400 mb-2 uppercase">
+          {t.common.reset} {t.controls.bg}
         </label>
         <div className="flex items-center gap-2">
           <input
@@ -179,8 +179,8 @@ export default function PageBackgroundColor() {
               setTextColor(autoTextColor);
               setHeadingColor(autoTextColor);
             }}
-            className="w-12 h-12 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
-            aria-label="Background color picker"
+            className="w-9 h-9 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
+            aria-label={`${t.controls.bg} picker`}
           />
           <input
             type="text"
@@ -195,8 +195,9 @@ export default function PageBackgroundColor() {
               setTextColor(autoTextColor);
               setHeadingColor(autoTextColor);
             }}
-            className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+            className="flex-1 px-2 py-1.5 text-[14px] font-normal border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
             placeholder="#FFFFFF"
+            style={{ maxWidth: '100px' }}
           />
           <button
             onClick={() => {
@@ -204,10 +205,10 @@ export default function PageBackgroundColor() {
               setTextColor('#000000');
               setHeadingColor('#000000');
             }}
-            className="px-3 py-2 text-xs rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-            aria-label="Reset background color"
+            className="px-3 py-1.5 text-[14px] font-bold rounded-md bg-gray-100 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            aria-label={t.common.reset}
           >
-            Reset
+            {t.common.reset}
           </button>
         </div>
       </div>

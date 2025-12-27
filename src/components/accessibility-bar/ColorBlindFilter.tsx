@@ -7,8 +7,8 @@ export default function ColorBlindFilter() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Color Blind Filter
+      <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+        Colour Blind Filter
       </label>
       <select
         value={colorBlindFilter}
@@ -21,8 +21,8 @@ export default function ColorBlindFilter() {
             setHeadingColor('#000000');
           }
         }}
-        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-        aria-label="Select color blind filter"
+        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-[18px] font-normal text-black focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+        aria-label="Select colour blind filter"
       >
         <option value="none">None</option>
         <option value="protanopia">Protanopia</option>

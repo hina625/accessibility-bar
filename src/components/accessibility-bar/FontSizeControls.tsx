@@ -1,20 +1,23 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { translations } from '@/contexts/accessibility/translations';
 
 export default function FontSizeControls() {
-  const { fontSize, increaseFontSize, decreaseFontSize, resetFontSize } = useAccessibility();
+  const { fontSize, increaseFontSize, decreaseFontSize, resetFontSize, language } = useAccessibility();
+  const t = translations[language] || translations['en'];
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Font Size
+      <label className="flex items-center gap-2 text-[14px] font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+        <span className="w-1 h-3.5 bg-gray-900 dark:bg-gray-100 rounded-full"></span>
+        {t.controls.fontSize}
       </label>
       <div className="flex items-center gap-2">
         <button
           onClick={decreaseFontSize}
           className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-          aria-label="Decrease font size"
+          aria-label={`${t.common.reset} ${t.controls.fontSize}`}
           disabled={fontSize <= 12}
         >
           <svg
@@ -26,16 +29,14 @@ export default function FontSizeControls() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
           </svg>
         </button>
-
-        <span className="flex-1 text-center text-sm text-gray-600 dark:text-gray-400">
+        <span className="flex-1 text-center text-[18px] font-normal text-black dark:text-white">
           {fontSize}px
         </span>
-
         <button
           onClick={increaseFontSize}
-          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-          aria-label="Increase font size"
-          disabled={fontSize >= 24}
+          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          aria-label={`${t.common.reset} ${t.controls.fontSize}`}
+          disabled={fontSize >= 32}
         >
           <svg
             className="h-4 w-4"
@@ -51,16 +52,14 @@ export default function FontSizeControls() {
             />
           </svg>
         </button>
-
         <button
           onClick={resetFontSize}
-          className="px-3 py-1.5 text-xs rounded-md bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-          aria-label="Reset font size to default"
+          className="px-3 py-1.5 text-[18px] font-normal rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          aria-label={t.common.reset}
         >
-          Reset
+          {t.common.reset}
         </button>
       </div>
     </div>
   );
 }
-

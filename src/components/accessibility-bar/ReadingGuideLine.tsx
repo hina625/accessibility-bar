@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function ReadingGuideLine() {
-  const { readingGuide } = useAccessibility();
+  const { readingGuide, readingGuideColor, readingGuideThickness } = useAccessibility();
   const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
-  
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
     let vert: HTMLDivElement | null = null;
@@ -26,20 +26,20 @@ export default function ReadingGuideLine() {
         position: 'fixed',
         pointerEvents: 'none',
         zIndex: '2147483646',
-        borderLeft: '2px solid rgba(59,130,246,0.5)',
+        borderLeft: `${readingGuideThickness}px solid ${readingGuideColor}`,
         top: '0',
         bottom: '0',
-        width: '2px',
+        width: `${readingGuideThickness}px`,
         transform: 'translateX(-50%)',
       });
       Object.assign(horz.style, {
         position: 'fixed',
         pointerEvents: 'none',
         zIndex: '2147483646',
-        borderTop: '2px solid rgba(59,130,246,0.5)',
+        borderTop: `${readingGuideThickness}px solid ${readingGuideColor}`,
         left: '0',
         right: '0',
-        height: '2px',
+        height: `${readingGuideThickness}px`,
         transform: 'translateY(-50%)',
       });
       document.body.appendChild(vert);
@@ -52,7 +52,7 @@ export default function ReadingGuideLine() {
       if (vert && vert.parentNode) vert.parentNode.removeChild(vert);
       if (horz && horz.parentNode) horz.parentNode.removeChild(horz);
     };
-  }, [readingGuide]);
+  }, [readingGuide, readingGuideColor, readingGuideThickness]);
 
   return null;
 }

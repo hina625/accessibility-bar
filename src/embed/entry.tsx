@@ -73,12 +73,10 @@ function mount() {
     const shadow = host.attachShadow({ mode: 'open' })
 
     try {
-      // Inject Tailwind CSS first (base styles)
+
       const tailwindStyle = document.createElement('style')
       tailwindStyle.textContent = tailwindCss
       shadow.appendChild(tailwindStyle)
-
-      // Inject custom embed CSS
       const style = document.createElement('style')
       style.textContent = css
       shadow.appendChild(style)
@@ -114,13 +112,13 @@ function mount() {
     toggleHighContrast(v: boolean) { if (v) document.documentElement.classList.add('high-contrast'); else document.documentElement.classList.remove('high-contrast') }
   }
 
-  // Always set the API, even if mount was already called
+
   if (typeof window !== 'undefined') {
     ; (window as any).AccessibilityBarEmbed = Object.assign((window as any).AccessibilityBarEmbed || {}, api, { init: mount })
   }
 }
 
-// Initialize the global object immediately
+
 if (typeof window !== 'undefined') {
   (window as any).AccessibilityBarEmbed = (window as any).AccessibilityBarEmbed || { init: mount }
 
