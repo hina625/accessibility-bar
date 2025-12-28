@@ -3,7 +3,7 @@
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function SelectToReadToggle() {
-    const { ttsSelectAndRead, toggleTtsSelectAndRead } = useAccessibility();
+    const { ttsReadSelectedText, toggleTtsReadSelectedText } = useAccessibility();
 
     return (
         <div className="flex items-center justify-between">
@@ -20,15 +20,15 @@ export default function SelectToReadToggle() {
             </div>
             <button
                 id="select-to-read-toggle"
-                onClick={toggleTtsSelectAndRead}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${ttsSelectAndRead ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+                onClick={toggleTtsReadSelectedText}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${ttsReadSelectedText ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                 role="switch"
-                aria-checked={ttsSelectAndRead}
+                aria-checked={ttsReadSelectedText}
                 aria-label="Toggle select to read mode"
             >
                 <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${ttsSelectAndRead ? 'translate-x-6' : 'translate-x-1'
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${ttsReadSelectedText ? 'translate-x-6' : 'translate-x-1'
                         }`}
                 />
             </button>
