@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition } from './types';
+export type { ButtonPosition, PanelPosition } from './types';
 import { useTextSettings } from './useTextSettings';
 import { useVisualSettings } from './useVisualSettings';
 import { useReadingSettings } from './useReadingSettings';

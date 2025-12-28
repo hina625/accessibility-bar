@@ -12,8 +12,8 @@ export default function SmartSuggestionsToggle() {
         <button
             onClick={toggleSmartSuggestions}
             className={`flex items-center justify-between w-full p-3 rounded-xl transition-all border ${smartSuggestions
-                    ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
-                    : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750'
+                ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800'
+                : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-750'
                 }`}
         >
             <div className="flex items-center gap-3">

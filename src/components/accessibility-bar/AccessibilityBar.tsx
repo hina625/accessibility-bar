@@ -292,7 +292,7 @@ export default function AccessibilityBar() {
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full bg-white text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-green-400 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
+        className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full bg-white text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
         aria-label="Open accessibility menu"
         aria-expanded={isOpen}
         title="Accessibility Options (Ctrl+Shift+A)"
@@ -318,7 +318,7 @@ export default function AccessibilityBar() {
           />
           <div
             ref={panelRef}
-            className={`accessibility-bar a11y-embed-host fixed z-[2147483647] bg-white dark:bg-gray-900 shadow-2xl ${panelBorderStyle} border-green-300/60 dark:border-green-900/60 transition-all duration-300 ease-out ${isVertical ? 'overflow-hidden' : 'overflow-visible'} ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
+            className={`accessibility-bar a11y-embed-host fixed z-[2147483647] bg-white dark:bg-gray-900 shadow-2xl ${panelBorderStyle} border-blue-200/60 dark:border-blue-900/60 transition-all duration-300 ease-out ${isVertical ? 'overflow-hidden' : 'overflow-visible'} ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
             style={{
               width: isVertical ? (selectedCategory ? '340px' : '64px') : '100%',
               height: isVertical ? '100%' : '64px',
@@ -335,7 +335,7 @@ export default function AccessibilityBar() {
               ? (panelPosition === 'right' ? 'flex-row-reverse' : 'flex-row')
               : 'flex-row'
               }`}>
-              <div className={`bg-gradient-to-b from-green-50/50 to-lime-50/50 dark:from-green-950/20 dark:to-lime-950/20 border-green-300/60 dark:border-green-900/40 flex items-center p-2.5 ${isVertical
+              <div className={`bg-gradient-to-b from-blue-50/50 to-orange-50/50 dark:from-blue-950/20 dark:to-orange-950/20 border-blue-200/60 dark:border-blue-900/40 flex items-center p-2.5 ${isVertical
                 ? `flex-col w-16 space-y-3 h-full ${panelPosition === 'right' ? 'border-l' : 'border-r'}`
                 : `flex-row h-16 space-x-3 w-full ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                 }`}>
@@ -426,7 +426,7 @@ export default function AccessibilityBar() {
                       );
                     }}
                     className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === 'settings'
-                      ? `bg-gradient-to-br from-green-500/80 to-green-600/80 text-white shadow-lg scale-110`
+                      ? `bg-gradient-to-br from-blue-500/80 to-blue-600/80 text-white shadow-lg scale-110`
                       : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105'
                       }`}
                     aria-label="Position"
@@ -480,16 +480,16 @@ export default function AccessibilityBar() {
                 <div
                   className={`flex flex-col min-w-0 ${isVertical
                     ? 'flex-1 h-full'
-                    : `absolute ${panelPosition === 'bottom' ? 'bottom-[74px]' : 'top-[74px]'} w-[280px] bg-white dark:bg-gray-900 shadow-2xl border border-green-300/60 dark:border-green-900/60 rounded-2xl overflow-hidden animate-fade-in`
+                    : `absolute ${panelPosition === 'bottom' ? 'bottom-[74px]' : 'top-[74px]'} w-[280px] bg-white dark:bg-gray-900 shadow-2xl border border-blue-200/60 dark:border-blue-900/60 rounded-2xl overflow-hidden animate-fade-in`
                     }`}
                   style={!isVertical ? {
                     left: `${Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150))}px`
                   } : {}}
                 >
-                  <div className={`p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-green-50 to-lime-50 dark:from-gray-800 dark:to-gray-900`}>
+                  <div className={`p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900`}>
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-lg overflow-hidden">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg overflow-hidden">
                           <Image
                             src={
                               categories.find((c) => c.id === selectedCategory)
