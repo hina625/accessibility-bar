@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 interface Language {
   code: string;
@@ -11,7 +12,7 @@ interface Language {
 }
 
 const languages: Language[] = [
-  { code: 'en', name: 'English', flag: '🇺🇸', nativeName: 'English' },
+  { code: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English' },
   { code: 'ur', name: 'Urdu', flag: '🇵🇰', nativeName: 'اردو' },
   { code: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' },
   { code: 'es', name: 'Spanish', flag: '🇪🇸', nativeName: 'Español' },
@@ -26,8 +27,9 @@ const languages: Language[] = [
 ];
 
 export default function LanguageSelector() {
-  const { language, setLanguage } = useAccessibility();
+  const { language, setLanguage, barTheme } = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
+  const theme = BAR_THEMES[barTheme];
 
   useEffect(() => {
     if (!isOpen) return;
@@ -44,7 +46,8 @@ export default function LanguageSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 w-full rounded-md border border-gray-300 bg-white text-[18px] font-normal text-black hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+        className="flex items-center gap-2 px-3 py-2 w-full rounded-md text-[18px] font-normal focus:outline-none focus:ring-2"
+        style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
         aria-label="Select language"
         aria-expanded={isOpen}
       >
@@ -66,7 +69,7 @@ export default function LanguageSelector() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute z-20 mt-1 w-full max-h-60 overflow-auto rounded-md bg-white shadow-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+          <div className="absolute z-20 mt-1 w-full max-h-60 overflow-auto rounded-none shadow-lg scrollbar-hide [&::-webkit-scrollbar]:hidden" style={{ backgroundColor: theme.background, border: `1px solid ${theme.border}`, scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             <div className="py-1">
               {languages.map((lang) => (
                 <button
@@ -75,16 +78,18 @@ export default function LanguageSelector() {
                     setLanguage(lang.code);
                     setIsOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:bg-gray-100 dark:focus:bg-gray-700 ${language === lang.code ? 'bg-pink-50 dark:bg-pink-900/20' : ''
-                    }`}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm focus:outline-none"
+                  style={{ backgroundColor: language === lang.code ? theme.active : 'transparent', color: theme.text }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = language === lang.code ? theme.active : 'transparent'}
                 >
                   <span className="text-xl">{lang.flag}</span>
                   <div className="flex-1 text-left">
-                    <div className="text-[18px] font-normal text-black dark:text-gray-100">{lang.name}</div>
-                    <div className="text-[13px] font-normal text-black dark:text-gray-400">{lang.nativeName}</div>
+                    <div className="text-[18px] font-normal" style={{ color: theme.text }}>{lang.name}</div>
+                    <div className="text-[13px] font-normal" style={{ color: theme.text, opacity: 0.7 }}>{lang.nativeName}</div>
                   </div>
                   {language === lang.code && (
-                    <svg className="h-5 w-5 text-pink-500" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="h-5 w-5" style={{ color: theme.text }} fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
@@ -97,4 +102,3 @@ export default function LanguageSelector() {
     </div>
   );
 }
-

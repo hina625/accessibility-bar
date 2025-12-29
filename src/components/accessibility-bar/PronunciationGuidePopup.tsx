@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
 import { translations } from '@/contexts/accessibility/translations';
 
@@ -13,7 +14,8 @@ interface PronunciationData {
 }
 
 export default function PronunciationGuidePopup() {
-    const { pronunciationGuide, language } = useAccessibility();
+    const { pronunciationGuide, language, barTheme } = useAccessibility();
+    const theme = BAR_THEMES[barTheme];
     const t = translations[language] || translations['en'];
 
     const [selectedText, setSelectedText] = useState<string>('');
@@ -128,17 +130,22 @@ export default function PronunciationGuidePopup() {
     return (
         <div
             ref={tooltipRef}
-            className="fixed z-[2147483647] min-w-[280px] max-w-[320px] bg-white dark:bg-gray-900 shadow-2xl rounded-xl border border-blue-100 dark:border-blue-800 overflow-hidden transform -translate-x-1/2 -translate-y-full animate-in fade-in zoom-in-95 duration-200"
+            className="fixed z-[2147483647] min-w-[280px] max-w-[320px] shadow-2xl rounded-xl border overflow-hidden transform -translate-x-1/2 -translate-y-full animate-in fade-in zoom-in-95 duration-200"
             style={{
                 left: `${position.x}px`,
-                top: `${position.y}px`
+                top: `${position.y}px`,
+                backgroundColor: theme.background,
+                borderColor: theme.border
             }}
         >
-            <div className="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex justify-between items-start">
+            <div
+                className="p-4 text-white flex justify-between items-start"
+                style={{ backgroundColor: theme.active }}
+            >
                 <div>
-                    <h3 className="text-[18px] font-bold leading-tight line-clamp-2">{selectedText}</h3>
+                    <h3 className="text-[18px] font-bold leading-tight line-clamp-2" style={{ color: theme.text }}>{selectedText}</h3>
                     {data?.translation && (
-                        <p className="text-indigo-100 text-sm mt-1">{data.translation}</p>
+                        <p className="text-sm mt-1" style={{ color: theme.text, opacity: 0.8 }}>{data.translation}</p>
                     )}
                 </div>
                 <button
@@ -154,19 +161,19 @@ export default function PronunciationGuidePopup() {
 
             <div className="p-4 space-y-4">
                 {isLoading ? (
-                    <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 py-2">
-                        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="flex items-center gap-2 py-2" style={{ color: theme.text, opacity: 0.6 }}>
+                        <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: theme.active, borderTopColor: 'transparent' }}></div>
                         <span className="text-[14px]">{t.common.loading || 'Loading...'}</span>
                     </div>
                 ) : data ? (
                     <>
                         {/* Phonetics Section */}
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 {t.controls.phonetics || "Phonetics"} (IPA)
                             </label>
                             <div className="flex items-center gap-2">
-                                <span className="text-lg font-mono text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded">
+                                <span className="text-lg font-mono px-2 py-1 rounded" style={{ backgroundColor: theme.hover, color: theme.text }}>
                                     {data.ipa}
                                 </span>
                             </div>
@@ -174,12 +181,12 @@ export default function PronunciationGuidePopup() {
 
                         {/* Syllables Section */}
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 Syllables
                             </label>
                             <div className="flex flex-wrap gap-1">
                                 {data.syllables.map((syl, i) => (
-                                    <span key={i} className="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded text-sm font-medium">
+                                    <span key={i} className="px-2 py-1 rounded text-sm font-medium" style={{ backgroundColor: theme.hover, color: theme.text }}>
                                         {syl}
                                     </span>
                                 ))}
@@ -187,17 +194,18 @@ export default function PronunciationGuidePopup() {
                         </div>
 
                         {/* Simple Pronunciation (Sounds Like) */}
-                        <div className="space-y-1 pt-2 border-t border-gray-100 dark:border-gray-800">
-                            <label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        <div className="space-y-1 pt-2 border-t" style={{ borderColor: theme.border }}>
+                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 {t.controls.soundsLike || "Sounds like"}
                             </label>
                             <div className="flex items-center justify-between">
-                                <span className="text-[16px] font-medium text-gray-900 dark:text-white">
+                                <span className="text-[16px] font-medium" style={{ color: theme.text }}>
                                     {data.simple_pronunciation}
                                 </span>
                                 <button
                                     onClick={() => speakPhonetics(data.simple_pronunciation)}
-                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                                    className="text-xs hover:underline font-bold"
+                                    style={{ color: theme.active }}
                                 >
                                     Slow
                                 </button>
@@ -205,7 +213,7 @@ export default function PronunciationGuidePopup() {
                         </div>
                     </>
                 ) : (
-                    <div className="text-sm text-red-500">Failed to load data.</div>
+                    <div className="text-sm font-bold" style={{ color: theme.active }}>Failed to load data.</div>
                 )}
             </div>
         </div>

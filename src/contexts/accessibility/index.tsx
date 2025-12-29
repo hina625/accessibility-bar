@@ -3,6 +3,9 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition } from './types';
 export type { ButtonPosition, PanelPosition } from './types';
+export type { BarTheme } from './theme';
+export { BAR_THEMES } from './theme';
+import type { BarTheme } from './theme';
 import { useTextSettings } from './useTextSettings';
 import { useVisualSettings } from './useVisualSettings';
 import { useReadingSettings } from './useReadingSettings';
@@ -52,6 +55,7 @@ interface AccessibilityContextType extends AccessibilityState {
     setCharacterSpacing: (spacing: number) => void;
     setButtonPosition: (position: ButtonPosition) => void;
     setPanelPosition: (position: PanelPosition) => void;
+    setBarTheme: (theme: BarTheme) => void;
     toggleHideImages: () => void;
     toggleShowImageDescriptions: () => void;
     togglePlainTextMode: () => void;
@@ -66,7 +70,9 @@ interface AccessibilityContextType extends AccessibilityState {
     toggleTtsMovableControls: () => void;
     setTtsVoiceGender: (gender: 'male' | 'female') => void;
     setTtsReadingSpeed: (speed: number) => void;
+    ttsReadSelectedText: boolean;
     toggleTtsReadSelectedText: () => void;
+    toggleTtsHoverToSpeak: () => void;
     fetchSummarizationHistory: () => Promise<void>;
     deleteHistoryItem: (id: string) => Promise<void>;
     resetAll: () => void;
@@ -147,11 +153,13 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         ttsVoiceGender: tools.ttsVoiceGender,
         ttsReadingSpeed: tools.ttsReadingSpeed,
         ttsReadSelectedText: tools.ttsReadSelectedText,
+        ttsHoverToSpeak: tools.ttsHoverToSpeak,
 
         cursorSize: ui.cursorSize,
         cursorColor: ui.cursorColor,
         buttonPosition: ui.buttonPosition,
         panelPosition: ui.panelPosition,
+        barTheme: ui.barTheme,
 
 
         increaseFontSize: text.increaseFontSize,
@@ -211,6 +219,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setTtsVoiceGender: tools.setTtsVoiceGender,
         setTtsReadingSpeed: tools.setTtsReadingSpeed,
         toggleTtsReadSelectedText: () => tools.setTtsReadSelectedText(prev => !prev),
+        toggleTtsHoverToSpeak: () => tools.setTtsHoverToSpeak(prev => !prev),
         fetchSummarizationHistory: tools.fetchSummarizationHistory,
         deleteHistoryItem: tools.deleteHistoryItem,
 
@@ -218,6 +227,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setCursorColor: ui.setCursorColor,
         setButtonPosition: ui.setButtonPosition,
         setPanelPosition: ui.setPanelPosition,
+        setBarTheme: ui.setBarTheme,
 
         resetAll,
     };

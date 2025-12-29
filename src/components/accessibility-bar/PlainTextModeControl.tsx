@@ -1,41 +1,45 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function PlainTextModeControl() {
     const {
         plainTextMode, togglePlainTextMode,
-        plainTextSize, setPlainTextSize
+        plainTextSize, setPlainTextSize,
+        barTheme
     } = useAccessibility();
+    const theme = BAR_THEMES[barTheme];
 
     return (
-        <div className="space-y-4 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-                <label
-                    htmlFor="plain-text-toggle"
-                    className="text-[18px] font-normal text-black dark:text-gray-300 cursor-pointer"
+        <div className="space-y-4">
+            {/* Main Toggle */}
+            <div
+                className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+                style={{ backgroundColor: theme.hover }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+                onClick={() => togglePlainTextMode()}
+            >
+                <span className="text-[15px] font-medium" style={{ color: theme.text }}>Plain Text Mode</span>
+                <div
+                    className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                    style={{
+                        backgroundColor: plainTextMode ? theme.active : 'rgba(255, 255, 255, 0.9)',
+                        border: plainTextMode ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+                    }}
                 >
-                    Plain Text Mode
-                </label>
-                <button
-                    id="plain-text-toggle"
-                    onClick={togglePlainTextMode}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${plainTextMode ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-                        }`}
-                    role="switch"
-                    aria-checked={plainTextMode}
-                    aria-label="Toggle plain text mode"
-                >
-                    <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${plainTextMode ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                    />
-                </button>
+                    {plainTextMode && (
+                        <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                    )}
+                </div>
             </div>
 
             {plainTextMode && (
-                <div className="space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
-                    <label className="block text-[14px] font-bold text-gray-700 dark:text-gray-400 uppercase">
+                <div className="space-y-2 pl-2">
+                    <label className="block text-[12px] font-normal uppercase" style={{ color: theme.text, opacity: 0.7 }}>
                         Text Size
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -43,10 +47,11 @@ export default function PlainTextModeControl() {
                             <button
                                 key={size}
                                 onClick={() => setPlainTextSize(size)}
-                                className={`py-1.5 px-2 rounded-lg border text-[14px] font-medium transition-all ${plainTextSize === size
-                                        ? 'bg-blue-100 border-blue-500 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-                                        : 'bg-white border-gray-300 text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
-                                    }`}
+                                className="py-1.5 px-2 rounded-lg text-[14px] font-medium"
+                                style={{
+                                    backgroundColor: plainTextSize === size ? theme.active : theme.hover,
+                                    color: theme.text
+                                }}
                             >
                                 {size.charAt(0).toUpperCase() + size.slice(1)}
                             </button>

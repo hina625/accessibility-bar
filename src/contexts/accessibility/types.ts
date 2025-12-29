@@ -1,9 +1,12 @@
 export type FontStyle = 'default' | 'dyslexic' | 'readable' | 'serif' | 'sans' | 'mono';
 export type ColorBlindFilter = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
-export type ButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+export type ButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top' | 'bottom' | 'left' | 'right';
 export type PanelPosition = 'left' | 'right' | 'top' | 'bottom';
 
+import { BarTheme } from './theme';
+
 export interface AccessibilityState {
+    barTheme: BarTheme;
     fontSize: number;
     fontStyle: FontStyle;
     highContrast: boolean;
@@ -60,4 +63,5 @@ export interface AccessibilityState {
     pronunciationGuide: boolean;
     magnifier: boolean;
     smartSuggestions: boolean;
+    ttsHoverToSpeak: boolean;
 }

@@ -2,20 +2,23 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function PageZoomControl() {
-  const { pageZoom, setPageZoom, language } = useAccessibility();
+  const { pageZoom, setPageZoom, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
+  const theme = BAR_THEMES[barTheme];
 
   return (
     <div className="space-y-2">
-      <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
         {t.controls.zoom}: {pageZoom}%
       </label>
       <div className="flex items-center gap-2">
         <button
           onClick={() => setPageZoom(pageZoom - 10)}
-          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={`${t.common.reset} ${t.controls.zoom}`}
           disabled={pageZoom <= 50}
         >
@@ -30,12 +33,14 @@ export default function PageZoomControl() {
           step="10"
           value={pageZoom}
           onChange={(e) => setPageZoom(Number(e.target.value))}
-          className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+          className="flex-1 h-2 rounded-lg appearance-none cursor-pointer"
+          style={{ backgroundColor: theme.hover, accentColor: theme.active }}
           aria-label={`${t.controls.zoom} ${t.controls.zoom}`}
         />
         <button
           onClick={() => setPageZoom(pageZoom + 10)}
-          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={`${t.common.reset} ${t.controls.zoom}`}
           disabled={pageZoom >= 200}
         >
@@ -45,7 +50,8 @@ export default function PageZoomControl() {
         </button>
         <button
           onClick={() => setPageZoom(100)}
-          className="px-3 py-1.5 text-[18px] font-normal rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          className="px-3 py-1.5 text-[18px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={t.common.reset}
         >
           {t.common.reset}
@@ -54,4 +60,3 @@ export default function PageZoomControl() {
     </div>
   );
 }
-

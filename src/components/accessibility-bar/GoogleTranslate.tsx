@@ -35,13 +35,19 @@ export default function GoogleTranslate() {
         window.googleTranslateElementInit = () => {
             console.log('googleTranslateElementInit callback triggered!');
             try {
-                if (window.google && window.google.translate) {
+                if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+                    const translateOptions: { pageLanguage: string; autoDisplay: boolean; layout?: any } = {
+                        pageLanguage: 'en',
+                        autoDisplay: false,
+                    };
+
+                    // Only add layout if InlineLayout exists
+                    if (window.google.translate.TranslateElement.InlineLayout) {
+                        translateOptions.layout = window.google.translate.TranslateElement.InlineLayout.HORIZONTAL;
+                    }
+
                     new window.google.translate.TranslateElement(
-                        {
-                            pageLanguage: 'en',
-                            layout: window.google.translate.TranslateElement.InlineLayout.HORIZONTAL,
-                            autoDisplay: false,
-                        },
+                        translateOptions,
                         'google_translate_element'
                     );
                     initRef.current = true;

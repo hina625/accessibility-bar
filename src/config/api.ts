@@ -8,4 +8,6 @@ export const API_ENDPOINTS = {
     PRONUNCIATION: `${API_BASE_URL}/api/pronunciation`,
     SIMPLIFY: `${API_BASE_URL}/api/simplify`,
     TTS: `${API_BASE_URL}/api/tts`,
+    TRANSLATE: `${API_BASE_URL}/api/translate`,
+    VOICE_COMMAND: `${API_BASE_URL}/api/voice-command`,
 };

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ButtonPosition, PanelPosition } from './types';
+import { BarTheme } from './theme';
 import {
     DEFAULT_CURSOR_SIZE,
     MIN_CURSOR_SIZE,
@@ -11,6 +12,7 @@ export function useUISettings() {
     const [cursorColor, setCursorColor] = useState<string>('#000000');
     const [buttonPosition, setButtonPosition] = useState<ButtonPosition>('bottom-right');
     const [panelPosition, setPanelPosition] = useState<PanelPosition>('left');
+    const [barTheme, setBarTheme] = useState<BarTheme>('purple');
 
     // Initial load
     useEffect(() => {
@@ -19,12 +21,14 @@ export function useUISettings() {
             cursorColor: localStorage.getItem('accessibility-cursorColor'),
             buttonPosition: localStorage.getItem('accessibility-buttonPosition'),
             panelPosition: localStorage.getItem('accessibility-panelPosition'),
+            barTheme: localStorage.getItem('accessibility-barTheme'),
         };
 
         if (saved.cursorSize) setCursorSize(Number(saved.cursorSize));
         if (saved.cursorColor) setCursorColor(saved.cursorColor);
         if (saved.buttonPosition) setButtonPosition(saved.buttonPosition as ButtonPosition);
         if (saved.panelPosition) setPanelPosition(saved.panelPosition as PanelPosition);
+        if (saved.barTheme) setBarTheme(saved.barTheme as BarTheme);
     }, []);
 
     // Effects for cursor
@@ -66,11 +70,13 @@ export function useUISettings() {
 
     useEffect(() => localStorage.setItem('accessibility-buttonPosition', buttonPosition), [buttonPosition]);
     useEffect(() => localStorage.setItem('accessibility-panelPosition', panelPosition), [panelPosition]);
+    useEffect(() => localStorage.setItem('accessibility-barTheme', barTheme), [barTheme]);
 
     return {
         cursorSize, setCursorSize,
         cursorColor, setCursorColor,
         buttonPosition, setButtonPosition,
         panelPosition, setPanelPosition,
+        barTheme, setBarTheme,
     };
 }

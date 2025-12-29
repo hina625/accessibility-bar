@@ -3,14 +3,17 @@
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
 
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
+
 export default function CursorSizeControl() {
-  const { cursorSize, setCursorSize, cursorColor, setCursorColor, language } = useAccessibility();
+  const { cursorSize, setCursorSize, cursorColor, setCursorColor, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
+  const currentTheme = BAR_THEMES[barTheme];
 
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+        <label className="block text-[18px] font-normal text-white">
           {t.controls.cursor}
         </label>
         <div className="grid grid-cols-5 gap-1.5">
@@ -18,10 +21,11 @@ export default function CursorSizeControl() {
             <button
               key={size}
               onClick={() => setCursorSize(size)}
-              className={`flex h-8 items-center justify-center rounded-md border-2 text-[18px] font-normal transition-all ${cursorSize === size
-                ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-900/20 shadow-sm'
-                : 'border-gray-200 bg-white text-black hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                }`}
+              className="flex h-8 items-center justify-center rounded-md border-2 text-[18px] font-normal transition-all"
+              style={cursorSize === size
+                ? { borderColor: currentTheme.border, backgroundColor: currentTheme.active, color: currentTheme.text }
+                : { borderColor: 'rgba(255,255,255,0.2)', backgroundColor: 'transparent', color: 'white' }
+              }
               aria-label={`${t.common.size}: ${size}x`}
             >
               {size}x
@@ -31,8 +35,8 @@ export default function CursorSizeControl() {
       </div>
 
       <div className="space-y-2">
-        <label className="block text-[18px] font-normal text-black dark:text-gray-300">
-          {t.common.color}
+        <label className="block text-[18px] font-normal text-white">
+          {t.common.colour}
         </label>
 
         <div className="grid grid-cols-8 gap-1 mb-2">
@@ -40,11 +44,14 @@ export default function CursorSizeControl() {
             <button
               key={color}
               onClick={() => setCursorColor(color)}
-              className={`w-full aspect-square rounded border-2 transition-all hover:scale-110 ${cursorColor === color ? 'border-blue-500 ring-2 ring-blue-300 shadow-sm' : 'border-gray-200 dark:border-gray-700'
-                }`}
-              style={{ backgroundColor: color }}
+              className="w-full aspect-square rounded border-2 transition-all hover:scale-110"
+              style={{
+                backgroundColor: color,
+                borderColor: cursorColor === color ? currentTheme.border : 'rgba(255,255,255,0.2)',
+                boxShadow: cursorColor === color ? `0 0 0 2px ${currentTheme.active}` : 'none'
+              }}
               title={color}
-              aria-label={`${t.common.color}: ${color}`}
+              aria-label={`${t.common.colour}: ${color}`}
             />
           ))}
         </div>
@@ -54,20 +61,33 @@ export default function CursorSizeControl() {
             type="color"
             value={cursorColor || '#000000'}
             onChange={(e) => setCursorColor(e.target.value)}
-            className="w-9 h-9 rounded border border-gray-300 dark:border-gray-600 cursor-pointer"
-            aria-label={`${t.common.color} picker`}
+            className="w-9 h-9 rounded cursor-pointer border"
+            style={{ borderColor: currentTheme.border }}
+            aria-label={`${t.common.colour} picker`}
           />
           <input
             type="text"
             value={cursorColor || '#000000'}
             onChange={(e) => setCursorColor(e.target.value)}
-            className="flex-1 px-2 py-1.5 text-[14px] font-normal border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+            className="flex-1 px-2 py-1.5 text-[14px] font-normal rounded border"
+            style={{
+              borderColor: currentTheme.border,
+              backgroundColor: currentTheme.background,
+              color: currentTheme.text,
+              maxWidth: '100px'
+            }}
             placeholder="#000000"
-            style={{ maxWidth: '100px' }}
           />
           <button
             onClick={() => setCursorColor('#000000')}
-            className="px-3 py-1.5 text-[14px] font-bold rounded-md bg-gray-100 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="px-3 py-1.5 text-[14px] font-bold rounded-md border transition-colors"
+            style={{
+              backgroundColor: currentTheme.background,
+              color: currentTheme.text,
+              borderColor: currentTheme.border
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = currentTheme.hover; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = currentTheme.background; }}
             aria-label={t.common.reset}
           >
             {t.common.reset}

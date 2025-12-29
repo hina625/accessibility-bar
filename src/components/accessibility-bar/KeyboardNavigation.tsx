@@ -1,54 +1,53 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function KeyboardNavigation() {
-  const { keyboardNavigation, toggleKeyboardNavigation } = useAccessibility();
+  const { keyboardNavigation, toggleKeyboardNavigation, barTheme } = useAccessibility();
+  const theme = BAR_THEMES[barTheme];
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <label
-          htmlFor="keyboard-navigation-toggle"
-          className="text-[18px] font-normal text-black dark:text-gray-300 cursor-pointer"
+      {/* Main Toggle */}
+      <div
+        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+        style={{ backgroundColor: theme.hover }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+        onClick={() => toggleKeyboardNavigation()}
+      >
+        <span className="text-[15px] font-medium" style={{ color: theme.text }}>Keyboard Navigation</span>
+        <div
+          className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+          style={{
+            backgroundColor: keyboardNavigation ? theme.active : 'rgba(255, 255, 255, 0.9)',
+            border: keyboardNavigation ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+          }}
         >
-          Keyboard Navigation
-        </label>
-        <button
-          id="keyboard-navigation-toggle"
-          onClick={toggleKeyboardNavigation}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${keyboardNavigation ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-            }`}
-          role="switch"
-          aria-checked={keyboardNavigation}
-          aria-label="Toggle keyboard navigation"
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${keyboardNavigation ? 'translate-x-6' : 'translate-x-1'
-              }`}
-          />
-        </button>
+          {keyboardNavigation && (
+            <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
       </div>
 
       {keyboardNavigation && (
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 animate-fade-in font-sans">
-          <p className="text-[14px] font-bold text-blue-800 dark:text-blue-300 mb-2 uppercase tracking-wide">Keyboard Shortcuts</p>
-          <ul className="space-y-2 text-[13px] text-blue-700 dark:text-blue-200">
-            <li className="flex justify-between">
-              <span className="font-medium">Open/Close Bar</span>
-              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded shadow-sm">Alt+A</kbd>
+        <div className="p-4 rounded-xl border" style={{ backgroundColor: theme.hover, borderColor: theme.border }}>
+          <p className="text-[14px] font-bold mb-3 uppercase tracking-wide" style={{ color: theme.text }}>Keyboard Shortcuts</p>
+          <ul className="space-y-3 text-[13px]" style={{ color: theme.text }}>
+            <li className="flex justify-between items-center">
+              <span className="font-medium opacity-80">Open/Close Bar</span>
+              <kbd className="px-2 py-1 rounded shadow-sm border font-mono text-[11px]" style={{ backgroundColor: theme.background, color: theme.active, borderColor: theme.border }}>Alt+A</kbd>
             </li>
-            <li className="flex justify-between">
-              <span className="font-medium">High Contrast</span>
-              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded shadow-sm">Alt+C</kbd>
+            <li className="flex justify-between items-center">
+              <span className="font-medium opacity-80">High Contrast</span>
+              <kbd className="px-2 py-1 rounded shadow-sm border font-mono text-[11px]" style={{ backgroundColor: theme.background, color: theme.active, borderColor: theme.border }}>Alt+C</kbd>
             </li>
-            <li className="flex justify-between">
-              <span className="font-medium">Increase Font</span>
-              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded shadow-sm">Alt+F</kbd>
-            </li>
-            <li className="flex justify-between border-t border-blue-100 dark:border-blue-800/50 pt-2 mt-2">
-              <span className="font-medium">Legacy Shortcut</span>
-              <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded shadow-sm">Ctrl+Shift+A</kbd>
+            <li className="flex justify-between items-center">
+              <span className="font-medium opacity-80">Increase Font</span>
+              <kbd className="px-2 py-1 rounded shadow-sm border font-mono text-[11px]" style={{ backgroundColor: theme.background, color: theme.active, borderColor: theme.border }}>Alt+F</kbd>
             </li>
           </ul>
         </div>
@@ -56,4 +55,3 @@ export default function KeyboardNavigation() {
     </div>
   );
 }
-

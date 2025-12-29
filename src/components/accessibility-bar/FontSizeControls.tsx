@@ -2,21 +2,23 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function FontSizeControls() {
-  const { fontSize, increaseFontSize, decreaseFontSize, resetFontSize, language } = useAccessibility();
+  const { fontSize, increaseFontSize, decreaseFontSize, resetFontSize, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
+  const theme = BAR_THEMES[barTheme];
 
   return (
     <div className="space-y-2">
-      <label className="flex items-center gap-2 text-[14px] font-bold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-        <span className="w-1 h-3.5 bg-gray-900 dark:bg-gray-100 rounded-full"></span>
+      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
         {t.controls.fontSize}
       </label>
       <div className="flex items-center gap-2">
         <button
           onClick={decreaseFontSize}
-          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={`${t.common.reset} ${t.controls.fontSize}`}
           disabled={fontSize <= 12}
         >
@@ -29,12 +31,13 @@ export default function FontSizeControls() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
           </svg>
         </button>
-        <span className="flex-1 text-center text-[18px] font-normal text-black dark:text-white">
+        <span className="flex-1 text-center text-[18px] font-normal" style={{ color: theme.text }}>
           {fontSize}px
         </span>
         <button
           onClick={increaseFontSize}
-          className="flex h-9 w-9 items-center justify-center rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          className="flex h-9 w-9 items-center justify-center rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={`${t.common.reset} ${t.controls.fontSize}`}
           disabled={fontSize >= 32}
         >
@@ -54,7 +57,8 @@ export default function FontSizeControls() {
         </button>
         <button
           onClick={resetFontSize}
-          className="px-3 py-1.5 text-[18px] font-normal rounded-md bg-gray-100 text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+          className="px-3 py-1.5 text-[18px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
+          style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={t.common.reset}
         >
           {t.common.reset}

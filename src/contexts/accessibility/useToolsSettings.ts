@@ -19,6 +19,7 @@ export function useToolsSettings() {
     const [ttsVoiceGender, setTtsVoiceGender] = useState<'male' | 'female'>('female');
     const [ttsReadingSpeed, setTtsReadingSpeed] = useState<number>(1);
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
+    const [ttsHoverToSpeak, setTtsHoverToSpeak] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -31,6 +32,7 @@ export function useToolsSettings() {
             ttsVoiceGender: localStorage.getItem('accessibility-ttsVoiceGender'),
             ttsReadingSpeed: localStorage.getItem('accessibility-ttsReadingSpeed'),
             ttsReadSelectedText: localStorage.getItem('accessibility-ttsReadSelectedText'),
+            ttsHoverToSpeak: localStorage.getItem('accessibility-ttsHoverToSpeak'),
             pronunciationGuide: localStorage.getItem('accessibility-pronunciationGuide'),
             smartSuggestions: localStorage.getItem('accessibility-smartSuggestions'),
         };
@@ -43,6 +45,7 @@ export function useToolsSettings() {
         if (saved.ttsVoiceGender) setTtsVoiceGender(saved.ttsVoiceGender as any);
         if (saved.ttsReadingSpeed) setTtsReadingSpeed(Number(saved.ttsReadingSpeed));
         if (saved.ttsReadSelectedText === 'true') setTtsReadSelectedText(true);
+        if (saved.ttsHoverToSpeak === 'true') setTtsHoverToSpeak(true);
         if (saved.pronunciationGuide === 'true') setPronunciationGuide(true);
         if (saved.smartSuggestions === 'false') setSmartSuggestions(false); // Default logic inverted because default is true
     }, []);
@@ -79,6 +82,152 @@ export function useToolsSettings() {
     useEffect(() => localStorage.setItem('accessibility-ttsVoiceGender', ttsVoiceGender), [ttsVoiceGender]);
     useEffect(() => localStorage.setItem('accessibility-ttsReadingSpeed', ttsReadingSpeed.toString()), [ttsReadingSpeed]);
     useEffect(() => localStorage.setItem('accessibility-ttsReadSelectedText', ttsReadSelectedText.toString()), [ttsReadSelectedText]);
+    useEffect(() => localStorage.setItem('accessibility-ttsHoverToSpeak', ttsHoverToSpeak.toString()), [ttsHoverToSpeak]);
+
+    // Handle TTS Logic (Selection & Page Reading)
+    useEffect(() => {
+        if (!textToSpeech) {
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            return;
+        }
+
+        // --- Selection Reading ---
+        const handleMouseUp = () => {
+            setTimeout(() => {
+                const selection = window.getSelection();
+                const selectedText = selection?.toString().trim();
+
+                if (selectedText && selectedText.length > 0) {
+                    speak(selectedText);
+                }
+            }, 50);
+        };
+
+        // --- Page Reading ---
+        if (ttsReadWholePage) {
+            const content = document.getElementById('accessible-content');
+            if (content) {
+                speak(content.innerText);
+            }
+        }
+
+        // Utility to speak with current settings
+        function speak(text: string) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsReadingSpeed;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const selectedVoice = voices.find(v =>
+                    ttsVoiceGender === 'male'
+                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                );
+                if (selectedVoice) utterance.voice = selectedVoice;
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            document.removeEventListener('mouseup', handleMouseUp);
+            if (window.speechSynthesis) window.speechSynthesis.cancel();
+        };
+    }, [textToSpeech, ttsReadWholePage, ttsReadingSpeed, ttsVoiceGender]);
+
+    // Handle Hover to Speak
+    useEffect(() => {
+        if (!textToSpeech || !ttsHoverToSpeak) {
+            return;
+        }
+
+        let lastElement: HTMLElement | null = null;
+        let speakTimeout: any = null;
+
+        const handleMouseOver = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target || target === lastElement) return;
+
+            // Filter elements that shouldn't be read (like the bar itself)
+            if (target.closest('.accessibility-bar-panel')) return;
+
+            const text = target.innerText?.trim();
+            if (text && text.length > 0) {
+                lastElement = target;
+                if (speakTimeout) clearTimeout(speakTimeout);
+
+                speakTimeout = setTimeout(() => {
+                    speak(text);
+                }, 400); // 400ms delay to avoid jittery speech
+            }
+        };
+
+        function speak(text: string) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsReadingSpeed;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const selectedVoice = voices.find(v =>
+                    ttsVoiceGender === 'male'
+                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                );
+                if (selectedVoice) utterance.voice = selectedVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.addEventListener('mouseover', handleMouseOver);
+        return () => {
+            document.removeEventListener('mouseover', handleMouseOver);
+            if (speakTimeout) clearTimeout(speakTimeout);
+        };
+    }, [textToSpeech, ttsHoverToSpeak, ttsReadingSpeed, ttsVoiceGender]);
+
+    // Handle "Auto Play" (Redefined as Click to Speak)
+    useEffect(() => {
+        if (!textToSpeech || !ttsAutoPlay) return;
+
+        const handleClick = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target) return;
+
+            // Filter elements
+            if (target.closest('.accessibility-bar-panel') || target.closest('.accessibility-trigger')) return;
+
+            const text = target.innerText?.trim();
+            if (text && text.length > 0) {
+                speak(text);
+            }
+        };
+
+        function speak(text: string) {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsReadingSpeed;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const selectedVoice = voices.find(v =>
+                    ttsVoiceGender === 'male'
+                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                );
+                if (selectedVoice) utterance.voice = selectedVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        document.addEventListener('mousedown', handleClick); // mousedown feels more responsive for "click to speak"
+        return () => document.removeEventListener('mousedown', handleClick);
+    }, [textToSpeech, ttsAutoPlay, ttsReadingSpeed, ttsVoiceGender]);
 
     const fetchSummarizationHistory = async () => {
         try {
@@ -125,6 +274,7 @@ export function useToolsSettings() {
         ttsVoiceGender, setTtsVoiceGender,
         ttsReadingSpeed, setTtsReadingSpeed,
         ttsReadSelectedText, setTtsReadSelectedText,
+        ttsHoverToSpeak, setTtsHoverToSpeak,
         pronunciationGuide, setPronunciationGuide,
         smartSuggestions, setSmartSuggestions,
     };

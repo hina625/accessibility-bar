@@ -47,12 +47,21 @@ import MagnifierToggle from './MagnifierToggle';
 import MagnifierOverlay from './MagnifierOverlay';
 import SmartSuggestionsToggle from './SmartSuggestionsToggle';
 import SmartSuggestions from './SmartSuggestions';
+import PageStructureControl from './PageStructureControl';
+import RealTimeTranslation from './RealTimeTranslation';
+import VoiceNavigation from './VoiceNavigation';
+import TextToSpeech from './TextToSpeech';
+import TtsPlayer from './TtsPlayer';
+import ThemeSelector from './ThemeSelector';
 import { translations } from '@/contexts/accessibility/translations';
+
+import { THEME, BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function AccessibilityBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedOffset, setSelectedOffset] = useState<number>(0);
+  const [selectedCategoryRect, setSelectedCategoryRect] = useState<DOMRect | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const {
@@ -66,9 +75,14 @@ export default function AccessibilityBar() {
     toggleHighContrast,
     increaseFontSize,
     language,
-    onPageDictionary, // Added
-    pageSummary       // Added
+    onPageDictionary,
+    pageSummary,
+    barTheme,
+    textToSpeech,
   } = useAccessibility();
+
+
+  const currentTheme = BAR_THEMES[barTheme];
 
   const t = translations[language] || translations['en'];
 
@@ -81,7 +95,7 @@ export default function AccessibilityBar() {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Global Shortcuts
+
       if (e.altKey) {
         if (e.key.toLowerCase() === 'a') {
           e.preventDefault();
@@ -108,7 +122,7 @@ export default function AccessibilityBar() {
         triggerRef.current?.focus();
       }
 
-      // Focus trapping logic for accessibility menu
+
       if (isOpen && e.key === 'Tab' && panelRef.current) {
         const focusableElements = Array.from(panelRef.current.querySelectorAll(
           'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -117,12 +131,12 @@ export default function AccessibilityBar() {
           const firstElement = focusableElements[0] as HTMLElement;
           const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-          if (e.shiftKey) { // Shift + Tab
+          if (e.shiftKey) {
             if (document.activeElement === firstElement) {
               e.preventDefault();
               lastElement.focus();
             }
-          } else { // Tab
+          } else {
             if (document.activeElement === lastElement) {
               e.preventDefault();
               firstElement.focus();
@@ -134,7 +148,7 @@ export default function AccessibilityBar() {
 
     window.addEventListener('keydown', handleKeyPress);
     if (isOpen) {
-      // Move focus to first element when bar opens
+
       setTimeout(() => {
         const firstBtn = panelRef.current?.querySelector('button');
         firstBtn?.focus();
@@ -166,7 +180,7 @@ export default function AccessibilityBar() {
     { id: 'page', name: t.categories.page, icon: '/proof-reading.png', colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
     { id: 'layout', name: t.categories.layout, icon: '/page.png', colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
     { id: 'visual', name: t.categories.visual, icon: '/contrast.png', colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
-    { id: 'reading', name: t.categories.reading, icon: '/reading new.jpg', colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
+    { id: 'reading', name: t.categories.reading, icon: '/reading1.jpg', colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
     { id: 'navigation', name: t.categories.navigation, icon: '/gps-navigation.png', colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
     { id: 'speech', name: t.categories.speech, icon: '/speak.png', colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
     { id: 'tools', name: t.categories.tools, icon: '/tools.png', colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
@@ -179,8 +193,11 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-6">
             <LanguageSelector />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <FontSizeControls />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <TextAlignControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <FontStyleSelector />
           </div>
         );
@@ -188,6 +205,9 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-6">
             <ContentFiltering />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+            <PageStructureControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <PageSummaryControl />
           </div>
         );
@@ -195,6 +215,7 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-6">
             <PlainTextModeControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <SimplifyLayoutControl />
           </div>
         );
@@ -202,11 +223,17 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-4">
             <PageBackgroundColor />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <DarkModeToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ContrastToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <GrayscaleToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <InvertColorsToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ColorBlindFilter />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <PageZoomControl />
           </div>
         );
@@ -214,12 +241,19 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-4">
             <ReadingRulerToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ReadingGuideToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ReadingMaskToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ReadingSpotlightToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <HighlightLinksToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <HighlightHeadingsToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <LargeButtonsToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <MagnifierToggle />
           </div>
         );
@@ -227,27 +261,39 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-4">
             <CursorSizeControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ReduceMotionToggle />
           </div>
         );
       case 'speech':
         return (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <VoiceNavigation />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+            <TextToSpeech />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <SpeechToText />
           </div>
         );
       case 'tools':
         return (
           <div className="space-y-4">
+            <RealTimeTranslation />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <KeyboardNavigation />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <OnPageDictionary />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <PronunciationGuideToggle />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <SmartSuggestionsToggle />
           </div>
         );
       case 'settings':
         return (
           <div className="space-y-4">
+            <ThemeSelector />
+            <div className="border-t-2 -mx-6" style={{ borderColor: `${currentTheme.text}66` }} />
             <PositionControls />
           </div>
         );
@@ -262,6 +308,10 @@ export default function AccessibilityBar() {
       case 'top-right': return 'top-6 right-6';
       case 'bottom-left': return 'bottom-6 left-6';
       case 'bottom-right': return 'bottom-6 right-6';
+      case 'top': return 'top-6 left-1/2 -translate-x-1/2';
+      case 'bottom': return 'bottom-6 left-1/2 -translate-x-1/2';
+      case 'left': return 'left-6 top-1/2 -translate-y-1/2';
+      case 'right': return 'right-6 top-1/2 -translate-y-1/2';
       default: return 'bottom-6 right-6';
     }
   };
@@ -292,7 +342,11 @@ export default function AccessibilityBar() {
       <button
         ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
-        className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full bg-white text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
+        className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
+        style={{
+          background: currentTheme.background,
+          boxShadow: `0 4px 20px ${currentTheme.border}40`
+        }}
         aria-label="Open accessibility menu"
         aria-expanded={isOpen}
         title="Accessibility Options (Ctrl+Shift+A)"
@@ -318,14 +372,17 @@ export default function AccessibilityBar() {
           />
           <div
             ref={panelRef}
-            className={`accessibility-bar a11y-embed-host fixed z-[2147483647] bg-white dark:bg-gray-900 shadow-2xl ${panelBorderStyle} border-blue-200/60 dark:border-blue-900/60 transition-all duration-300 ease-out ${isVertical ? 'overflow-hidden' : 'overflow-visible'} ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
+            className={`accessibility-bar a11y-embed-host fixed z-[2147483647] shadow-2xl ${panelBorderStyle} transition-all duration-300 ease-out ${isVertical ? 'overflow-hidden' : 'overflow-visible'} ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
             style={{
               width: isVertical ? (selectedCategory ? '340px' : '64px') : '100%',
               height: isVertical ? '100%' : '64px',
               boxSizing: 'border-box',
               flexDirection: isVertical
                 ? (panelPosition === 'right' ? 'row-reverse' : 'row')
-                : (panelPosition === 'bottom' ? 'column-reverse' : 'column')
+                : (panelPosition === 'bottom' ? 'column-reverse' : 'column'),
+              background: currentTheme.background,
+              border: `4px solid ${currentTheme.border}`,
+              borderColor: currentTheme.border
             }}
             role="dialog"
             aria-modal="true"
@@ -335,12 +392,18 @@ export default function AccessibilityBar() {
               ? (panelPosition === 'right' ? 'flex-row-reverse' : 'flex-row')
               : 'flex-row'
               }`}>
-              <div className={`bg-gradient-to-b from-blue-50/50 to-orange-50/50 dark:from-blue-950/20 dark:to-orange-950/20 border-blue-200/60 dark:border-blue-900/40 flex items-center p-2.5 ${isVertical
-                ? `flex-col w-16 space-y-3 h-full ${panelPosition === 'right' ? 'border-l' : 'border-r'}`
-                : `flex-row h-16 space-x-3 w-full ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
-                }`}>
+              <div
+                className={`flex items-center p-2.5 ${isVertical
+                  ? `flex-col w-16 space-y-3 h-full ${panelPosition === 'right' ? 'border-l' : 'border-r'}`
+                  : `flex-row h-16 space-x-3 w-full ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
+                  }`}
+                style={{
+                  background: currentTheme.background,
+                  borderColor: currentTheme.border
+                }}
+              >
 
-                {/* ICM Logo Branding - Only at start when vertical */}
+
                 {isVertical && (
                   <div className="mb-2 group cursor-pointer w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95">
                     <img
@@ -356,11 +419,13 @@ export default function AccessibilityBar() {
                     setIsOpen(false);
                     setSelectedCategory(null);
                   }}
-                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-1.5 rounded-lg hover:bg-white/50 dark:hover:bg-gray-700/50 transition-colors pointer-events-auto`}
+                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-1.5 rounded-lg transition-colors pointer-events-auto`}
+                  style={{ backgroundColor: `${currentTheme.active}30` }}
                   aria-label="Close"
                 >
                   <svg
-                    className="h-5 w-5 text-gray-700 dark:text-gray-300"
+                    className="h-5 w-5"
+                    style={{ color: currentTheme.text }}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -376,78 +441,105 @@ export default function AccessibilityBar() {
 
                 <div className={`flex ${isVertical ? 'flex-col space-y-3' : 'flex-row space-x-3'} items-center`}>
                   {categories.filter(c => c.id !== 'settings').map((category, index) => (
-                    <button
-                      key={category.id}
-                      data-category-btn
-                      onKeyDown={(e) => handleCategoryKeyDown(e, index)}
-                      onClick={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setSelectedOffset(rect.left + rect.width / 2);
-                        setSelectedCategory(
-                          selectedCategory === category.id ? null : category.id
-                        );
-                      }}
-                      className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === category.id
-                        ? `bg-gradient-to-br ${category.colorClass} text-white shadow-lg scale-110`
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105'
-                        }`}
-                      aria-label={category.name}
-                      title={category.name}
-                    >
-                      <Image
-                        src={category.icon}
-                        alt=""
-                        width={22}
-                        height={22}
-                        className={`transition-all duration-200 ${selectedCategory === category.id && !['speech'].includes(category.id)
-                          ? 'brightness-0 invert'
-                          : ''
-                          } ${category.id === 'reading' ? 'scale-[2.2]' : ''}`}
-                      />
-                      {selectedCategory === category.id && (
-                        <div
-                          className={`absolute ${isVertical
-                            ? `${panelPosition === 'right' ? '-left-1' : '-right-1'} top-1/2 -translate-y-1/2 w-0.5 h-6`
-                            : `${panelPosition === 'bottom' ? '-top-1' : '-bottom-1'} left-1/2 -translate-x-1/2 h-0.5 w-6`
-                            } rounded-full ${category.indicatorClass}`}
+                    <div key={category.id} className="relative group/category">
+                      <button
+                        data-category-btn
+                        onKeyDown={(e) => handleCategoryKeyDown(e, index)}
+                        onClick={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setSelectedOffset(rect.left + rect.width / 2);
+                          setSelectedCategoryRect(rect);
+                          setSelectedCategory(
+                            selectedCategory === category.id ? null : category.id
+                          );
+                        }}
+                        onMouseEnter={() => {
+                          if (textToSpeech) {
+                            speak(category.name);
+                          }
+                        }}
+                        className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === category.id
+                          ? 'text-white shadow-lg scale-110'
+                          : 'text-gray-600 hover:scale-105'
+                          }`}
+                        style={selectedCategory === category.id
+                          ? { background: currentTheme.active }
+                          : { backgroundColor: currentTheme.hover }
+                        }
+                        aria-label={category.name}
+                        title={category.name}
+                      >
+                        <Image
+                          src={category.icon}
+                          alt=""
+                          width={22}
+                          height={22}
+                          className={`transition-all duration-200 ${selectedCategory === category.id && !['speech'].includes(category.id)
+                            ? 'brightness-0 invert'
+                            : ''
+                            } ${category.id === 'reading' ? 'scale-[2.2]' : ''}`}
                         />
-                      )}
-                    </button>
+                        {selectedCategory === category.id && (
+                          <div
+                            className={`absolute ${isVertical
+                              ? `${panelPosition === 'right' ? '-left-1' : '-right-1'} top-1/2 -translate-y-1/2 w-0.5 h-6`
+                              : `${panelPosition === 'bottom' ? '-top-1' : '-bottom-1'} left-1/2 -translate-x-1/2 h-0.5 w-6`
+                              } rounded-full border border-white/50 ${category.indicatorClass}`}
+                          />
+                        )}
+                      </button>
+
+                    </div>
                   ))}
                 </div>
 
                 <div className={`flex ${isVertical ? 'mt-auto flex-col space-y-3' : 'ml-auto flex-row space-x-3'} items-center`}>
-                  <button
-                    onClick={(e) => {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setSelectedOffset(rect.left + rect.width / 2);
-                      setSelectedCategory(
-                        selectedCategory === 'settings' ? null : 'settings'
-                      );
-                    }}
-                    className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === 'settings'
-                      ? `bg-gradient-to-br from-blue-500/80 to-blue-600/80 text-white shadow-lg scale-110`
-                      : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:scale-105'
-                      }`}
-                    aria-label="Position"
-                    title="Position"
-                  >
-                    <Image
-                      src="/first icon og accessibilty.png"
-                      alt=""
-                      width={22}
-                      height={22}
-                      className={`transition-all duration-200 scale-[2.2]`}
-                    />
-                  </button>
+                  <div className="relative group/category">
+                    <button
+                      onClick={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setSelectedOffset(rect.left + rect.width / 2);
+                        setSelectedCategoryRect(rect);
+                        setSelectedCategory(
+                          selectedCategory === 'settings' ? null : 'settings'
+                        );
+                      }}
+                      onMouseEnter={() => {
+                        if (textToSpeech) {
+                          speak('Settings');
+                        }
+                      }}
+                      className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === 'settings'
+                        ? 'text-white shadow-lg scale-110'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:scale-105'
+                        }`}
+                      style={selectedCategory === 'settings'
+                        ? { background: currentTheme.active }
+                        : { backgroundColor: currentTheme.hover }
+                      }
+                      aria-label="Settings"
+                      title="Settings"
+                    >
+                      <Image
+                        src="/first icon og accessibilty.png"
+                        alt=""
+                        width={22}
+                        height={22}
+                        className={`transition-all duration-200 scale-[2.2]`}
+                      />
+                    </button>
+
+                  </div>
+
                   <button
                     onClick={resetAll}
-                    className="flex flex-row items-center justify-center w-auto h-10 px-1 rounded-xl bg-orange-100 dark:bg-orange-900/30 text-black hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all duration-200 hover:scale-105"
+                    className="flex flex-row items-center justify-center w-auto h-10 px-3 rounded-xl transition-all duration-200 hover:scale-105 shadow-sm"
+                    style={{ backgroundColor: currentTheme.active, color: currentTheme.text }}
                     aria-label={t.common.reset}
                     title={t.common.reset}
                   >
                     <svg
-                      className="h-4 w-4"
+                      className="h-4 w-4 mr-1"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -459,10 +551,10 @@ export default function AccessibilityBar() {
                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                       />
                     </svg>
-                    <span className="text-[11px] font-bold uppercase tracking-tighter -ml-0.5">{t.common.reset}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-tight">{t.common.reset}</span>
                   </button>
 
-                  {/* ICM Logo Branding - Only at end when horizontal */}
+
                   {!isVertical && (
                     <div className="ml-2 group cursor-pointer w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95">
                       <img
@@ -480,16 +572,30 @@ export default function AccessibilityBar() {
                 <div
                   className={`flex flex-col min-w-0 ${isVertical
                     ? 'flex-1 h-full'
-                    : `absolute ${panelPosition === 'bottom' ? 'bottom-[74px]' : 'top-[74px]'} w-[280px] bg-white dark:bg-gray-900 shadow-2xl border border-blue-200/60 dark:border-blue-900/60 rounded-2xl overflow-hidden animate-fade-in`
+                    : `absolute ${panelPosition === 'bottom' ? 'bottom-[74px]' : 'top-[74px]'} w-[280px] shadow-2xl rounded-none animate-fade-in`
                     }`}
                   style={!isVertical ? {
-                    left: `${Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150))}px`
-                  } : {}}
+                    left: `${Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150))}px`,
+                    backgroundColor: currentTheme.background,
+                    border: `4px solid ${currentTheme.border}`
+                  } : {
+                    backgroundColor: currentTheme.background,
+                    border: `4px solid ${currentTheme.border}`
+                  }}
                 >
-                  <div className={`p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900`}>
-                    <div className="flex items-center justify-between mb-4">
+                  <div
+                    className="p-6 border-b-4 relative"
+                    style={{
+                      background: currentTheme.background,
+                      borderColor: currentTheme.border
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-4 pr-10">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg overflow-hidden">
+                        <div
+                          className="flex h-10 w-10 items-center justify-center rounded-none shadow-lg overflow-hidden"
+                          style={{ background: currentTheme.active, color: currentTheme.text }}
+                        >
                           <Image
                             src={
                               categories.find((c) => c.id === selectedCategory)
@@ -502,20 +608,15 @@ export default function AccessibilityBar() {
                           />
                         </div>
                         <div className="flex flex-col">
-                          <h2 className="text-[20px] font-extrabold uppercase tracking-tight text-black dark:text-white">
-                            {
-                              categories.find((c) => c.id === selectedCategory)
-                                ?.name
-                            }
+                          <h2 className="text-[20px] font-extrabold uppercase tracking-tight leading-tight max-w-[150px]" style={{ color: currentTheme.text }}>
+                            {selectedCategory === 'settings' ? t.categories.settings : categories.find((c) => c.id === selectedCategory)?.name}
                           </h2>
-                          <p className="text-[14px] font-medium text-gray-500 dark:text-gray-400">
-                            {t.common.customize}
-                          </p>
                         </div>
                       </div>
                       <button
                         onClick={() => setSelectedCategory(null)}
-                        className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                        className="absolute top-3 right-3 p-2 rounded-lg transition-all hover:bg-black/10"
+                        style={{ color: currentTheme.text }}
                         aria-label={t.common.close}
                       >
                         <svg
@@ -523,7 +624,7 @@ export default function AccessibilityBar() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                          strokeWidth={2}
+                          strokeWidth={2.5}
                         >
                           <path
                             strokeLinecap="round"
@@ -539,6 +640,54 @@ export default function AccessibilityBar() {
                   <div className={`${isVertical ? 'flex-1' : 'h-[420px]'} overflow-y-auto overflow-x-hidden p-6 custom-scrollbar min-w-0 break-words`}>
                     {renderCategoryContent()}
                   </div>
+
+                  {/* Bubble Arrow for both Vertical and Horizontal Layouts */}
+                  {selectedCategoryRect && (
+                    <>
+                      {/* Arrow Border */}
+                      <div
+                        className="absolute border-[11px]"
+                        style={{
+                          borderColor: 'transparent',
+                          ...(isVertical
+                            ? {
+                              top: `${Math.max(10, Math.min(390, selectedCategoryRect.top - (Math.max(10, Math.min(window.innerHeight - 440, selectedCategoryRect.top + (selectedCategoryRect.height / 2) - 220))) + (selectedCategoryRect.height / 2) - 11))}px`,
+                              [panelPosition === 'left' ? 'left' : 'right']: '-22px',
+                              [panelPosition === 'left' ? 'borderRightColor' : 'borderLeftColor']: currentTheme.border
+                            }
+                            : {
+                              left: `${Math.max(10, Math.min(260, selectedOffset - Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150)) - 11))}px`,
+                              ...(panelPosition === 'bottom'
+                                ? { bottom: '-22px', borderTopColor: currentTheme.border }
+                                : { top: '-22px', borderBottomColor: currentTheme.border }
+                              )
+                            }
+                          )
+                        }}
+                      />
+                      {/* Arrow Fill */}
+                      <div
+                        className="absolute border-[10px]"
+                        style={{
+                          borderColor: 'transparent',
+                          ...(isVertical
+                            ? {
+                              top: `${Math.max(11, Math.min(391, selectedCategoryRect.top - (Math.max(10, Math.min(window.innerHeight - 440, selectedCategoryRect.top + (selectedCategoryRect.height / 2) - 220))) + (selectedCategoryRect.height / 2) - 10))}px`,
+                              [panelPosition === 'left' ? 'left' : 'right']: '-20px',
+                              [panelPosition === 'left' ? 'borderRightColor' : 'borderLeftColor']: currentTheme.background
+                            }
+                            : {
+                              left: `${Math.max(11, Math.min(261, selectedOffset - Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150)) - 10))}px`,
+                              ...(panelPosition === 'bottom'
+                                ? { bottom: '-20px', borderTopColor: currentTheme.background }
+                                : { top: '-20px', borderBottomColor: currentTheme.background }
+                              )
+                            }
+                          )
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -552,10 +701,9 @@ export default function AccessibilityBar() {
       {readingSpotlight && <ReadingSpotlightOverlay />}
       <DictionaryPopup />
       <PronunciationGuidePopup />
-      <SimplifiedLayoutOverlay />
-      <MagnifierOverlay />
-      <SmartSuggestions />
       <GoogleTranslate />
+      <SmartSuggestions />
+      <TtsPlayer />
     </>
   );
 }

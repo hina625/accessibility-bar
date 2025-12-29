@@ -1,6 +1,7 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { translations } from '@/contexts/accessibility/translations';
 
 interface ColorCombination {
   textColor: string;
@@ -19,7 +20,7 @@ const colorCombinations: ColorCombination[] = [
   { textColor: '#e65100', headingColor: '#ff6f00', name: 'Orange' },
   { textColor: '#000000', headingColor: '#1976d2', name: 'Blue Headings' },
   { textColor: '#000000', headingColor: '#c62828', name: 'Red Headings' },
-  { textColor: '#424242', headingColor: '#616161', name: 'Gray Scale' },
+  { textColor: '#424242', headingColor: '#616161', name: 'Grey Scale' },
   { textColor: '#000000', headingColor: '#388e3c', name: 'Green Headings' },
   { textColor: '#1565c0', headingColor: '#0d47a1', name: 'Blue Text' },
   { textColor: '#c62828', headingColor: '#b71c1c', name: 'Red Text' },
@@ -41,7 +42,8 @@ const colorCombinations: ColorCombination[] = [
 ];
 
 export default function ColorPanel() {
-  const { textColor, headingColor, setTextColor, setHeadingColor } = useAccessibility();
+  const { textColor, headingColor, setTextColor, setHeadingColor, language } = useAccessibility();
+  const t = translations[language] || translations['en'];
 
   return (
     <div className="space-y-3">

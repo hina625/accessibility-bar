@@ -2,6 +2,7 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 interface BackgroundColor {
   color: string;
@@ -11,7 +12,7 @@ interface BackgroundColor {
 
 const darkColors: BackgroundColor[] = [
   { color: '#000000', name: 'Black', textColor: '#FFFFFF' },
-  { color: '#1a1a1a', name: 'Dark Gray', textColor: '#FFFF00' },
+  { color: '#1a1a1a', name: 'Dark Grey', textColor: '#FFFF00' },
   { color: '#0d2818', name: 'Dark Green', textColor: '#FFFFFF' },
   { color: '#003366', name: 'Dark Blue', textColor: '#FFFFFF' },
   { color: '#8B4513', name: 'Brown', textColor: '#FFFFFF' },
@@ -24,7 +25,7 @@ const darkColors: BackgroundColor[] = [
 
 const lightColors: BackgroundColor[] = [
   { color: '#FFF8DC', name: 'Cream', textColor: '#000000' },
-  { color: '#D3D3D3', name: 'Light Gray', textColor: '#000000' },
+  { color: '#D3D3D3', name: 'Light Grey', textColor: '#000000' },
   { color: '#F5F5DC', name: 'Beige', textColor: '#000000' },
   { color: '#FFFF00', name: 'Yellow', textColor: '#000000' },
   { color: '#FFEB3B', name: 'Bright Yellow', textColor: '#0000FF' },
@@ -49,8 +50,9 @@ const getContrastColor = (bgColor: string): string => {
 };
 
 export default function PageBackgroundColor() {
-  const { backgroundColor, setBackgroundColor, setTextColor, setHeadingColor, colorBlindFilter, setColorBlindFilter, language } = useAccessibility();
+  const { backgroundColor, setBackgroundColor, setTextColor, setHeadingColor, colorBlindFilter, setColorBlindFilter, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
+  const currentTheme = BAR_THEMES[barTheme];
 
   const handleBackgroundColorChange = (bgColor: BackgroundColor) => {
     if (colorBlindFilter !== 'none') {
@@ -63,13 +65,13 @@ export default function PageBackgroundColor() {
 
   return (
     <div className="space-y-4">
-      <label className="block text-[18px] font-normal text-black dark:text-gray-300">
+      <label className="block text-[18px] font-normal text-white lowercase first-letter:uppercase">
         {t.controls.bg}
       </label>
 
       <div className="space-y-4">
         <div>
-          <h4 className="text-sm font-normal text-black dark:text-gray-400 mb-2 uppercase">
+          <h4 className="text-sm font-normal text-gray-200 mb-2 uppercase">
             {t.common.dark}
           </h4>
           <div className="grid grid-cols-5 gap-2">
@@ -115,7 +117,7 @@ export default function PageBackgroundColor() {
         </div>
 
         <div>
-          <h4 className="text-xs font-normal text-black dark:text-gray-400 mb-2 uppercase">
+          <h4 className="text-xs font-normal text-gray-200 mb-2 uppercase">
             {t.common.light}
           </h4>
           <div className="grid grid-cols-5 gap-2">
@@ -162,7 +164,7 @@ export default function PageBackgroundColor() {
       </div>
 
       <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
-        <label className="block text-sm font-normal text-black dark:text-gray-400 mb-2 uppercase">
+        <label className="block text-sm font-normal text-gray-200 mb-2 uppercase">
           {t.common.reset} {t.controls.bg}
         </label>
         <div className="flex items-center gap-2">
@@ -195,9 +197,14 @@ export default function PageBackgroundColor() {
               setTextColor(autoTextColor);
               setHeadingColor(autoTextColor);
             }}
-            className="flex-1 px-2 py-1.5 text-[14px] font-normal border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+            className="flex-1 px-2 py-1.5 text-[14px] font-normal border rounded"
             placeholder="#FFFFFF"
-            style={{ maxWidth: '100px' }}
+            style={{
+              maxWidth: '100px',
+              background: currentTheme.background,
+              color: currentTheme.text,
+              borderColor: currentTheme.border
+            }}
           />
           <button
             onClick={() => {
@@ -205,7 +212,18 @@ export default function PageBackgroundColor() {
               setTextColor('#000000');
               setHeadingColor('#000000');
             }}
-            className="px-3 py-1.5 text-[14px] font-bold rounded-md bg-gray-100 dark:bg-gray-700 text-black dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            className="px-3 py-1.5 text-[14px] font-bold rounded-md border transition-colors"
+            style={{
+              background: currentTheme.background,
+              color: currentTheme.text,
+              borderColor: currentTheme.border
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = currentTheme.hover;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = currentTheme.background;
+            }}
             aria-label={t.common.reset}
           >
             {t.common.reset}

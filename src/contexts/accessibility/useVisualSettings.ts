@@ -19,7 +19,6 @@ export function useVisualSettings() {
     const [headingColor, setHeadingColor] = useState<string>('#000000');
     const [magnifier, setMagnifier] = useState<boolean>(false);
 
-    // Initial load
     useEffect(() => {
         const saved = {
             highContrast: localStorage.getItem('accessibility-highContrast'),
@@ -49,7 +48,7 @@ export function useVisualSettings() {
         localStorage.setItem('accessibility-magnifier', magnifier.toString());
     }, [magnifier]);
 
-    // Effects
+
     useEffect(() => {
         if (highContrast) document.documentElement.classList.add('high-contrast');
         else document.documentElement.classList.remove('high-contrast');
@@ -91,65 +90,31 @@ export function useVisualSettings() {
     }, [colorBlindFilter]);
 
     useEffect(() => {
-        document.body.style.zoom = `${pageZoom}%`;
+        const content = document.getElementById('accessible-content');
+        if (content) {
+            content.style.zoom = `${pageZoom}%`;
+        }
         localStorage.setItem('accessibility-pageZoom', pageZoom.toString());
     }, [pageZoom]);
 
     useEffect(() => {
         if (backgroundColor) {
-            document.documentElement.style.setProperty('--background-color', backgroundColor, 'important');
-            const applyBg = () => {
-                const elements = document.querySelectorAll('*');
-                elements.forEach(el => {
-                    const htmlEl = el as HTMLElement;
-                    if (!isInsideAccessibilityBar(htmlEl)) {
-                        const tagName = htmlEl.tagName?.toLowerCase();
-                        if (tagName && !['script', 'style', 'meta', 'link', 'title', 'noscript'].includes(tagName)) {
-                            htmlEl.style.setProperty('background-color', backgroundColor, 'important');
-                        }
-                    }
-                });
-            };
-            applyBg();
+            document.documentElement.style.setProperty('--page-bg-color', backgroundColor, 'important');
+            document.body.style.setProperty('background-color', backgroundColor, 'important');
         } else {
-            document.documentElement.style.removeProperty('--background-color');
-            document.body.style.removeProperty('backgroundColor');
-            // Allow cleaning up the forceful override (optional: could loop to remove, but usually page refresh clears it or setting empty string works)
-            const elements = document.querySelectorAll('*');
-            elements.forEach(el => {
-                (el as HTMLElement).style.removeProperty('background-color');
-            });
+            document.documentElement.style.removeProperty('--page-bg-color');
+            document.body.style.removeProperty('background-color');
         }
         localStorage.setItem('accessibility-backgroundColor', backgroundColor);
     }, [backgroundColor]);
 
     useEffect(() => {
         document.documentElement.style.setProperty('--text-color', textColor, 'important');
-        const applyText = () => {
-            const elements = document.querySelectorAll('p, span, div, li, td, th, label, a, button, input, textarea, select, article, section, aside, main, header, footer, nav, blockquote');
-            elements.forEach(el => {
-                const htmlEl = el as HTMLElement;
-                if (!isInsideAccessibilityBar(htmlEl)) {
-                    htmlEl.style.setProperty('color', textColor, 'important');
-                }
-            });
-        };
-        applyText();
         localStorage.setItem('accessibility-textColor', textColor);
     }, [textColor]);
 
     useEffect(() => {
         document.documentElement.style.setProperty('--heading-color', headingColor, 'important');
-        const applyHeading = () => {
-            const elements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-            elements.forEach(el => {
-                const htmlEl = el as HTMLElement;
-                if (!isInsideAccessibilityBar(htmlEl)) {
-                    htmlEl.style.setProperty('color', headingColor, 'important');
-                }
-            });
-        };
-        applyHeading();
         localStorage.setItem('accessibility-headingColor', headingColor);
     }, [headingColor]);
 

@@ -2,9 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 export default function OnPageDictionary() {
-  const { onPageDictionary, toggleOnPageDictionary } = useAccessibility();
+  const { onPageDictionary, toggleOnPageDictionary, barTheme } = useAccessibility();
+  const theme = BAR_THEMES[barTheme];
   const [selectedWord, setSelectedWord] = useState<string>('');
   const [definition, setDefinition] = useState<string>('');
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -19,7 +21,6 @@ export default function OnPageDictionary() {
     }
 
     const handleMouseUp = (e: MouseEvent) => {
-      // Don't trigger if clicking inside the tooltip or the accessibility bar
       if (tooltipRef.current?.contains(e.target as Node) ||
         (e.target as HTMLElement).closest('.accessibility-bar')) {
         return;
@@ -29,7 +30,6 @@ export default function OnPageDictionary() {
       const text = selection?.toString().trim();
 
       if (text && text.length > 1 && text.split(/\s+/).length === 1) {
-        // It's a single word
         const rect = selection!.getRangeAt(0).getBoundingClientRect();
 
         setSelectedWord(text);
@@ -81,63 +81,61 @@ export default function OnPageDictionary() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <label
-          htmlFor="dictionary-toggle"
-          className="text-[18px] font-normal text-black dark:text-gray-300 cursor-pointer"
+      {/* Main Toggle */}
+      <div
+        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+        style={{ backgroundColor: theme.hover }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+        onClick={() => toggleOnPageDictionary()}
+      >
+        <span className="text-[15px] font-medium" style={{ color: theme.text }}>Selected Word Dictionary</span>
+        <div
+          className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+          style={{
+            backgroundColor: onPageDictionary ? theme.active : 'rgba(255, 255, 255, 0.9)',
+            border: onPageDictionary ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+          }}
         >
-          Selected Word Dictionary
-        </label>
-        <button
-          id="dictionary-toggle"
-          onClick={toggleOnPageDictionary}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${onPageDictionary ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-            }`}
-          role="switch"
-          aria-checked={onPageDictionary}
-          aria-label="Toggle on-page dictionary"
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${onPageDictionary ? 'translate-x-6' : 'translate-x-1'
-              }`}
-          />
-        </button>
+          {onPageDictionary && (
+            <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
       </div>
 
-      <p className="text-[14px] text-gray-500 dark:text-gray-400 italic">
+      <p className="text-[12px] italic pl-2" style={{ color: theme.text, opacity: 0.9 }}>
         Select any single word on the page to see its definition.
       </p>
 
       {onPageDictionary && isVisible && (
         <div
           ref={tooltipRef}
-          className="fixed z-[2147483647] min-w-[200px] max-w-[300px] bg-white dark:bg-gray-800 shadow-2xl rounded-xl border border-blue-100 dark:border-blue-900 overflow-hidden transform -translate-x-1/2 -translate-y-full animate-in fade-in zoom-in-95 duration-200"
+          className="fixed z-[2147483647] min-w-[200px] max-w-[300px] shadow-2xl rounded-xl overflow-hidden transform -translate-x-1/2 -translate-y-full"
           style={{
             left: `${position.x}px`,
-            top: `${position.y}px`
+            top: `${position.y}px`,
+            backgroundColor: theme.background
           }}
         >
-          <div className="p-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <div className="p-3" style={{ backgroundColor: theme.active, color: theme.text }}>
             <div className="text-[16px] font-bold uppercase tracking-tight">{selectedWord}</div>
           </div>
           <div className="p-4">
             {isLoading ? (
-              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="flex items-center gap-2" style={{ color: theme.text }}>
+                <div className="w-4 h-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: theme.text, borderTopColor: 'transparent' }}></div>
                 <span className="text-[13px]">Finding definition...</span>
               </div>
             ) : (
-              <p className="text-[14px] leading-relaxed text-gray-700 dark:text-gray-200 font-normal">
+              <p className="text-[14px] leading-relaxed" style={{ color: theme.text }}>
                 {definition}
               </p>
             )}
-          </div>
-          <div className="h-1 bg-blue-100 dark:bg-gray-700 w-full overflow-hidden">
-            <div className="h-full bg-blue-500 w-full animate-progress-once"></div>
           </div>
         </div>
       )}
     </div>
   );
 }
-

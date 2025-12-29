@@ -2,9 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { translations } from '@/contexts/accessibility/translations';
 
 export default function SpeechToText() {
-  const { speechToText, toggleSpeechToText } = useAccessibility();
+  const { speechToText, toggleSpeechToText, barTheme, language } = useAccessibility();
+  const theme = BAR_THEMES[barTheme];
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
@@ -42,7 +45,9 @@ export default function SpeechToText() {
       };
 
       recognitionRef.current.onerror = (event: any) => {
-        console.error('Speech recognition error:', event.error);
+        const error = event.error?.toString() || '';
+        if (error === 'no-speech' || error === 'aborted') return;
+        console.error('Speech recognition error:', error);
         setIsListening(false);
       };
 
@@ -50,7 +55,18 @@ export default function SpeechToText() {
         setIsListening(false);
       };
     }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        try { recognitionRef.current.stop(); } catch (e) { }
+      }
+    };
   }, [speechToText]);
+
+  const t = translations[language] || translations['en'];
 
   const handleToggle = () => {
     if (!speechToText) {
@@ -72,43 +88,45 @@ export default function SpeechToText() {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <label
-          htmlFor="speech-to-text-toggle"
-          className="text-[18px] font-normal text-black dark:text-gray-300 cursor-pointer"
+    <div className="space-y-3">
+      {/* Main Toggle */}
+      <div
+        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+        style={{ backgroundColor: theme.hover }}
+        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+        onClick={() => toggleSpeechToText()}
+      >
+        <span className="text-[15px] font-medium" style={{ color: theme.text }}>{t.controls.speechToText}</span>
+        <div
+          className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+          style={{
+            backgroundColor: speechToText ? theme.active : 'rgba(255, 255, 255, 0.9)',
+            border: speechToText ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+          }}
         >
-          Speech to Text
-        </label>
-        <button
-          id="speech-to-text-toggle"
-          onClick={toggleSpeechToText}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${speechToText ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
-            }`}
-          role="switch"
-          aria-checked={speechToText}
-          aria-label="Toggle speech to text"
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${speechToText ? 'translate-x-6' : 'translate-x-1'
-              }`}
-          />
-        </button>
+          {speechToText && (
+            <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </div>
       </div>
+
       {speechToText && (
-        <div className="space-y-2">
+        <div className="space-y-2 pl-2">
           <button
             onClick={handleToggle}
-            className={`w-full rounded-md px-3 py-2 text-[18px] font-normal transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 ${isListening
-              ? 'bg-red-600 text-white hover:bg-red-700'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-            aria-label={isListening ? 'Stop listening' : 'Start listening'}
+            className="w-full rounded-lg px-3 py-2 text-[14px] font-medium transition-colors"
+            style={{
+              backgroundColor: isListening ? '#dc2626' : theme.active,
+              color: theme.text
+            }}
           >
-            {isListening ? 'Stop Listening' : 'Start Listening'}
+            {isListening ? t.controls.stopListening : t.controls.startListening}
           </button>
           {transcript && (
-            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded text-[18px] font-normal text-black dark:text-gray-300 max-h-32 overflow-y-auto">
+            <div className="p-2 rounded text-[14px] max-h-32 overflow-y-auto" style={{ backgroundColor: theme.active, color: theme.text }}>
               {transcript}
             </div>
           )}
@@ -117,4 +135,3 @@ export default function SpeechToText() {
     </div>
   );
 }
-

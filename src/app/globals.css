@@ -166,6 +166,20 @@ body {
 }
 
 
+/* Global Background/Text overrides for Accessible Content */
+body:has([style*="--page-bg-color"]) *:not(.accessibility-bar):not(.accessibility-bar *),
+#accessible-content,
+#accessible-content * {
+  background-color: var(--page-bg-color) !important;
+  color: var(--text-color) !important;
+  border-color: var(--text-color) !important;
+}
+
+#accessible-content :is(h1, h2, h3, h4, h5, h6),
+body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *) {
+  color: var(--heading-color) !important;
+}
+
 .accessibility-bar,
 .accessibility-bar * {
   line-height: normal !important;
@@ -176,6 +190,13 @@ body {
   text-align: left !important;
   zoom: 1 !important;
   transform: none !important;
+}
+
+/* Explicit exclusion for the bar to avoid inheriting global filters/colors */
+.accessibility-bar {
+  --text-color: inherit !important;
+  --heading-color: inherit !important;
+  --page-bg-color: transparent !important;
 }
 
 * {
@@ -233,18 +254,24 @@ body {
 }
 
 /* Hide Images Mode - Strictly isolated from accessibility bar */
-.hide-images img:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *),
-.hide-images svg:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *),
-.hide-images [style*="background-image"]:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+.hide-images :is(img, svg, picture, canvas):not(.accessibility-bar *):not(.a11y-embed-host *) {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* For elements with background images, we only remove the background, not the element itself */
+.hide-images :is(header, section, div, span, a, [style*="background-image"], [class*="bg-"]):not(.accessibility-bar *):not(.a11y-embed-host *) {
+  background-image: none !important;
 }
 
 /* Show Image Descriptions - Strictly isolated */
-.show-image-descriptions img:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+.show-image-descriptions img:not(.accessibility-bar *):not(.a11y-embed-host *) {
   border: 3px solid #3b82f6 !important;
 }
 
-.show-image-descriptions [data-alt]:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *)::after {
+.show-image-descriptions [data-alt]:not(.accessibility-bar *):not(.a11y-embed-host *)::after {
   content: attr(data-alt);
   display: block;
   background: #3b82f6;
@@ -256,14 +283,15 @@ body {
 }
 
 /* Pause Animations - Isolated */
-.pause-animations *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+.pause-animations *:not(.accessibility-bar *):not(.a11y-embed-host *) {
   animation-play-state: paused !important;
   transition: none !important;
 }
 
 /* Stop Videos - Isolated */
-.stop-videos video:not(.accessibility-bar *):not(.a11y-embed-host *) {
+.stop-videos :is(video, iframe[src*="youtube"], iframe[src*="vimeo"]):not(.accessibility-bar *):not(.a11y-embed-host *) {
   display: none !important;
+  visibility: hidden !important;
 }
 
 /* Plain Text Mode - Strictly isolated - Absolute Barebones HTML (No CSS Look) */
