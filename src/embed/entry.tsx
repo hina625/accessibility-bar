@@ -7,23 +7,27 @@ import css from './embed.css?inline'
 import tailwindCss from './embed-tailwind.css?inline'
 import documentStyles from './document-styles.css?inline'
 
+
+// Force rebuild timestamp: 2025-12-29
 function mount() {
-  // Ensure window.AccessibilityBarEmbed exists early
+
   if (typeof window !== 'undefined') {
     (window as any).AccessibilityBarEmbed = (window as any).AccessibilityBarEmbed || {}
   }
 
   if (document.getElementById('a11y-embed-host-react')) return
 
-  // Inject accessibility styles into main document head (not shadow DOM)
-  if (!document.getElementById('a11y-document-styles')) {
+
+
+  if (!document.getElementById('a11y-global-styles')) {
     const docStyle = document.createElement('style')
-    docStyle.id = 'a11y-document-styles'
+    docStyle.id = 'a11y-global-styles'
     docStyle.textContent = documentStyles
     document.head.appendChild(docStyle)
+    console.log('AccessibilityBar: Global styles injected')
   }
 
-  // Inject SVG filters for color blind filters into document head
+
   if (!document.getElementById('a11y-color-filters')) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
     svg.id = 'a11y-color-filters'

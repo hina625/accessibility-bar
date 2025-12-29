@@ -7,7 +7,7 @@ export default function TextSpacingControl() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-xl font-normal text-white">
+      <label className="block text-[16px] font-normal text-white">
         Text Spacing: {textSpacing.toFixed(1)}x
       </label>
       <input

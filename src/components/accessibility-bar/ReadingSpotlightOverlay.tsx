@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function ReadingSpotlightOverlay() {
-    const { readingSpotlight } = useAccessibility();
+    const { readingSpotlight, readingSpotlightBrightness } = useAccessibility();
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const rafRef = useRef<number | undefined>(undefined);
 
@@ -29,12 +29,25 @@ export default function ReadingSpotlightOverlay() {
     if (!readingSpotlight) return null;
 
     return (
-        <div
-            className="fixed inset-0 z-[2147483645] pointer-events-none"
-            style={{
-                background: `radial-gradient(circle 140px at ${mousePos.x}px ${mousePos.y}px, transparent 0, rgba(0, 0, 0, 0.7) 100%)`
-            }}
-            aria-hidden="true"
-        />
+        <>
+            {/* Dark Background Overlay */}
+            <div
+                className="fixed inset-0 z-[2147483645] pointer-events-none"
+                style={{
+                    background: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, transparent 0, rgba(0, 0, 0, 0.85) 100%)`
+                }}
+                aria-hidden="true"
+            />
+            {/* Brightness Boost Overlay */}
+            <div
+                className="fixed inset-0 z-[2147483645] pointer-events-none"
+                style={{
+                    backdropFilter: `brightness(${readingSpotlightBrightness})`,
+                    WebkitMaskImage: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`,
+                    maskImage: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, black 0%, transparent 100%)`
+                }}
+                aria-hidden="true"
+            />
+        </>
     );
 }

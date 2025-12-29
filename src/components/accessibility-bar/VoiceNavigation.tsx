@@ -21,7 +21,7 @@ export default function VoiceNavigation() {
     const focusedButtonIndex = useRef(0);
 
     const LANGUAGES = [
-        { code: 'en-US', name: 'English (US)' },
+        { code: 'en-GB', name: 'English (UK)' },
         { code: 'ur-PK', name: 'Urdu (اردو)' },
         { code: 'hi-IN', name: 'Hindi (हिंदी)' },
         { code: 'ar-SA', name: 'Arabic (العربية)' },
@@ -30,7 +30,7 @@ export default function VoiceNavigation() {
         { code: 'de-DE', name: 'German' },
     ];
 
-    const [voiceLang, setVoiceLang] = useState('en-US');
+    const [voiceLang, setVoiceLang] = useState('en-GB');
 
     // Execute action based on AI-parsed command
     const executeAction = useCallback((action: string) => {
@@ -232,8 +232,8 @@ export default function VoiceNavigation() {
                 onClick={() => setIsEnabled(!isEnabled)}
             >
                 <div className="flex flex-col">
-                    <span className="text-[15px] font-medium" style={{ color: theme.text }}>{t.controls.voiceControl}</span>
-                    <span className="text-[12px]" style={{ color: theme.text, opacity: 0.7 }}>{t.controls.voiceControlDesc}</span>
+                    <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.voiceControl}</span>
+                    <span className="text-[14px]" style={{ color: theme.text, opacity: 0.7 }}>{t.controls.voiceControlDesc}</span>
                 </div>
                 <div
                     className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
@@ -254,13 +254,13 @@ export default function VoiceNavigation() {
                 <>
                     {/* Language Selection */}
                     <div>
-                        <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text }}>
+                        <label className="text-[16px] font-medium mb-1 block" style={{ color: theme.text }}>
                             {t.common.language || 'Language'}
                         </label>
                         <select
                             value={voiceLang}
                             onChange={(e) => setVoiceLang(e.target.value)}
-                            className="w-full p-2 rounded-lg text-[14px]"
+                            className="w-full p-2 rounded-lg text-[16px]"
                             style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
                         >
                             {LANGUAGES.map(lang => (
@@ -299,10 +299,15 @@ export default function VoiceNavigation() {
 
                     {/* Last Heard */}
                     {lastHeard && (
-                        <div className="text-[12px] text-center bg-transparent rounded-lg p-2" style={{ color: theme.text, opacity: 0.7 }}>
+                        <div className="text-[14px] text-center bg-transparent rounded-lg p-2" style={{ color: theme.text, opacity: 0.7 }}>
                             Heard: "{lastHeard}"
                         </div>
                     )}
+
+                    {/* Example Command */}
+                    <p className="text-[13px] text-center mt-2 opacity-70" style={{ color: theme.text }}>
+                        Example: "Decrease Text"
+                    </p>
                 </>
             )}
         </div>

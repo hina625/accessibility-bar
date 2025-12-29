@@ -11,7 +11,7 @@ export default function ColorBlindFilter() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
+      <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
         {t.controls.colorBlind}
       </label>
       <select
@@ -25,7 +25,7 @@ export default function ColorBlindFilter() {
             setHeadingColor('#000000');
           }
         }}
-        className="w-full rounded-md px-3 py-2 text-[18px] font-normal focus:outline-none focus:ring-2"
+        className="w-full rounded-md px-3 py-2 text-[16px] font-normal focus:outline-none focus:ring-2"
         style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
         aria-label={t.controls.colorBlind}
       >

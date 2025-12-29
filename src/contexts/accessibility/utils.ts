@@ -21,7 +21,7 @@ export const isInsideAccessibilityBar = (element: HTMLElement | null): boolean =
         if (root instanceof ShadowRoot && root.host === shadowHost) return true;
     }
 
-    // Also check for the identifying classes
+   
     return !!element.closest('.accessibility-bar') ||
         !!element.closest('.a11y-embed-host') ||
         !!element.closest('[role="dialog"][aria-label="Accessibility options"]');

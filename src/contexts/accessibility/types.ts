@@ -20,7 +20,9 @@ export interface AccessibilityState {
     readingRulerWidth: number;
     readingMask: boolean;
     readingMaskColor: string;
+    readingMaskSize: number;
     readingSpotlight: boolean;
+    readingSpotlightBrightness: number;
     reduceMotion: boolean;
     darkMode: boolean;
     highlightLinks: boolean;
@@ -51,6 +53,7 @@ export interface AccessibilityState {
     pauseAnimations: boolean;
     stopVideos: boolean;
     pageSummary: boolean;
+    pageStructure: boolean;
     simplifiedLayout: boolean;
     summaryContent: string;
     ttsAutoPlay: boolean;
@@ -64,4 +67,5 @@ export interface AccessibilityState {
     magnifier: boolean;
     smartSuggestions: boolean;
     ttsHoverToSpeak: boolean;
+    realTimeTranslation: boolean;
 }

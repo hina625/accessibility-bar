@@ -18,7 +18,7 @@ export default function ThemeSelector() {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-[18px] font-bold uppercase tracking-tight" style={{ color: currentTheme.text }}>
+            <h3 className="text-[14px] font-bold uppercase tracking-tight" style={{ color: currentTheme.text }}>
                 Colour Theme
             </h3>
             <div className="grid grid-cols-3 gap-3">
@@ -59,7 +59,7 @@ export default function ThemeSelector() {
                                 )}
                             </div>
 
-                            <span className="text-[11px] mt-1.5 font-bold uppercase tracking-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.8 }}>
+                            <span className="text-[14px] mt-1.5 font-bold uppercase tracking-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.8 }}>
                                 {themeOption.label}
                             </span>
                         </button>

@@ -10,6 +10,7 @@ export function useContentSettings() {
     const [stopVideos, setStopVideos] = useState<boolean>(false);
     const [reduceMotion, setReduceMotion] = useState<boolean>(false);
     const [simplifiedLayout, setSimplifiedLayout] = useState<boolean>(false);
+    const [pageStructure, setPageStructure] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -21,6 +22,7 @@ export function useContentSettings() {
             pauseAnimations: localStorage.getItem('accessibility-pauseAnimations'),
             stopVideos: localStorage.getItem('accessibility-stopVideos'),
             reduceMotion: localStorage.getItem('accessibility-reduceMotion'),
+            pageStructure: localStorage.getItem('accessibility-pageStructure'),
         };
 
         if (saved.hideImages === 'true') setHideImages(true);
@@ -30,6 +32,7 @@ export function useContentSettings() {
         if (saved.pauseAnimations === 'true') setPauseAnimations(true);
         if (saved.stopVideos === 'true') setStopVideos(true);
         if (saved.reduceMotion === 'true') setReduceMotion(true);
+        if (saved.pageStructure === 'true') setPageStructure(true);
     }, []);
 
 
@@ -88,6 +91,10 @@ export function useContentSettings() {
         localStorage.setItem('accessibility-reduceMotion', reduceMotion.toString());
     }, [reduceMotion]);
 
+    useEffect(() => {
+        localStorage.setItem('accessibility-pageStructure', pageStructure.toString());
+    }, [pageStructure]);
+
     return {
         hideImages, setHideImages,
         showImageDescriptions, setShowImageDescriptions,
@@ -97,5 +104,6 @@ export function useContentSettings() {
         stopVideos, setStopVideos,
         reduceMotion, setReduceMotion,
         simplifiedLayout, setSimplifiedLayout,
+        pageStructure, setPageStructure,
     };
 }

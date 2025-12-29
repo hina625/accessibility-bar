@@ -1,15 +1,16 @@
 export const translations: Record<string, any> = {
     en: {
         categories: {
-            text: "Text & Font",
-            page: "Page",
-            visual: "Visual",
-            reading: "Reading",
-            navigation: "Navigation",
-            speech: "Speech",
-            tools: "Tools",
-            layout: "Page Layout",
-            settings: "Customise Toolbar"
+            text: "TEXT ",
+            page: "IMAGES",
+            visual: "CONTRAST",
+            reading: "READING",
+            navigation: "CURSOR AND NAVIGATION",
+            speech: "SPEECH ",
+            tools: "LANGUAGE ",
+            layout: "LAYOUT",
+            aiSupport: "AI SUPPORT",
+            settings: "CUSTOMISE \nTOOLBAR"
         },
         common: {
             reset: "Reset",
@@ -39,13 +40,13 @@ export const translations: Record<string, any> = {
             bg: "Background Colour",
             darkMode: "Dark Mode",
             ruler: "Reading Ruler",
-            guide: "Reading Guide",
+            guide: "Reading Lines",
             mask: "Screen Masking",
             spotlight: "Reading Spotlight",
             links: "Highlight All Links",
             headings: "Highlight Headings",
             buttons: "Large Buttons",
-            cursor: "Big Cursor",
+            cursor: "Cursor Size",
             motion: "Reduce Motion",
             tts: "Text to Speech",
             speechToText: "Speech to Text",
@@ -91,7 +92,8 @@ export const translations: Record<string, any> = {
             startListening: "Start Listening",
             stopListening: "Stop Listening",
             selectToReadDesc: "Read highlighted text",
-            voiceControlDesc: "Control site with your voice"
+            voiceControlDesc: "Control site with your voice",
+            translateWebsite: "Translate Website"
         }
     },
     ur: {
@@ -140,7 +142,7 @@ export const translations: Record<string, any> = {
             links: "لنکس ہائی لائٹ کریں",
             headings: "ہیڈنگز ہائی لائٹ کریں",
             buttons: "بڑے بٹن",
-            cursor: "بڑا کرسر",
+            cursor: "کرسر کا سائز",
             motion: "موشن کم کریں",
             tts: "تحریر سے تقریر",
             speechToText: "تقریر سے تحریر",
@@ -186,7 +188,8 @@ export const translations: Record<string, any> = {
             startListening: "سننا شروع کریں",
             stopListening: "سننا بند کریں",
             selectToReadDesc: "ہائی لائٹ کی ہوئی تحریر منتخب کریں",
-            voiceControlDesc: "اپنی آواز سے سائٹ کو کنٹرول کریں"
+            voiceControlDesc: "اپنی آواز سے سائٹ کو کنٹرول کریں",
+            translateWebsite: "ویب سائٹ کا ترجمہ کریں"
         }
     },
     ar: {
@@ -394,7 +397,7 @@ export const translations: Record<string, any> = {
             links: "सभी लिंक हाइलाइट करें",
             headings: "हेडिंग हाइलाइट करें",
             buttons: "बड़े बटन",
-            cursor: "बड़ा कर्सर",
+            cursor: "कर्सर का आकार",
             motion: "गति कम करें",
             tts: "टेक्स्ट टू स्पीच",
             speechToText: "स्पीच टू टेक्स्ट",

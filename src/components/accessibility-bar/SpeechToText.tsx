@@ -97,7 +97,7 @@ export default function SpeechToText() {
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
         onClick={() => toggleSpeechToText()}
       >
-        <span className="text-[15px] font-medium" style={{ color: theme.text }}>{t.controls.speechToText}</span>
+        <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.speechToText}</span>
         <div
           className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
           style={{
@@ -117,7 +117,7 @@ export default function SpeechToText() {
         <div className="space-y-2 pl-2">
           <button
             onClick={handleToggle}
-            className="w-full rounded-lg px-3 py-2 text-[14px] font-medium transition-colors"
+            className="w-full rounded-lg px-3 py-2 text-[16px] font-medium transition-colors"
             style={{
               backgroundColor: isListening ? '#dc2626' : theme.active,
               color: theme.text
@@ -126,7 +126,7 @@ export default function SpeechToText() {
             {isListening ? t.controls.stopListening : t.controls.startListening}
           </button>
           {transcript && (
-            <div className="p-2 rounded text-[14px] max-h-32 overflow-y-auto" style={{ backgroundColor: theme.active, color: theme.text }}>
+            <div className="p-2 rounded text-[16px] max-h-32 overflow-y-auto" style={{ backgroundColor: theme.active, color: theme.text }}>
               {transcript}
             </div>
           )}

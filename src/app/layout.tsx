@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Lexend } from "next/font/google";
 import "./globals.css";
+import "./accessibility-responsive.css";
 import Script from 'next/script';
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import AccessibilityBar from "@/components/accessibility-bar/AccessibilityBar";

@@ -16,7 +16,7 @@ export default function SimplifyLayoutControl() {
                 onChange={toggleSimplifiedLayout}
             />
             {simplifiedLayout && (
-                <p className="text-[12px] text-gray-500 dark:text-gray-400 italic pl-2">
+                <p className="text-[16px] text-gray-500 dark:text-gray-400 italic pl-2">
                     Layout has been simplified for easier reading.
                 </p>
             )}

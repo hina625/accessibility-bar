@@ -25,7 +25,7 @@ export default function ReadingGuideToggle() {
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
         onClick={() => toggleReadingGuide()}
       >
-        <span className="text-[15px] font-medium" style={{ color: theme.text }}>Reading Guide</span>
+        <span className="text-[16px] font-medium" style={{ color: theme.text }}>Reading Lines</span>
         <div
           className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
           style={{

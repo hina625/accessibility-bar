@@ -11,7 +11,6 @@ declare global {
 }
 
 export default function GoogleTranslate() {
-    const { language } = useAccessibility();
     const initRef = useRef(false);
 
     useEffect(() => {
@@ -34,30 +33,42 @@ export default function GoogleTranslate() {
         // 2. Define the callback globally
         window.googleTranslateElementInit = () => {
             console.log('googleTranslateElementInit callback triggered!');
-            try {
-                if (window.google && window.google.translate && window.google.translate.TranslateElement) {
-                    const translateOptions: { pageLanguage: string; autoDisplay: boolean; layout?: any } = {
-                        pageLanguage: 'en',
-                        autoDisplay: false,
-                    };
+            let attempts = 0;
+            const maxAttempts = 20;
 
-                    // Only add layout if InlineLayout exists
-                    if (window.google.translate.TranslateElement.InlineLayout) {
-                        translateOptions.layout = window.google.translate.TranslateElement.InlineLayout.HORIZONTAL;
+            const checkAndInit = () => {
+                try {
+                    if (window.google && window.google.translate && window.google.translate.TranslateElement) {
+                        const translateOptions: { pageLanguage: string; autoDisplay: boolean; layout?: any } = {
+                            pageLanguage: 'en',
+                            autoDisplay: false,
+                        };
+
+                        // Only add layout if InlineLayout exists
+                        if (window.google.translate.TranslateElement.InlineLayout) {
+                            translateOptions.layout = window.google.translate.TranslateElement.InlineLayout.HORIZONTAL;
+                        }
+
+                        new window.google.translate.TranslateElement(
+                            translateOptions,
+                            'google_translate_element'
+                        );
+                        initRef.current = true;
+                        console.log('TranslateElement initialized');
+                    } else {
+                        attempts++;
+                        if (attempts < maxAttempts) {
+                            setTimeout(checkAndInit, 100);
+                        } else {
+                            console.error('google.translate not found after retries');
+                        }
                     }
-
-                    new window.google.translate.TranslateElement(
-                        translateOptions,
-                        'google_translate_element'
-                    );
-                    initRef.current = true;
-                    console.log('TranslateElement initialized');
-                } else {
-                    console.error('google.translate not found in callback');
+                } catch (err) {
+                    console.error('Error in googleTranslateElementInit:', err);
                 }
-            } catch (err) {
-                console.error('Error in googleTranslateElementInit:', err);
-            }
+            };
+
+            checkAndInit();
         };
 
         // 3. Load the script
@@ -131,40 +142,37 @@ export default function GoogleTranslate() {
         };
     }, []);
 
+    const { language: accessibilityLanguage, realTimeTranslation } = useAccessibility();
+
     useEffect(() => {
-        if (!language) return;
+        const translateTo = realTimeTranslation ? accessibilityLanguage : 'en';
+        if (!translateTo) return;
 
         const translatePage = () => {
-            console.log('Trying to translate to:', language);
+            console.log('Trying to translate to:', translateTo);
 
-            // Try to set the cookie first - Google Translate often uses this
-            document.cookie = `googtrans=/en/${language}; path=/`;
-            document.cookie = `googtrans=/en/${language}; path=/; domain=${window.location.hostname}`;
+            // Set cookies for Google Translate
+            document.cookie = `googtrans=/en/${translateTo}; path=/`;
+            document.cookie = `googtrans=/en/${translateTo}; path=/; domain=${window.location.hostname}`;
 
             const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
 
             if (select) {
-                console.log('Found .goog-te-combo! Current value:', select.value);
-                if (select.value !== language) {
-                    select.value = language;
+                if (select.value !== translateTo) {
+                    select.value = translateTo;
                     select.dispatchEvent(new Event('change'));
-                    console.log('Dispatched change event to', language);
                 }
-            } else {
-                console.warn('Still waiting for .goog-te-combo...');
-                // If it's taking too long, check if google.translate is even loaded
+            } else if (translateTo !== 'en') {
                 if (window.google && window.google.translate && !initRef.current) {
-                    console.log('google.translate is here but initRef is false. Retrying manual init.');
                     window.googleTranslateElementInit();
                 }
                 setTimeout(translatePage, 1500);
             }
         };
 
-        // Immediate attempt with a small delay for DOM
         const timer = setTimeout(translatePage, 1000);
         return () => clearTimeout(timer);
-    }, [language]);
+    }, [accessibilityLanguage, realTimeTranslation]);
 
     return null;
 }

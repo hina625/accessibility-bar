@@ -1,0 +1,133 @@
+
+
+@media (max-width: 640px) {
+
+    .accessibility-bar.group.fixed.h-20.w-20 {
+        width: 3.5rem !important;
+      
+        height: 3.5rem !important;
+    }
+
+    .accessibility-bar.group.fixed img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+    }
+
+    .accessibility-bar[role="dialog"] {
+        border-width: 2px !important;
+    }
+
+    
+    .accessibility-bar.top-6 {
+        top: 1rem !important;
+    }
+
+    .accessibility-bar.bottom-6 {
+        bottom: 1rem !important;
+    }
+
+    .accessibility-bar.left-6 {
+        left: 1rem !important;
+    }
+
+    .accessibility-bar.right-6 {
+        right: 1rem !important;
+    }
+
+   
+    .accessibility-bar button[data-category-btn],
+    .accessibility-bar button[title="Settings"] {
+        width: 2.5rem !important;
+       
+        height: 2.5rem !important;
+    }
+
+
+    .accessibility-bar .reset-button-text {
+        display: none !important;
+    }
+
+    
+    .accessibility-bar .custom-scrollbar {
+        padding: 1rem !important;
+    }
+
+   
+    .accessibility-bar h2 {
+        font-size: 1rem !important;
+   
+    }
+
+    .accessibility-bar h3 {
+        font-size: 0.9rem !important;
+    }
+
+    .accessibility-bar .text-\[20px\] {
+        font-size: 1rem !important;
+    }
+
+    .accessibility-bar .text-\[16px\] {
+        font-size: 0.9rem !important;
+    }
+
+    /* Horizontal Bar Scroll */
+    .accessibility-bar.flex-row {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+
+    .accessibility-bar .flex-row.space-x-2 {
+        overflow-x: auto !important;
+        padding-bottom: 4px;
+       
+    }
+
+    
+    .accessibility-bar select {
+        font-size: 16px !important;
+        
+        padding: 8px !important;
+        width: 100% !important;
+    }
+
+    
+    .accessibility-bar [data-category-content] {
+        z-index: 50 !important;
+    }
+
+    
+    .accessibility-bar .grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+  
+    .accessibility-bar .absolute.z-20.mt-1 {
+        position: fixed !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        width: 80% !important;
+        max-width: 300px !important;
+        max-height: 70vh !important;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+    }
+}
+
+    
+.custom-scrollbar-hide,
+.accessibility-bar .custom-scrollbar,
+.accessibility-bar .overflow-y-auto,
+.accessibility-bar .overflow-x-auto {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+.custom-scrollbar-hide::-webkit-scrollbar,
+.accessibility-bar .custom-scrollbar::-webkit-scrollbar,
+.accessibility-bar .overflow-y-auto::-webkit-scrollbar,
+.accessibility-bar .overflow-x-auto::-webkit-scrollbar {
+    display: none !important;
+}

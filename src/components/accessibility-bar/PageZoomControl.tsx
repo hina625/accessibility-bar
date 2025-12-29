@@ -11,7 +11,7 @@ export default function PageZoomControl() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
+      <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
         {t.controls.zoom}: {pageZoom}%
       </label>
       <div className="flex items-center gap-2">
@@ -50,7 +50,7 @@ export default function PageZoomControl() {
         </button>
         <button
           onClick={() => setPageZoom(100)}
-          className="px-3 py-1.5 text-[18px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
+          className="px-3 py-1.5 text-[16px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
           style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={t.common.reset}
         >

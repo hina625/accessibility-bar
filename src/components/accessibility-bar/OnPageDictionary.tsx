@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import ToggleCheckbox from './ToggleCheckbox';
 
 export default function OnPageDictionary() {
   const { onPageDictionary, toggleOnPageDictionary, barTheme } = useAccessibility();
@@ -82,33 +83,12 @@ export default function OnPageDictionary() {
   return (
     <div className="space-y-4">
       {/* Main Toggle */}
-      <div
-        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
-        style={{ backgroundColor: theme.hover }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-        onClick={() => toggleOnPageDictionary()}
-      >
-        <span className="text-[15px] font-medium" style={{ color: theme.text }}>Selected Word Dictionary</span>
-        <div
-          className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
-          style={{
-            backgroundColor: onPageDictionary ? theme.active : 'rgba(255, 255, 255, 0.9)',
-            border: onPageDictionary ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
-          }}
-        >
-          {onPageDictionary && (
-            <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </div>
-      </div>
-
-      <p className="text-[12px] italic pl-2" style={{ color: theme.text, opacity: 0.9 }}>
-        Select any single word on the page to see its definition.
-      </p>
-
+      <ToggleCheckbox
+        id="word-dictionary-toggle"
+        label="Word Dictionary"
+        checked={onPageDictionary}
+        onChange={toggleOnPageDictionary}
+      />
       {onPageDictionary && isVisible && (
         <div
           ref={tooltipRef}
@@ -135,7 +115,8 @@ export default function OnPageDictionary() {
             )}
           </div>
         </div>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 }

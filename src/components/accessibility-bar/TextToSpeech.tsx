@@ -32,7 +32,7 @@ export default function TextToSpeech() {
                 onClick={toggleTextToSpeech}
             >
                 <div className="flex flex-col">
-                    <span className="text-[15px] font-medium" style={{ color: theme.text }}>{t.controls.tts} (On/Off)</span>
+                    <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.tts} (On/Off)</span>
                 </div>
                 <div
                     className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
@@ -51,117 +51,16 @@ export default function TextToSpeech() {
 
             {textToSpeech && (
                 <>
-                    {/* Play Automatically */}
-                    <div
-                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
-                        style={{ backgroundColor: theme.hover }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                        onClick={toggleTtsAutoPlay}
-                    >
-                        <span className="text-[14px]" style={{ color: theme.text }}>{t.controls.autoPlay}</span>
-                        <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
-                            style={{
-                                backgroundColor: ttsAutoPlay ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                                border: ttsAutoPlay ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
-                            }}
-                        >
-                            {ttsAutoPlay && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Read whole page of content */}
-                    <div
-                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
-                        style={{ backgroundColor: theme.hover }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                        onClick={toggleTtsReadWholePage}
-                    >
-                        <span className="text-[14px]" style={{ color: theme.text }}>{t.controls.readPageContent}</span>
-                        <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
-                            style={{
-                                backgroundColor: ttsReadWholePage ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                                border: ttsReadWholePage ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
-                            }}
-                        >
-                            {ttsReadWholePage && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Hover to Speak */}
-                    <div
-                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
-                        style={{ backgroundColor: theme.hover }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                        onClick={toggleTtsHoverToSpeak}
-                    >
-                        <div className="flex flex-col">
-                            <span className="text-[14px] font-medium" style={{ color: theme.text }}>{t.controls.hoverToSpeak}</span>
-                            <span className="text-[11px]" style={{ color: theme.text, opacity: 0.7 }}>{t.controls.hoverToSpeakDesc}</span>
-                        </div>
-                        <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
-                            style={{
-                                backgroundColor: ttsHoverToSpeak ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                                border: ttsHoverToSpeak ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
-                            }}
-                        >
-                            {ttsHoverToSpeak && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Movable Player Controls */}
-                    <div
-                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
-                        style={{ backgroundColor: theme.hover }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                        onClick={toggleTtsMovableControls}
-                    >
-                        <span className="text-[14px]" style={{ color: theme.text }}>{t.controls.movableControls}</span>
-                        <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
-                            style={{
-                                backgroundColor: ttsMovableControls ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                                border: ttsMovableControls ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
-                            }}
-                        >
-                            {ttsMovableControls && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="border-t opacity-20 my-2" style={{ borderColor: theme.text }} />
-
                     {/* Voice Gender Selection */}
-                    <div className="px-4 space-y-3">
-                        <span className="text-[15px] font-bold block" style={{ color: theme.text }}>{t.controls.voice}</span>
+                    <div className="px-4 space-y-3 pt-2">
+                        <span className="text-[16px] font-bold block" style={{ color: theme.text }}>{t.controls.voice}</span>
 
                         <div className="space-y-2">
                             <div
                                 className="flex items-center justify-between cursor-pointer group"
                                 onClick={() => setTtsVoiceGender('male')}
                             >
-                                <span className="text-[14px]" style={{ color: theme.text }}>{t.controls.male}</span>
+                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.male}</span>
                                 <div
                                     className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                                     style={{
@@ -179,7 +78,7 @@ export default function TextToSpeech() {
                                 className="flex items-center justify-between cursor-pointer group"
                                 onClick={() => setTtsVoiceGender('female')}
                             >
-                                <span className="text-[14px]" style={{ color: theme.text }}>{t.controls.female}</span>
+                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.female}</span>
                                 <div
                                     className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                                     style={{
@@ -199,7 +98,7 @@ export default function TextToSpeech() {
 
                     {/* Reading Speed */}
                     <div className="px-4 space-y-3 pb-2">
-                        <span className="text-[15px] font-bold block" style={{ color: theme.text }}>{t.controls.readingSpeed}:</span>
+                        <span className="text-[16px] font-bold block" style={{ color: theme.text }}>{t.controls.readingSpeed}:</span>
 
                         <div className="flex items-center justify-between bg-black/10 rounded-lg p-1">
                             <button
@@ -212,7 +111,7 @@ export default function TextToSpeech() {
                                 </svg>
                             </button>
 
-                            <span className="text-[18px] font-bold" style={{ color: theme.text }}>
+                            <span className="text-[16px] font-bold" style={{ color: theme.text }}>
                                 {ttsReadingSpeed.toFixed(1)}
                             </span>
 
@@ -225,6 +124,80 @@ export default function TextToSpeech() {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                 </svg>
                             </button>
+                        </div>
+                    </div>
+
+                    <div className="border-t opacity-20 my-2" style={{ borderColor: theme.text }} />
+
+                    {/* Read whole page of content */}
+                    <div
+                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+                        style={{ backgroundColor: theme.hover }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+                        onClick={toggleTtsReadWholePage}
+                    >
+                        <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.readPageContent}</span>
+                        <div
+                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            style={{
+                                backgroundColor: ttsReadWholePage ? theme.active : 'rgba(255, 255, 255, 0.9)',
+                                border: ttsReadWholePage ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+                            }}
+                        >
+                            {ttsReadWholePage && (
+                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Play Automatically (Click to Speak) */}
+                    <div
+                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+                        style={{ backgroundColor: theme.hover }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+                        onClick={toggleTtsAutoPlay}
+                    >
+                        <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.autoPlay}</span>
+                        <div
+                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            style={{
+                                backgroundColor: ttsAutoPlay ? theme.active : 'rgba(255, 255, 255, 0.9)',
+                                border: ttsAutoPlay ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+                            }}
+                        >
+                            {ttsAutoPlay && (
+                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Movable Player Controls */}
+                    <div
+                        className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
+                        style={{ backgroundColor: theme.hover }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+                        onClick={toggleTtsMovableControls}
+                    >
+                        <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.movableControls}</span>
+                        <div
+                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            style={{
+                                backgroundColor: ttsMovableControls ? theme.active : 'rgba(255, 255, 255, 0.9)',
+                                border: ttsMovableControls ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+                            }}
+                        >
+                            {ttsMovableControls && (
+                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            )}
                         </div>
                     </div>
                 </>

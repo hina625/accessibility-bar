@@ -9,6 +9,7 @@ export default function TtsPlayer() {
     const {
         textToSpeech,
         ttsMovableControls,
+        toggleTtsMovableControls,
         barTheme,
         language,
         ttsReadingSpeed,
@@ -83,13 +84,18 @@ export default function TtsPlayer() {
             >
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.active }} />
-                    <span className="text-[12px] font-bold uppercase tracking-wider" style={{ color: theme.text }}>TTS Player</span>
+                    <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: theme.text }}>TTS Player</span>
                 </div>
-                <div className="flex gap-1">
-                    <div className="w-1 h-1 rounded-full" style={{ backgroundColor: theme.text, opacity: 0.3 }} />
-                    <div className="w-1 h-1 rounded-full" style={{ backgroundColor: theme.text, opacity: 0.3 }} />
-                    <div className="w-1 h-1 rounded-full" style={{ backgroundColor: theme.text, opacity: 0.3 }} />
-                </div>
+                <button
+                    onClick={toggleTtsMovableControls}
+                    className="p-1 rounded-full transition-all hover:bg-black/10"
+                    style={{ color: theme.text }}
+                    aria-label={t.common.close}
+                >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             {/* Controls */}
@@ -98,7 +104,7 @@ export default function TtsPlayer() {
                     onClick={handleStop}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                     style={{ backgroundColor: `${theme.text}11`, color: theme.text }}
-                    title={t.controls.stop}
+                    title={t.controls.stopReading || "Stop"}
                 >
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M6 6h12v12H6z" />
@@ -108,7 +114,7 @@ export default function TtsPlayer() {
 
             {/* Status Info */}
             <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-tight" style={{ color: theme.text, opacity: 0.6 }}>
+                <div className="flex items-center justify-between text-[16px] font-bold uppercase tracking-tight" style={{ color: theme.text, opacity: 0.6 }}>
                     <span>{ttsReadingSpeed.toFixed(1)}x Speed</span>
                     <span>{ttsVoiceGender}</span>
                 </div>

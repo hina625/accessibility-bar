@@ -1,9 +1,8 @@
-/* Accessibility styles that need to be in the main document */
-.high-contrast body:not(.a11y-embed-host):not(.accessibility-bar) {
-  filter: contrast(1.5);
+:is(html, body).high-contrast body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: contrast(150%) !important;
 }
 
-.high-contrast body *:not(.a11y-embed-host):not(.a11y-embed-host *) {
+:is(html, body).high-contrast body *:not(.a11y-embed-host):not(.a11y-embed-host *) {
   border-color: currentColor !important;
 }
 
@@ -29,40 +28,39 @@
   color: #ffffff !important;
 }
 
-[data-font-style="readable"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+:is(html, body)[data-font-style="readable"] body:not(.a11y-embed-host):not(.accessibility-bar) {
   font-family: 'Georgia', 'Times New Roman', serif !important;
   line-height: 1.8 !important;
   letter-spacing: 0.5px !important;
 }
 
-[data-font-style="readable"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+:is(html, body)[data-font-style="readable"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   font-family: 'Georgia', 'Times New Roman', serif !important;
 }
 
-[data-font-style="dyslexic"] body:not(.a11y-embed-host):not(.accessibility-bar) {
+:is(html, body)[data-font-style="dyslexic"] body:not(.a11y-embed-host):not(.accessibility-bar) {
   font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
   line-height: 1.6 !important;
   letter-spacing: 1px !important;
   word-spacing: 2px !important;
 }
 
-[data-font-style="dyslexic"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+:is(html, body)[data-font-style="dyslexic"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
 }
 
-[data-font-style="serif"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+:is(html, body)[data-font-style="serif"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   font-family: 'Times New Roman', Georgia, serif !important;
 }
 
-[data-font-style="sans"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+:is(html, body)[data-font-style="sans"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   font-family: Arial, Helvetica, sans-serif !important;
 }
 
-[data-font-style="mono"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+:is(html, body)[data-font-style="mono"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   font-family: 'Courier New', Courier, monospace !important;
 }
 
-/* Exclude accessibility bar from all document-level effects */
 .a11y-embed-host,
 .a11y-embed-host *,
 .accessibility-bar,
@@ -73,26 +71,24 @@
   letter-spacing: normal !important;
   word-spacing: normal !important;
   text-align: left !important;
-  color: inherit !important;
-  background-color: transparent !important;
   filter: none !important;
   transform: none !important;
 }
 
-.grayscale-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
-  filter: grayscale(100%);
+:is(html, body).grayscale-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: grayscale(100%) !important;
 }
 
-.invert-colors body:not(.a11y-embed-host):not(.accessibility-bar) {
-  filter: invert(1) hue-rotate(180deg);
+:is(html, body).invert-colors body:not(.a11y-embed-host):not(.accessibility-bar) {
+  filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-.invert-colors body :is(img, video, iframe):not(.a11y-embed-host *) {
-  filter: invert(1) hue-rotate(180deg);
+:is(html, body).invert-colors body :is(img, video, iframe):not(.a11y-embed-host *) {
+  filter: invert(100%) hue-rotate(180deg) !important;
 }
 
 .highlight-links a:not(.a11y-embed-host *):not(.accessibility-bar *) {
-  background-color: #ffeb3b !important;
+  background-color: rgba(255, 255, 0, 0.4) !important;
   color: #000 !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;
@@ -101,7 +97,7 @@
 }
 
 .highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.a11y-embed-host *):not(.accessibility-bar *) {
-  background-color: #ffff00 !important;
+  background-color: rgba(255, 255, 0, 0.4) !important;
   color: #000 !important;
   padding: 4px 8px !important;
   border-radius: 4px !important;
@@ -112,7 +108,37 @@
 :root {
   --text-spacing: 1rem;
   --cursor-size: 1;
+  --page-bg-color: transparent;
+  --text-color: inherit;
+  --heading-color: inherit;
 }
+
+/* Global Background/Text overrides for Host Content when using Accessibility Bar */
+/* Ultra-Robust Global Background/Text overrides for Host Content */
+/* We target html and body separately and as parents to catch everything */
+html[style*="--page-bg-color"],
+html[style*="--page-bg-color"] body,
+html[style*="--page-bg-color"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *):not(button):not(input):not(select):not(textarea),
+body[style*="--page-bg-color"],
+body[style*="--page-bg-color"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *):not(button):not(input):not(select):not(textarea) {
+  background-color: var(--page-bg-color) !important;
+  background-image: none !important;
+}
+
+html[style*="--text-color"],
+html[style*="--text-color"] body,
+html[style*="--text-color"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
+body[style*="--text-color"],
+body[style*="--text-color"] *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+  color: var(--text-color) !important;
+  border-color: var(--text-color) !important;
+}
+
+:is(html, body)[style*="--heading-color"] :is(h1, h2, h3, h4, h5, h6):not(.a11y-embed-host *):not(.accessibility-bar *) {
+  color: var(--heading-color) !important;
+}
+
+
 
 .large-cursor body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
   cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="var(--cursor-color, black)" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>') 0 0, auto !important;
@@ -175,4 +201,99 @@
 
 .on-page-dictionary :is(p, span, div):not(.a11y-embed-host *):not(.accessibility-bar *) {
   cursor: help !important;
+}
+
+.plain-text-mode *:not(html):not(body):not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+  all: revert !important;
+  box-sizing: content-box !important;
+}
+
+.plain-text-mode,
+.plain-text-mode body {
+  background-color: white !important;
+  color: black !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.plain-text-mode body>*:not(.accessibility-bar):not(.a11y-embed-host) {
+  padding: 40px !important;
+  font-family: serif !important;
+}
+
+.plain-text-mode img:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  display: none !important;
+}
+
+.plain-text-mode a:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  color: #0000EE !important;
+  text-decoration: underline !important;
+}
+
+.plain-text-mode[data-plain-text-size="small"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+  font-size: 14px !important;
+}
+
+.plain-text-mode[data-plain-text-size="medium"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+  font-size: 18px !important;
+}
+
+.plain-text-mode[data-plain-text-size="large"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+  font-size: 24px !important;
+}
+
+html.hide-images img,
+html.hide-images svg,
+html.hide-images video,
+html.hide-images iframe,
+html.hide-images canvas,
+html.hide-images [style*="background-image"] {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Except for our own UI */
+html.hide-images .accessibility-bar img,
+html.hide-images .accessibility-bar svg,
+html.hide-images .a11y-embed-host img,
+html.hide-images .a11y-embed-host svg {
+  display: inline-block !important;
+  /* Restore display */
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html.show-image-descriptions img {
+  border: 4px solid #F59E0B !important;
+  box-sizing: border-box !important;
+}
+
+html.show-image-descriptions [data-alt]::after {
+  content: attr(data-alt);
+  display: block;
+  background: #2563eb;
+  color: white;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 4px;
+  margin-top: 4px;
+  z-index: 9999;
+  position: relative;
+}
+
+html.pause-animations *,
+html.pause-animations *::before,
+html.pause-animations *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+
+html.stop-videos video,
+html.stop-videos audio,
+html.stop-videos iframe[src*="youtube"],
+html.stop-videos iframe[src*="vimeo"] {
+  display: none !important;
+  visibility: hidden !important;
 }

@@ -11,7 +11,7 @@ export default function FontSizeControls() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
+      <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
         {t.controls.fontSize}
       </label>
       <div className="flex items-center gap-2">
@@ -31,7 +31,7 @@ export default function FontSizeControls() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
           </svg>
         </button>
-        <span className="flex-1 text-center text-[18px] font-normal" style={{ color: theme.text }}>
+        <span className="flex-1 text-center text-[16px] font-normal" style={{ color: theme.text }}>
           {fontSize}px
         </span>
         <button
@@ -57,7 +57,7 @@ export default function FontSizeControls() {
         </button>
         <button
           onClick={resetFontSize}
-          className="px-3 py-1.5 text-[18px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
+          className="px-3 py-1.5 text-[16px] font-normal rounded-md transition-colors focus:outline-none focus:ring-2"
           style={{ backgroundColor: theme.active, color: theme.text }}
           aria-label={t.common.reset}
         >

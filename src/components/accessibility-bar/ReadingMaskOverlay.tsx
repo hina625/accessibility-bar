@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function ReadingMaskOverlay() {
-  const { readingMask, readingMaskColor } = useAccessibility();
+  const { readingMask, readingMaskColor, readingMaskSize } = useAccessibility();
   const [mouseY, setMouseY] = useState(0);
   const rafRef = useRef<number | undefined>(undefined);
 
@@ -12,7 +12,7 @@ export default function ReadingMaskOverlay() {
     if (!readingMask) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Use requestAnimationFrame for smoother performance
+
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
       rafRef.current = requestAnimationFrame(() => {
@@ -29,11 +29,11 @@ export default function ReadingMaskOverlay() {
 
   if (!readingMask) return null;
 
-  const gapHeight = 140; // Height of the clear reading area
+  const gapHeight = readingMaskSize;
 
   return (
     <>
-      {/* Top Mask */}
+
       <div
         className="fixed inset-x-0 top-0 z-[2147483646] pointer-events-none transition-[height] duration-75 ease-out"
         style={{
@@ -43,7 +43,7 @@ export default function ReadingMaskOverlay() {
         aria-hidden="true"
       />
 
-      {/* Bottom Mask */}
+
       <div
         className="fixed inset-x-0 bottom-0 z-[2147483646] pointer-events-none transition-[top] duration-75 ease-out"
         style={{
@@ -53,7 +53,7 @@ export default function ReadingMaskOverlay() {
         aria-hidden="true"
       />
 
-      {/* Focus Borders */}
+
       <div
         className="fixed inset-x-0 border-y-2 border-blue-500/30 z-[2147483646] pointer-events-none transition-[top,height] duration-75 ease-out shadow-[0_0_50px_rgba(0,0,0,0.5)]"
         style={{

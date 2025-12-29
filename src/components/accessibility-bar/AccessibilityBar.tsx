@@ -48,6 +48,8 @@ import MagnifierOverlay from './MagnifierOverlay';
 import SmartSuggestionsToggle from './SmartSuggestionsToggle';
 import SmartSuggestions from './SmartSuggestions';
 import PageStructureControl from './PageStructureControl';
+import PageStructureOverlay from './PageStructureOverlay';
+import PageSummaryOverlay from './PageSummaryOverlay';
 import RealTimeTranslation from './RealTimeTranslation';
 import VoiceNavigation from './VoiceNavigation';
 import TextToSpeech from './TextToSpeech';
@@ -64,6 +66,7 @@ export default function AccessibilityBar() {
   const [selectedCategoryRect, setSelectedCategoryRect] = useState<DOMRect | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const [categoryStartIndex, setCategoryStartIndex] = useState(0);
   const {
     readingRuler,
     readingGuide,
@@ -77,8 +80,10 @@ export default function AccessibilityBar() {
     language,
     onPageDictionary,
     pageSummary,
+    pageStructure,
     barTheme,
     textToSpeech,
+    isMobile,
   } = useAccessibility();
 
 
@@ -86,12 +91,18 @@ export default function AccessibilityBar() {
 
   const t = translations[language] || translations['en'];
 
+  const [mounted, setMounted] = useState(false);
+
   useEffect(() => {
-    if (onPageDictionary || pageSummary) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (onPageDictionary || pageSummary || pageStructure) {
       setIsOpen(false);
       setSelectedCategory(null);
     }
-  }, [onPageDictionary, pageSummary]);
+  }, [onPageDictionary, pageSummary, pageStructure]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -159,7 +170,10 @@ export default function AccessibilityBar() {
 
 
   const handleCategoryKeyDown = (e: React.KeyboardEvent, index: number) => {
-    const total = categories.filter(c => c.id !== 'settings').length;
+    const btns = panelRef.current?.querySelectorAll('[data-category-btn]');
+    const total = btns?.length || 0;
+    if (total === 0) return;
+
     let nextIndex = index;
 
     if (e.key === 'ArrowDown' || (isVertical && e.key === 'ArrowRight')) {
@@ -171,29 +185,37 @@ export default function AccessibilityBar() {
     }
 
     e.preventDefault();
-    const btns = panelRef.current?.querySelectorAll('[data-category-btn]');
     (btns?.[nextIndex] as HTMLElement)?.focus();
   };
 
   const categories = [
-    { id: 'text', name: t.categories.text, icon: '/font-size.png', colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
-    { id: 'page', name: t.categories.page, icon: '/proof-reading.png', colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
-    { id: 'layout', name: t.categories.layout, icon: '/page.png', colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
-    { id: 'visual', name: t.categories.visual, icon: '/contrast.png', colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
-    { id: 'reading', name: t.categories.reading, icon: '/reading1.jpg', colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
-    { id: 'navigation', name: t.categories.navigation, icon: '/gps-navigation.png', colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
-    { id: 'speech', name: t.categories.speech, icon: '/speak.png', colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
-    { id: 'tools', name: t.categories.tools, icon: '/tools.png', colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
-    { id: 'settings', name: t.categories.settings, icon: '/first icon og accessibilty.png', colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
+    { id: 'position', name: `CUSTOMISE\nTOOLBAR`, icon: '/first icon og accessibilty.png', colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
+    { id: 'font', name: `Font`, icon: '/font-size.png', colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
+    { id: 'contrast', name: `Contrast`, icon: '/contrast.png', colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
+    { id: 'layout', name: `Layout`, icon: '/layout.png', colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
+    { id: 'reading', name: `Reading`, icon: '/book.png', colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
+    { id: 'cursor', name: `Cursor`, icon: '/cursor (1).png', colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
+    { id: 'images', name: `Images`, icon: '/photo.png', colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
+    { id: 'speech', name: `Speech`, icon: '/speak (1).png', colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
+    { id: 'language', name: `Language`, icon: '/translate.png', colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
+    { id: 'ai', name: `AI SUPPORT`, icon: '/generative.png', colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
+    { id: 'reset', name: `RESET`, icon: '/reset_icon.png', colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
   ];
 
   const renderCategoryContent = () => {
     switch (selectedCategory) {
-      case 'text':
+      case 'position':
+        return (
+          <div className="space-y-4">
+            <PositionControls />
+            <div className="border-t-2 -mx-6 my-4" style={{ borderColor: `${currentTheme.text}66` }} />
+            <ThemeSelector />
+          </div>
+        );
+      case 'font':
         return (
           <div className="space-y-6">
-            <LanguageSelector />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+
             <FontSizeControls />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <TextAlignControl />
@@ -201,25 +223,7 @@ export default function AccessibilityBar() {
             <FontStyleSelector />
           </div>
         );
-      case 'page':
-        return (
-          <div className="space-y-6">
-            <ContentFiltering />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
-            <PageStructureControl />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
-            <PageSummaryControl />
-          </div>
-        );
-      case 'layout':
-        return (
-          <div className="space-y-6">
-            <PlainTextModeControl />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
-            <SimplifyLayoutControl />
-          </div>
-        );
-      case 'visual':
+      case 'contrast':
         return (
           <div className="space-y-4">
             <PageBackgroundColor />
@@ -235,6 +239,16 @@ export default function AccessibilityBar() {
             <ColorBlindFilter />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <PageZoomControl />
+          </div>
+        );
+      case 'layout':
+        return (
+          <div className="space-y-6">
+            <PageStructureControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+            <PlainTextModeControl />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+            <SimplifyLayoutControl />
           </div>
         );
       case 'reading':
@@ -257,12 +271,20 @@ export default function AccessibilityBar() {
             <MagnifierToggle />
           </div>
         );
-      case 'navigation':
+      case 'cursor':
         return (
           <div className="space-y-4">
             <CursorSizeControl />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
+            <KeyboardNavigation />
+            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <ReduceMotionToggle />
+          </div>
+        );
+      case 'images':
+        return (
+          <div className="space-y-6">
+            <ContentFiltering />
           </div>
         );
       case 'speech':
@@ -271,16 +293,14 @@ export default function AccessibilityBar() {
             <VoiceNavigation />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <TextToSpeech />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
-            <SpeechToText />
           </div>
         );
-      case 'tools':
+      case 'language':
         return (
           <div className="space-y-4">
-            <RealTimeTranslation />
+            <LanguageSelector />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
-            <KeyboardNavigation />
+            <RealTimeTranslation />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
             <OnPageDictionary />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: currentTheme.border }} />
@@ -289,12 +309,10 @@ export default function AccessibilityBar() {
             <SmartSuggestionsToggle />
           </div>
         );
-      case 'settings':
+      case 'ai':
         return (
-          <div className="space-y-4">
-            <ThemeSelector />
-            <div className="border-t-2 -mx-6" style={{ borderColor: `${currentTheme.text}66` }} />
-            <PositionControls />
+          <div className="space-y-6">
+            <PageSummaryControl />
           </div>
         );
       default:
@@ -304,15 +322,15 @@ export default function AccessibilityBar() {
 
   const getButtonPositionClasses = () => {
     switch (buttonPosition) {
-      case 'top-left': return 'top-6 left-6';
-      case 'top-right': return 'top-6 right-6';
-      case 'bottom-left': return 'bottom-6 left-6';
-      case 'bottom-right': return 'bottom-6 right-6';
-      case 'top': return 'top-6 left-1/2 -translate-x-1/2';
-      case 'bottom': return 'bottom-6 left-1/2 -translate-x-1/2';
-      case 'left': return 'left-6 top-1/2 -translate-y-1/2';
-      case 'right': return 'right-6 top-1/2 -translate-y-1/2';
-      default: return 'bottom-6 right-6';
+      case 'top-left': return isMobile ? 'top-4 left-4' : 'top-6 left-6';
+      case 'top-right': return isMobile ? 'top-4 right-4' : 'top-6 right-6';
+      case 'bottom-left': return isMobile ? 'bottom-4 left-4' : 'bottom-6 left-6';
+      case 'bottom-right': return isMobile ? 'bottom-4 right-4' : 'bottom-6 right-6';
+      case 'top': return isMobile ? 'top-4 left-1/2 -translate-x-1/2' : 'top-6 left-1/2 -translate-x-1/2';
+      case 'bottom': return isMobile ? 'bottom-4 left-1/2 -translate-x-1/2' : 'bottom-6 left-1/2 -translate-x-1/2';
+      case 'left': return isMobile ? 'left-4 top-1/2 -translate-y-1/2' : 'left-6 top-1/2 -translate-y-1/2';
+      case 'right': return isMobile ? 'right-4 top-1/2 -translate-y-1/2' : 'right-6 top-1/2 -translate-y-1/2';
+      default: return isMobile ? 'bottom-4 right-4' : 'bottom-6 right-6';
     }
   };
 
@@ -337,28 +355,32 @@ export default function AccessibilityBar() {
     ? (panelPosition === 'right' ? 'border-l' : 'border-r')
     : (panelPosition === 'bottom' ? 'border-t' : 'border-b');
 
+  if (!mounted) return null;
+
   return (
     <>
-      <button
-        ref={triggerRef}
-        onClick={() => setIsOpen(!isOpen)}
-        className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
-        style={{
-          background: currentTheme.background,
-          boxShadow: `0 4px 20px ${currentTheme.border}40`
-        }}
-        aria-label="Open accessibility menu"
-        aria-expanded={isOpen}
-        title="Accessibility Options (Ctrl+Shift+A)"
-      >
-        <Image
-          src="/first icon og accessibilty.png"
-          alt=""
-          width={80}
-          height={80}
-          className="transition-transform duration-300 group-hover:rotate-12 scale-[1.3]"
-        />
-      </button>
+      {!isOpen && (
+        <button
+          ref={triggerRef}
+          onClick={() => setIsOpen(!isOpen)}
+          className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white shadow-2xl shadow-black/20 transition-all duration-300 ease-out hover:scale-110 hover:shadow-3xl focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden ${getButtonPositionClasses()}`}
+          style={{
+            background: currentTheme.background,
+            boxShadow: `0 4px 20px ${currentTheme.border}40`
+          }}
+          aria-label="Open accessibility menu"
+          aria-expanded={isOpen}
+          title="Accessibility Options (Ctrl+Shift+A)"
+        >
+          <Image
+            src="/first icon og accessibilty.png"
+            alt=""
+            width={80}
+            height={80}
+            className="transition-transform duration-300 group-hover:rotate-12 scale-[1.3]"
+          />
+        </button>
+      )}
 
       {isOpen && (
         <>
@@ -374,7 +396,7 @@ export default function AccessibilityBar() {
             ref={panelRef}
             className={`accessibility-bar a11y-embed-host fixed z-[2147483647] shadow-2xl ${panelBorderStyle} transition-all duration-300 ease-out ${isVertical ? 'overflow-hidden' : 'overflow-visible'} ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
             style={{
-              width: isVertical ? (selectedCategory ? '340px' : '64px') : '100%',
+              width: isVertical ? (selectedCategory ? (isMobile ? '100%' : '340px') : (isMobile ? '56px' : '64px')) : '100%',
               height: isVertical ? '100%' : '64px',
               boxSizing: 'border-box',
               flexDirection: isVertical
@@ -393,9 +415,9 @@ export default function AccessibilityBar() {
               : 'flex-row'
               }`}>
               <div
-                className={`flex items-center p-2.5 ${isVertical
-                  ? `flex-col w-16 space-y-3 h-full ${panelPosition === 'right' ? 'border-l' : 'border-r'}`
-                  : `flex-row h-16 space-x-3 w-full ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
+                className={`flex items-center p-2 sm:p-2.5 ${isVertical
+                  ? `flex-col w-14 sm:w-16 space-y-2 sm:space-y-3 h-full ${panelPosition === 'right' ? 'border-l' : 'border-r'}`
+                  : `flex-row h-16 w-full justify-between overflow-x-auto custom-scrollbar-hide ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                   }`}
                 style={{
                   background: currentTheme.background,
@@ -404,22 +426,12 @@ export default function AccessibilityBar() {
               >
 
 
-                {isVertical && (
-                  <div className="mb-2 group cursor-pointer w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95">
-                    <img
-                      src="/include-me.png"
-                      alt="ICM"
-                      className="w-full h-full object-contain scale-[1.3] transform transition-transform duration-500 group-hover:scale-[1.5]"
-                    />
-                  </div>
-                )}
-
                 <button
                   onClick={() => {
                     setIsOpen(false);
                     setSelectedCategory(null);
                   }}
-                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-1.5 rounded-lg transition-colors pointer-events-auto`}
+                  className={`${isVertical ? 'mb-4' : 'mr-2'} p-1.5 rounded-lg transition-colors pointer-events-auto`}
                   style={{ backgroundColor: `${currentTheme.active}30` }}
                   aria-label="Close"
                 >
@@ -438,123 +450,124 @@ export default function AccessibilityBar() {
                     />
                   </svg>
                 </button>
+                {/* Logo Section */}
+                {!selectedCategory && (
+                  <div className={`flex items-center justify-center flex-shrink-0 ${isVertical ? 'w-12 h-12 mb-2' : 'w-12 h-12 mr-2'}`}>
+                    <Image
+                      src="/ICON PIC.png"
+                      alt="Logo"
+                      width={48}
+                      height={48}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
+                )}
 
-                <div className={`flex ${isVertical ? 'flex-col space-y-3' : 'flex-row space-x-3'} items-center`}>
-                  {categories.filter(c => c.id !== 'settings').map((category, index) => (
-                    <div key={category.id} className="relative group/category">
-                      <button
-                        data-category-btn
-                        onKeyDown={(e) => handleCategoryKeyDown(e, index)}
-                        onClick={(e) => {
-                          const rect = e.currentTarget.getBoundingClientRect();
-                          setSelectedOffset(rect.left + rect.width / 2);
-                          setSelectedCategoryRect(rect);
-                          setSelectedCategory(
-                            selectedCategory === category.id ? null : category.id
-                          );
-                        }}
-                        onMouseEnter={() => {
-                          if (textToSpeech) {
-                            speak(category.name);
-                          }
-                        }}
-                        className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === category.id
-                          ? 'text-white shadow-lg scale-110'
-                          : 'text-gray-600 hover:scale-105'
-                          }`}
-                        style={selectedCategory === category.id
-                          ? { background: currentTheme.active }
-                          : { backgroundColor: currentTheme.hover }
-                        }
-                        aria-label={category.name}
-                        title={category.name}
-                      >
-                        <Image
-                          src={category.icon}
-                          alt=""
-                          width={22}
-                          height={22}
-                          className={`transition-all duration-200 ${selectedCategory === category.id && !['speech'].includes(category.id)
-                            ? 'brightness-0 invert'
-                            : ''
-                            } ${category.id === 'reading' ? 'scale-[2.2]' : ''}`}
-                        />
-                        {selectedCategory === category.id && (
-                          <div
-                            className={`absolute ${isVertical
-                              ? `${panelPosition === 'right' ? '-left-1' : '-right-1'} top-1/2 -translate-y-1/2 w-0.5 h-6`
-                              : `${panelPosition === 'bottom' ? '-top-1' : '-bottom-1'} left-1/2 -translate-x-1/2 h-0.5 w-6`
-                              } rounded-full border border-white/50 ${category.indicatorClass}`}
-                          />
+                <div className={`flex ${isVertical ? 'flex-col space-y-2 sm:space-y-3 items-center flex-shrink-0' : 'flex-row w-full justify-between items-center flex-grow px-4 sm:px-12'}`}>
+                  {(() => {
+                    const allCategories = categories; // No longer valid to filter settings
+                    const shouldPaginate = panelPosition === 'bottom';
+                    const visibleCategories = shouldPaginate
+                      ? allCategories.slice(categoryStartIndex, categoryStartIndex + 4)
+                      : allCategories;
+
+                    return (
+                      <>
+                        {visibleCategories.map((category, index) => (
+                          <div key={category.id} className="relative group/category">
+                            <button
+                              data-category-btn
+                              onKeyDown={(e) => handleCategoryKeyDown(e, index)}
+                              onClick={(e) => {
+                                if (category.id === 'reset') {
+                                  resetAll();
+                                  return;
+                                }
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setSelectedOffset(rect.left + rect.width / 2);
+                                setSelectedCategoryRect(rect);
+                                setSelectedCategory(
+                                  selectedCategory === category.id ? null : category.id
+                                );
+                              }}
+                              onMouseEnter={() => {
+                                if (textToSpeech) {
+                                  speak(category.name);
+                                }
+                              }}
+                              className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === category.id
+                                ? 'text-white shadow-lg scale-110'
+                                : 'text-gray-600 hover:scale-105'
+                                }`}
+                              style={selectedCategory === category.id
+                                ? { background: currentTheme.active }
+                                : { backgroundColor: '#ffffff' }
+                              }
+                              aria-label={category.name}
+                              title={category.name}
+                            >
+                              <Image
+                                src={category.icon}
+                                alt=""
+                                width={26}
+                                height={26}
+                                className={`transition-all duration-200 ${selectedCategory === category.id && !['speech', 'language'].includes(category.id)
+                                  ? 'brightness-0 invert'
+                                  : ''
+                                  }`}
+                              />
+                              {selectedCategory === category.id && (
+                                <div
+                                  className={`absolute ${isVertical
+                                    ? `${panelPosition === 'right' ? '-left-1' : '-right-1'} top-1/2 -translate-y-1/2 w-0.5 h-6`
+                                    : `${panelPosition === 'bottom' ? '-top-1' : '-bottom-1'} left-1/2 -translate-x-1/2 h-0.5 w-6`
+                                    } rounded-full border border-white/50 ${category.indicatorClass}`}
+                                />
+                              )}
+                            </button>
+                          </div>
+                        ))}
+
+                        {shouldPaginate && (
+                          <div className="relative group/category">
+                            <button
+                              data-category-btn
+                              onKeyDown={(e) => handleCategoryKeyDown(e, visibleCategories.length)}
+                              onClick={() => {
+                                setCategoryStartIndex((prev) => {
+                                  const next = prev + 4;
+                                  return next >= allCategories.length ? 0 : next;
+                                });
+                              }}
+                              className="group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden text-gray-600 hover:scale-105"
+                              style={{ backgroundColor: currentTheme.hover, color: currentTheme.text }}
+                              aria-label="More categories"
+                              title="Show more"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="w-6 h-6"
+                              >
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                              </svg>
+                            </button>
+                          </div>
                         )}
-                      </button>
-
-                    </div>
-                  ))}
+                      </>
+                    );
+                  })()}
                 </div>
 
-                <div className={`flex ${isVertical ? 'mt-auto flex-col space-y-3' : 'ml-auto flex-row space-x-3'} items-center`}>
-                  <div className="relative group/category">
-                    <button
-                      onClick={(e) => {
-                        const rect = e.currentTarget.getBoundingClientRect();
-                        setSelectedOffset(rect.left + rect.width / 2);
-                        setSelectedCategoryRect(rect);
-                        setSelectedCategory(
-                          selectedCategory === 'settings' ? null : 'settings'
-                        );
-                      }}
-                      onMouseEnter={() => {
-                        if (textToSpeech) {
-                          speak('Settings');
-                        }
-                      }}
-                      className={`group relative flex flex-col items-center justify-center w-12 h-12 rounded-xl transition-all duration-200 overflow-hidden ${selectedCategory === 'settings'
-                        ? 'text-white shadow-lg scale-110'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:scale-105'
-                        }`}
-                      style={selectedCategory === 'settings'
-                        ? { background: currentTheme.active }
-                        : { backgroundColor: currentTheme.hover }
-                      }
-                      aria-label="Settings"
-                      title="Settings"
-                    >
-                      <Image
-                        src="/first icon og accessibilty.png"
-                        alt=""
-                        width={22}
-                        height={22}
-                        className={`transition-all duration-200 scale-[2.2]`}
-                      />
-                    </button>
-
-                  </div>
-
-                  <button
-                    onClick={resetAll}
-                    className="flex flex-row items-center justify-center w-auto h-10 px-3 rounded-xl transition-all duration-200 hover:scale-105 shadow-sm"
-                    style={{ backgroundColor: currentTheme.active, color: currentTheme.text }}
-                    aria-label={t.common.reset}
-                    title={t.common.reset}
-                  >
-                    <svg
-                      className="h-4 w-4 mr-1"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      />
-                    </svg>
-                    <span className="text-[11px] font-bold uppercase tracking-tight">{t.common.reset}</span>
-                  </button>
-
-
+                {/* Removed separate settings and reset buttons */}
+                <div className={`flex ${isVertical ? 'mt-auto flex-col space-y-2 sm:space-y-3' : 'ml-auto flex-row space-x-2 sm:space-x-3'} items-center flex-shrink-0`}>
+                  {/* Include Me logo preserved */}
                   {!isVertical && (
                     <div className="ml-2 group cursor-pointer w-12 h-12 flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95">
                       <img
@@ -572,10 +585,10 @@ export default function AccessibilityBar() {
                 <div
                   className={`flex flex-col min-w-0 ${isVertical
                     ? 'flex-1 h-full'
-                    : `absolute ${panelPosition === 'bottom' ? 'bottom-[74px]' : 'top-[74px]'} w-[280px] shadow-2xl rounded-none animate-fade-in`
+                    : `absolute ${panelPosition === 'bottom' ? (isMobile ? 'bottom-[66px]' : 'bottom-[74px]') : (isMobile ? 'top-[66px]' : 'top-[74px]')} ${isMobile ? 'w-[calc(100vw-20px)]' : 'w-[280px]'} shadow-2xl rounded-none animate-fade-in`
                     }`}
                   style={!isVertical ? {
-                    left: `${Math.max(20, Math.min(window.innerWidth - 320, selectedOffset - 150))}px`,
+                    left: `${Math.max(10, Math.min(window.innerWidth - (isMobile ? window.innerWidth - 10 : 320), selectedOffset - (isMobile ? (window.innerWidth - 20) / 2 : 150)))}px`,
                     backgroundColor: currentTheme.background,
                     border: `4px solid ${currentTheme.border}`
                   } : {
@@ -604,18 +617,18 @@ export default function AccessibilityBar() {
                             alt=""
                             width={20}
                             height={20}
-                            className={`${selectedCategory === 'settings' ? 'scale-[2.2]' : (selectedCategory === 'speech' ? '' : 'brightness-0 invert')}`}
+                            className={`${selectedCategory === 'speech' ? '' : 'brightness-0 invert'}`}
                           />
                         </div>
                         <div className="flex flex-col">
-                          <h2 className="text-[20px] font-extrabold uppercase tracking-tight leading-tight max-w-[150px]" style={{ color: currentTheme.text }}>
-                            {selectedCategory === 'settings' ? t.categories.settings : categories.find((c) => c.id === selectedCategory)?.name}
+                          <h2 className={`text-[16px] sm:text-[20px] font-extrabold uppercase tracking-tight leading-[1.2] mt-2 sm:mt-[12px] ${selectedCategory === 'position' ? 'whitespace-pre-line' : (['text', 'ai', 'layout', 'speech'].includes(selectedCategory || '') ? 'whitespace-nowrap' : (selectedCategory === 'visual' ? 'max-w-[120px] sm:max-w-[140px]' : ''))}`} style={{ color: currentTheme.text }}>
+                            {categories.find((c) => c.id === selectedCategory)?.name}
                           </h2>
                         </div>
                       </div>
                       <button
                         onClick={() => setSelectedCategory(null)}
-                        className="absolute top-3 right-3 p-2 rounded-lg transition-all hover:bg-black/10"
+                        className="absolute top-0 right-0 p-3 rounded-none transition-all hover:bg-black/10 z-10"
                         style={{ color: currentTheme.text }}
                         aria-label={t.common.close}
                       >
@@ -637,12 +650,15 @@ export default function AccessibilityBar() {
 
                   </div>
 
-                  <div className={`${isVertical ? 'flex-1' : 'h-[420px]'} overflow-y-auto overflow-x-hidden p-6 custom-scrollbar min-w-0 break-words`}>
+                  <div
+                    data-category-content
+                    className={`${isVertical ? 'flex-1' : (isMobile ? 'h-[350px]' : 'h-[420px]')} overflow-y-auto overflow-x-hidden p-4 sm:p-6 custom-scrollbar min-w-0 break-words`}
+                  >
                     {renderCategoryContent()}
                   </div>
 
                   {/* Bubble Arrow for both Vertical and Horizontal Layouts */}
-                  {selectedCategoryRect && (
+                  {selectedCategoryRect && !isMobile && (
                     <>
                       {/* Arrow Border */}
                       <div
@@ -693,7 +709,8 @@ export default function AccessibilityBar() {
             </div>
           </div>
         </>
-      )}
+      )
+      }
 
       {readingRuler && <ReadingRuler />}
       {readingGuide && <ReadingGuideLine />}
@@ -704,6 +721,22 @@ export default function AccessibilityBar() {
       <GoogleTranslate />
       <SmartSuggestions />
       <TtsPlayer />
+      <SimplifiedLayoutOverlay />
+      <MagnifierOverlay />
+      <PageStructureOverlay />
+      <PageSummaryOverlay />
+      <style jsx global>{`
+        .highlight-links a:not(.accessibility-bar *):not(.a11y-embed-host *) {
+          background-color: rgba(255, 255, 0, 0.4) !important;
+          color: #000 !important;
+          text-decoration: underline !important;
+        }
+        .highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *) {
+          background-color: rgba(255, 255, 0, 0.4) !important;
+          color: #000 !important;
+          display: inline-block !important;
+        }
+      `}</style>
     </>
   );
 }

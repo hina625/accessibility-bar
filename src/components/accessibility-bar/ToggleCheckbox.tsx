@@ -24,7 +24,7 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
             onClick={(e) => { e.stopPropagation(); onChange(); }}
         >
             <div className="flex flex-col flex-1">
-                <span className="text-[15px] font-medium" style={{ color: theme.text }}>{label}</span>
+                <span className="text-[16px] font-medium" style={{ color: theme.text }}>{label}</span>
             </div>
             <div
                 className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"

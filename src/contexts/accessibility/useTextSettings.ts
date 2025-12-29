@@ -11,7 +11,7 @@ export function useTextSettings() {
     const [fontSize, setFontSizeState] = useState<number>(DEFAULT_FONT_SIZE);
     const [fontStyle, setFontStyleState] = useState<FontStyle>('default');
     const [textAlign, setTextAlignState] = useState<'left' | 'center' | 'right' | 'justify'>('left');
-    const [language, setLanguageState] = useState<string>('en');
+    const [language, setLanguageState] = useState<string>('en-GB');
     const [lineHeight, setLineHeightState] = useState<number>(1);
     const [characterSpacing, setCharacterSpacingState] = useState<number>(0);
 

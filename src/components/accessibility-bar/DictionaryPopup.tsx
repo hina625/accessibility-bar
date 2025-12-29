@@ -6,7 +6,7 @@ import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
 
 export default function DictionaryPopup() {
-    const { onPageDictionary, toggleOnPageDictionary, panelPosition, barTheme } = useAccessibility();
+    const { onPageDictionary, toggleOnPageDictionary, panelPosition, barTheme, isMobile } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
     const [definition, setDefinition] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -76,10 +76,10 @@ export default function DictionaryPopup() {
 
     return (
         <div
-            className={`fixed z-[2147483650] shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out
+            className={`accessibility-bar fixed z-[2147483650] shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out
                 ${(panelPosition === 'left' || panelPosition === 'right')
-                    ? `top-0 bottom-0 w-[340px] border-x ${panelPosition === 'left' ? 'left-0' : 'right-0'}`
-                    : 'inset-y-0 right-0 w-80 border-l'
+                    ? `top-0 bottom-0 ${isMobile ? 'w-full' : 'w-[340px]'} border-x ${panelPosition === 'left' ? 'left-0' : 'right-0'}`
+                    : `inset-y-0 right-0 ${isMobile ? 'w-full' : 'w-80'} border-l`
                 }
             `}
             style={{
@@ -118,10 +118,6 @@ export default function DictionaryPopup() {
             {/* Content */}
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
 
-                {/* Intro Text */}
-                <p className="text-xs mb-4" style={{ color: theme.text, opacity: 0.7 }}>
-                    Select a word on this page or enter it in the search bar to view its definition
-                </p>
 
                 {/* Search Bar */}
                 <form onSubmit={handleSearchSubmit} className="mb-6 relative">
@@ -131,7 +127,7 @@ export default function DictionaryPopup() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search..."
-                            className="w-full pl-4 pr-10 py-2 border rounded-lg text-sm focus:outline-none transition-all"
+                            className="w-full pl-4 pr-10 py-2 border rounded-lg text-[16px] focus:outline-none transition-all"
                             style={{
                                 backgroundColor: theme.hover,
                                 borderColor: theme.border,
@@ -169,7 +165,7 @@ export default function DictionaryPopup() {
                                     {definition.word}
                                 </h2>
                                 {definition.partOfSpeech && (
-                                    <span className="text-xs font-semibold capitalize" style={{ color: theme.text, opacity: 0.9 }}>
+                                    <span className="text-[14px] font-semibold capitalize" style={{ color: theme.text, opacity: 0.9 }}>
                                         ({definition.partOfSpeech})
                                     </span>
                                 )}
@@ -178,12 +174,12 @@ export default function DictionaryPopup() {
                             {/* Phonetics section */}
                             <div className="space-y-1">
                                 {definition.phonetic && (
-                                    <div className="text-sm font-mono" style={{ color: theme.text, opacity: 0.9 }}>
+                                    <div className="text-[16px] font-mono" style={{ color: theme.text, opacity: 0.9 }}>
                                         {definition.phonetic}
                                     </div>
                                 )}
                                 {definition.simplePhonetic && (
-                                    <div className="text-sm" style={{ color: theme.text, opacity: 0.7 }}>
+                                    <div className="text-[16px]" style={{ color: theme.text, opacity: 0.7 }}>
                                         {definition.simplePhonetic}
                                     </div>
                                 )}
@@ -192,7 +188,7 @@ export default function DictionaryPopup() {
                             {/* Audio Button */}
                             <button
                                 onClick={() => playAudio(definition.word)}
-                                className="mt-2 flex items-center gap-1.5 text-xs font-bold hover:underline"
+                                className="mt-2 flex items-center gap-1.5 text-[14px] font-bold hover:underline"
                                 style={{ color: theme.text }}
                             >
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,8 +200,8 @@ export default function DictionaryPopup() {
 
                         {/* Definition */}
                         <div>
-                            <h4 className="text-sm font-bold mb-2" style={{ color: theme.text }}>Definition</h4>
-                            <p className="text-[14px] leading-relaxed" style={{ color: theme.text, opacity: 0.9 }}>
+                            <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Definition</h4>
+                            <p className="text-[16px] leading-relaxed" style={{ color: theme.text, opacity: 0.9 }}>
                                 {definition.meaning}
                             </p>
                         </div>
@@ -213,8 +209,8 @@ export default function DictionaryPopup() {
                         {/* Example */}
                         {definition.example && (
                             <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: theme.text }}>Example</h4>
-                                <p className="text-[14px] italic border-l-2 pl-3" style={{ color: theme.text, opacity: 0.8, borderColor: theme.active }}>
+                                <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Example</h4>
+                                <p className="text-[16px] italic border-l-2 pl-3" style={{ color: theme.text, opacity: 0.8, borderColor: theme.active }}>
                                     "{definition.example}"
                                 </p>
                             </div>
@@ -223,7 +219,7 @@ export default function DictionaryPopup() {
                         {/* Synonyms */}
                         {definition.synonyms && definition.synonyms.length > 0 && (
                             <div>
-                                <h4 className="text-sm font-bold mb-2" style={{ color: theme.text }}>Synonyms</h4>
+                                <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Synonyms</h4>
                                 <div className="flex flex-wrap gap-2">
                                     {definition.synonyms.map((syn: string) => (
                                         <span

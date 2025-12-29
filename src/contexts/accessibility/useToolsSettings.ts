@@ -20,6 +20,7 @@ export function useToolsSettings() {
     const [ttsReadingSpeed, setTtsReadingSpeed] = useState<number>(1);
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
     const [ttsHoverToSpeak, setTtsHoverToSpeak] = useState<boolean>(false);
+    const [realTimeTranslation, setRealTimeTranslation] = useState<boolean>(false);
 
 
     useEffect(() => {
@@ -35,6 +36,8 @@ export function useToolsSettings() {
             ttsHoverToSpeak: localStorage.getItem('accessibility-ttsHoverToSpeak'),
             pronunciationGuide: localStorage.getItem('accessibility-pronunciationGuide'),
             smartSuggestions: localStorage.getItem('accessibility-smartSuggestions'),
+            pageSummary: localStorage.getItem('accessibility-pageSummary'),
+            realTimeTranslation: localStorage.getItem('accessibility-realTimeTranslation'),
         };
 
         if (saved.keyboardNavigation === 'true') setKeyboardNavigation(true);
@@ -48,6 +51,8 @@ export function useToolsSettings() {
         if (saved.ttsHoverToSpeak === 'true') setTtsHoverToSpeak(true);
         if (saved.pronunciationGuide === 'true') setPronunciationGuide(true);
         if (saved.smartSuggestions === 'false') setSmartSuggestions(false); // Default logic inverted because default is true
+        if (saved.pageSummary === 'true') setPageSummary(true);
+        if (saved.realTimeTranslation === 'true') setRealTimeTranslation(true);
     }, []);
 
 
@@ -74,6 +79,7 @@ export function useToolsSettings() {
     useEffect(() => {
         if (pageSummary) document.documentElement.classList.add('page-summary-active');
         else document.documentElement.classList.remove('page-summary-active');
+        localStorage.setItem('accessibility-pageSummary', pageSummary.toString());
     }, [pageSummary]);
 
     useEffect(() => localStorage.setItem('accessibility-ttsAutoPlay', ttsAutoPlay.toString()), [ttsAutoPlay]);
@@ -83,6 +89,7 @@ export function useToolsSettings() {
     useEffect(() => localStorage.setItem('accessibility-ttsReadingSpeed', ttsReadingSpeed.toString()), [ttsReadingSpeed]);
     useEffect(() => localStorage.setItem('accessibility-ttsReadSelectedText', ttsReadSelectedText.toString()), [ttsReadSelectedText]);
     useEffect(() => localStorage.setItem('accessibility-ttsHoverToSpeak', ttsHoverToSpeak.toString()), [ttsHoverToSpeak]);
+    useEffect(() => localStorage.setItem('accessibility-realTimeTranslation', realTimeTranslation.toString()), [realTimeTranslation]);
 
     // Handle TTS Logic (Selection & Page Reading)
     useEffect(() => {
@@ -277,5 +284,6 @@ export function useToolsSettings() {
         ttsHoverToSpeak, setTtsHoverToSpeak,
         pronunciationGuide, setPronunciationGuide,
         smartSuggestions, setSmartSuggestions,
+        realTimeTranslation, setRealTimeTranslation,
     };
 }

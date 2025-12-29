@@ -1,10 +1,30 @@
 @import "tailwindcss";
 
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
 /* Custom animations and styles for embed */
 @keyframes fade-in {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -14,6 +34,7 @@
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -26,6 +47,51 @@
 .animate-slide-in-left {
   animation: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes progress-once {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-progress-once {
+  animation: progress-once 0.5s ease-out forwards;
+}
+
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -52,3 +118,42 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
+
+
+/* Content Filtering Utilities */
+html.hide-images img,
+html.hide-images svg:not(.accessibility-bar *),
+html.hide-images video,
+html.hide-images iframe,
+html.hide-images canvas {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+html.pause-animations *,
+html.pause-animations *::before,
+html.pause-animations *::after {
+  animation-play-state: paused !important;
+  transition-property: none !important;
+}
+
+html.stop-videos video,
+html.stop-videos audio {
+  display: none !important;
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+
+html.show-image-descriptions img[data-alt] {
+  position: relative;
+  outline: 4px solid #F59E0B;
+
+}

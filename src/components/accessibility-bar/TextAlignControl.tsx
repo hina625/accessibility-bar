@@ -16,13 +16,13 @@ export default function TextAlignControl() {
 
   return (
     <div className="space-y-2">
-      <label className="block text-[18px] font-normal" style={{ color: theme.text }}>
+      <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
         {t.controls.textAlign}
       </label>
       <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => setTextAlign('left')}
-          className="px-3 py-2 text-[14px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
+          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
           style={getButtonStyle('left')}
           aria-label={`${t.controls.alignLeft} ${t.controls.textAlign}`}
         >
@@ -30,7 +30,7 @@ export default function TextAlignControl() {
         </button>
         <button
           onClick={() => setTextAlign('center')}
-          className="px-3 py-2 text-[14px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
+          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
           style={getButtonStyle('center')}
           aria-label={`${t.controls.alignCentre} ${t.controls.textAlign}`}
         >
@@ -38,7 +38,7 @@ export default function TextAlignControl() {
         </button>
         <button
           onClick={() => setTextAlign('right')}
-          className="px-3 py-2 text-[14px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
+          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
           style={getButtonStyle('right')}
           aria-label={`${t.controls.alignRight} ${t.controls.textAlign}`}
         >
@@ -46,7 +46,7 @@ export default function TextAlignControl() {
         </button>
         <button
           onClick={() => setTextAlign('justify')}
-          className="px-3 py-2 text-[14px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
+          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
           style={getButtonStyle('justify')}
           aria-label={`${t.controls.alignJustify} ${t.controls.textAlign}`}
         >

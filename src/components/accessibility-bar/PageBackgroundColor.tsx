@@ -65,7 +65,7 @@ export default function PageBackgroundColor() {
 
   return (
     <div className="space-y-4">
-      <label className="block text-[18px] font-normal text-white lowercase first-letter:uppercase">
+      <label className="block text-[16px] font-normal text-white lowercase first-letter:uppercase">
         {t.controls.bg}
       </label>
 
@@ -90,7 +90,7 @@ export default function PageBackgroundColor() {
                   aria-label={`${t.common.dark} ${bgColor.name}`}
                 >
                   <span
-                    className="text-[15px] font-normal"
+                    className="text-[16px] font-normal"
                     style={{ color: bgColor.textColor }}
                   >
                     A
@@ -136,7 +136,7 @@ export default function PageBackgroundColor() {
                   aria-label={`${t.common.light} ${bgColor.name}`}
                 >
                   <span
-                    className="text-[15px] font-normal"
+                    className="text-[16px] font-normal"
                     style={{ color: bgColor.textColor }}
                   >
                     A
@@ -197,7 +197,7 @@ export default function PageBackgroundColor() {
               setTextColor(autoTextColor);
               setHeadingColor(autoTextColor);
             }}
-            className="flex-1 px-2 py-1.5 text-[14px] font-normal border rounded"
+            className="flex-1 px-2 py-1.5 text-[16px] font-normal border rounded"
             placeholder="#FFFFFF"
             style={{
               maxWidth: '100px',
@@ -212,7 +212,7 @@ export default function PageBackgroundColor() {
               setTextColor('#000000');
               setHeadingColor('#000000');
             }}
-            className="px-3 py-1.5 text-[14px] font-bold rounded-md border transition-colors"
+            className="px-3 py-1.5 text-[16px] font-bold rounded-md border transition-colors"
             style={{
               background: currentTheme.background,
               color: currentTheme.text,

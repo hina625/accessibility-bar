@@ -9,7 +9,9 @@ export function useReadingSettings() {
     const [readingRulerWidth, setReadingRulerWidth] = useState<number>(60);
     const [readingMask, setReadingMask] = useState<boolean>(false);
     const [readingMaskColor, setReadingMaskColor] = useState<string>('rgba(0, 0, 0, 1)');
+    const [readingMaskSize, setReadingMaskSize] = useState<number>(140);
     const [readingSpotlight, setReadingSpotlight] = useState<boolean>(false);
+    const [readingSpotlightBrightness, setReadingSpotlightBrightness] = useState<number>(1.5);
     const [highlightLinks, setHighlightLinks] = useState<boolean>(false);
     const [highlightHeadings, setHighlightHeadings] = useState<boolean>(false);
     const [largeButtons, setLargeButtons] = useState<boolean>(false);
@@ -25,7 +27,9 @@ export function useReadingSettings() {
             readingRulerWidth: localStorage.getItem('accessibility-readingRulerWidth'),
             readingMask: localStorage.getItem('accessibility-readingMask'),
             readingMaskColor: localStorage.getItem('accessibility-readingMaskColor'),
+            readingMaskSize: localStorage.getItem('accessibility-readingMaskSize'),
             readingSpotlight: localStorage.getItem('accessibility-readingSpotlight'),
+            readingSpotlightBrightness: localStorage.getItem('accessibility-readingSpotlightBrightness'),
             highlightLinks: localStorage.getItem('accessibility-highlightLinks'),
             highlightHeadings: localStorage.getItem('accessibility-highlightHeadings'),
             largeButtons: localStorage.getItem('accessibility-largeButtons'),
@@ -39,7 +43,9 @@ export function useReadingSettings() {
         if (saved.readingRulerWidth) setReadingRulerWidth(Number(saved.readingRulerWidth));
         if (saved.readingMask === 'true') setReadingMask(true);
         if (saved.readingMaskColor) setReadingMaskColor(saved.readingMaskColor);
+        if (saved.readingMaskSize) setReadingMaskSize(Number(saved.readingMaskSize));
         if (saved.readingSpotlight === 'true') setReadingSpotlight(true);
+        if (saved.readingSpotlightBrightness) setReadingSpotlightBrightness(Number(saved.readingSpotlightBrightness));
         if (saved.highlightLinks === 'true') setHighlightLinks(true);
         if (saved.highlightHeadings === 'true') setHighlightHeadings(true);
         if (saved.largeButtons === 'true') setLargeButtons(true);
@@ -61,11 +67,13 @@ export function useReadingSettings() {
     useEffect(() => {
         localStorage.setItem('accessibility-readingMask', readingMask.toString());
         localStorage.setItem('accessibility-readingMaskColor', readingMaskColor);
-    }, [readingMask, readingMaskColor]);
+        localStorage.setItem('accessibility-readingMaskSize', readingMaskSize.toString());
+    }, [readingMask, readingMaskColor, readingMaskSize]);
 
     useEffect(() => {
         localStorage.setItem('accessibility-readingSpotlight', readingSpotlight.toString());
-    }, [readingSpotlight]);
+        localStorage.setItem('accessibility-readingSpotlightBrightness', readingSpotlightBrightness.toString());
+    }, [readingSpotlight, readingSpotlightBrightness]);
 
     useEffect(() => {
         if (highlightLinks) document.documentElement.classList.add('highlight-links');
@@ -94,7 +102,9 @@ export function useReadingSettings() {
         readingRulerWidth, setReadingRulerWidth,
         readingMask, setReadingMask,
         readingMaskColor, setReadingMaskColor,
+        readingMaskSize, setReadingMaskSize,
         readingSpotlight, setReadingSpotlight,
+        readingSpotlightBrightness, setReadingSpotlightBrightness,
         highlightLinks, setHighlightLinks,
         highlightHeadings, setHighlightHeadings,
         largeButtons, setLargeButtons,

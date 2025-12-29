@@ -30,7 +30,9 @@ interface AccessibilityContextType extends AccessibilityState {
     setReadingRulerWidth: (width: number) => void;
     toggleReadingMask: () => void;
     setReadingMaskColor: (color: string) => void;
+    setReadingMaskSize: (size: number) => void;
     toggleReadingSpotlight: () => void;
+    setReadingSpotlightBrightness: (brightness: number) => void;
     toggleReduceMotion: () => void;
     toggleDarkMode: () => void;
     toggleHighlightLinks: () => void;
@@ -60,6 +62,7 @@ interface AccessibilityContextType extends AccessibilityState {
     toggleShowImageDescriptions: () => void;
     togglePlainTextMode: () => void;
     toggleSimplifiedLayout: () => void;
+    togglePageStructure: () => void;
     setPlainTextSize: (size: 'small' | 'medium' | 'large') => void;
     togglePauseAnimations: () => void;
     toggleStopVideos: () => void;
@@ -78,6 +81,8 @@ interface AccessibilityContextType extends AccessibilityState {
     resetAll: () => void;
     toggleMagnifier: () => void;
     toggleSmartSuggestions: () => void;
+    isMobile: boolean;
+    toggleRealTimeTranslation: () => void;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -124,7 +129,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         readingRulerWidth: reading.readingRulerWidth,
         readingMask: reading.readingMask,
         readingMaskColor: reading.readingMaskColor,
+        readingMaskSize: reading.readingMaskSize,
         readingSpotlight: reading.readingSpotlight,
+        readingSpotlightBrightness: reading.readingSpotlightBrightness,
         highlightLinks: reading.highlightLinks,
         highlightHeadings: reading.highlightHeadings,
         largeButtons: reading.largeButtons,
@@ -133,6 +140,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         showImageDescriptions: content.showImageDescriptions,
         plainTextMode: content.plainTextMode,
         simplifiedLayout: content.simplifiedLayout,
+        pageStructure: content.pageStructure,
         plainTextSize: content.plainTextSize,
         pauseAnimations: content.pauseAnimations,
         stopVideos: content.stopVideos,
@@ -160,6 +168,8 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         buttonPosition: ui.buttonPosition,
         panelPosition: ui.panelPosition,
         barTheme: ui.barTheme,
+        isMobile: ui.isMobile,
+        realTimeTranslation: tools.realTimeTranslation,
 
 
         increaseFontSize: text.increaseFontSize,
@@ -191,7 +201,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setReadingRulerWidth: reading.setReadingRulerWidth,
         toggleReadingMask: () => reading.setReadingMask(prev => !prev),
         setReadingMaskColor: reading.setReadingMaskColor,
+        setReadingMaskSize: reading.setReadingMaskSize,
         toggleReadingSpotlight: () => reading.setReadingSpotlight(prev => !prev),
+        setReadingSpotlightBrightness: reading.setReadingSpotlightBrightness,
         toggleHighlightLinks: () => reading.setHighlightLinks(prev => !prev),
         toggleHighlightHeadings: () => reading.setHighlightHeadings(prev => !prev),
         toggleLargeButtons: () => reading.setLargeButtons(prev => !prev),
@@ -200,6 +212,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         toggleShowImageDescriptions: () => content.setShowImageDescriptions(prev => !prev),
         togglePlainTextMode: () => content.setPlainTextMode(prev => !prev),
         toggleSimplifiedLayout: () => content.setSimplifiedLayout(prev => !prev),
+        togglePageStructure: () => content.setPageStructure(prev => !prev),
         setPlainTextSize: content.setPlainTextSize,
         togglePauseAnimations: () => content.setPauseAnimations(prev => !prev),
         toggleStopVideos: () => content.setStopVideos(prev => !prev),
@@ -220,6 +233,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setTtsReadingSpeed: tools.setTtsReadingSpeed,
         toggleTtsReadSelectedText: () => tools.setTtsReadSelectedText(prev => !prev),
         toggleTtsHoverToSpeak: () => tools.setTtsHoverToSpeak(prev => !prev),
+        toggleRealTimeTranslation: () => tools.setRealTimeTranslation(prev => !prev),
         fetchSummarizationHistory: tools.fetchSummarizationHistory,
         deleteHistoryItem: tools.deleteHistoryItem,
 

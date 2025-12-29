@@ -105,7 +105,7 @@ body {
 }
 
 .highlight-links a:not(.accessibility-bar *) {
-  background-color: #ffeb3b !important;
+  background-color: rgba(255, 255, 0, 0.4) !important;
   color: #000 !important;
   padding: 2px 4px !important;
   border-radius: 3px !important;
@@ -114,7 +114,7 @@ body {
 }
 
 .highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *) {
-  background-color: #ffff00 !important;
+  background-color: rgba(255, 255, 0, 0.4) !important;
   color: #000 !important;
   padding: 4px 8px !important;
   border-radius: 4px !important;

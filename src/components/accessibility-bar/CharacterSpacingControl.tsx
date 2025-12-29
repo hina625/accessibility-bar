@@ -8,7 +8,7 @@ export default function CharacterSpacingControl() {
 
   return (
     <div className="space-y-2">
-      <label className="flex items-center gap-2 text-[14px] font-bold text-white uppercase tracking-wide">
+      <label className="flex items-center gap-2 text-[16px] font-bold text-white uppercase tracking-wide">
         <span className="w-1 h-3.5 bg-gray-900 dark:bg-gray-100 rounded-full"></span>
         Character Spacing: {characterSpacing.toFixed(2)}em
       </label>

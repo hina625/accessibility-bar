@@ -3,7 +3,9 @@
 import { useState, useCallback } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { translations } from '@/contexts/accessibility/translations';
 import { API_ENDPOINTS } from '@/config/api';
+import ToggleCheckbox from './ToggleCheckbox';
 
 const LANGUAGES = [
     { code: 'es', name: 'Spanish' },
@@ -21,10 +23,10 @@ const LANGUAGES = [
 ];
 
 export default function RealTimeTranslation() {
-    const { barTheme } = useAccessibility();
+    const { barTheme, realTimeTranslation, toggleRealTimeTranslation, language, setLanguage } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
-    const [isEnabled, setIsEnabled] = useState(false);
-    const [targetLanguage, setTargetLanguage] = useState('es');
+    const t = translations[language] || translations.en;
+    const [targetLanguage, setTargetLanguage] = useState(language || 'es');
     const [inputText, setInputText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
@@ -59,39 +61,26 @@ export default function RealTimeTranslation() {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>Translation</h3>
+            <ToggleCheckbox
+                id="enable-translation-toggle"
+                label={t.controls.translateWebsite || "Translate Website"}
+                checked={realTimeTranslation}
+                onChange={toggleRealTimeTranslation}
+            />
 
-            {/* Enable Toggle */}
-            <div
-                className="flex items-center justify-between py-2 cursor-pointer rounded-lg px-2 -mx-2 transition-colors"
-                style={{ backgroundColor: isEnabled ? theme.hover : 'transparent' }}
-                onClick={() => setIsEnabled(!isEnabled)}
-            >
-                <span className="text-[16px]" style={{ color: theme.text }}>Enable Translation</span>
-                <div
-                    className="w-5 h-5 rounded flex items-center justify-center transition-all"
-                    style={{
-                        backgroundColor: isEnabled ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                        border: isEnabled ? 'none' : `1px solid ${theme.border}`
-                    }}
-                >
-                    {isEnabled && (
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                    )}
-                </div>
-            </div>
-
-            {isEnabled && (
+            {realTimeTranslation && (
                 <>
                     {/* Language Selection */}
                     <div>
-                        <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text, opacity: 0.6 }}>Target Language</label>
+                        <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text, opacity: 0.6 }}>Website Language</label>
                         <select
                             value={targetLanguage}
-                            onChange={(e) => setTargetLanguage(e.target.value)}
-                            className="w-full p-2 rounded-lg border text-[14px] focus:outline-none transition-all"
+                            onChange={(e) => {
+                                const newLang = e.target.value;
+                                setTargetLanguage(newLang);
+                                if (realTimeTranslation) setLanguage(newLang);
+                            }}
+                            className="w-full p-2 rounded-lg border text-[16px] focus:outline-none transition-all"
                             style={{
                                 backgroundColor: theme.hover,
                                 borderColor: theme.border,
@@ -113,7 +102,7 @@ export default function RealTimeTranslation() {
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
                             placeholder="Type or paste text here..."
-                            className="w-full p-3 rounded-lg border text-[14px] resize-none focus:outline-none transition-all"
+                            className="w-full p-3 rounded-lg border text-[16px] resize-none focus:outline-none transition-all"
                             style={{
                                 backgroundColor: theme.hover,
                                 borderColor: theme.border,
@@ -154,11 +143,11 @@ export default function RealTimeTranslation() {
                                 <svg className="w-4 h-4" style={{ color: theme.active }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                 </svg>
-                                <span className="text-[12px] font-bold uppercase" style={{ color: theme.active }}>
+                                <span className="text-[14px] font-bold uppercase" style={{ color: theme.active }}>
                                     {LANGUAGES.find(l => l.code === targetLanguage)?.name}
                                 </span>
                             </div>
-                            <p className="text-[14px] leading-relaxed" style={{ color: theme.text }}>
+                            <p className="text-[16px] leading-relaxed" style={{ color: theme.text }}>
                                 {translatedText}
                             </p>
                         </div>
