@@ -1,16 +1,18 @@
 export const translations: Record<string, any> = {
     en: {
         categories: {
-            text: "TEXT ",
-            page: "IMAGES",
+            text: "FONT TOOLS",
+            page: `IMAGES AND
+ANIMATION`,
             visual: "CONTRAST",
             reading: "READING",
             navigation: "CURSOR AND NAVIGATION",
             speech: "SPEECH ",
-            tools: "LANGUAGE ",
-            layout: "LAYOUT",
+            tools: "LANGUAGE\nTOOLS",
+            layout: "PAGE LAYOUT",
             aiSupport: "AI SUPPORT",
-            settings: "CUSTOMISE \nTOOLBAR"
+            feedback: "YOUR FEEDBACK",
+            settings: "CUSTOMISE\nTOOLBAR"
         },
         common: {
             reset: "Reset",
@@ -20,14 +22,19 @@ export const translations: Record<string, any> = {
             size: "Size",
             thickness: "Thickness",
             dark: "Dark",
-            light: "Light"
+            light: "Light",
+            resetConfirmTitle: "Do you want to reset all features or only some selected features?",
+            resetSelectInstructions: "Please select/delete which features you want to reset:",
+            resetAllBtn: "RESET ALL",
+            resetSelectedBtn: "RESET SELECTED"
         },
         controls: {
             fontSize: "Font Size",
-            textAlign: "Text Align",
+            textAlign: "Text Alignment",
             fontStyle: "Font Style",
             lineHeight: "Line Height",
-            charSpacing: "Letter Spacing",
+            charSpacing: "Tracking\n(Letter Spacing)",
+            wordSpacing: "Word Spacing",
             contrast: "High Contrast",
             grayscale: "Greyscale",
             invert: "Invert Colours",
@@ -36,7 +43,8 @@ export const translations: Record<string, any> = {
             protanopia: "Protanopia",
             deuteranopia: "Deuteranopia",
             tritanopia: "Tritanopia",
-            zoom: "Page Zoom",
+            zoom: `QUICK PAGE
+ZOOM`,
             bg: "Background Colour",
             darkMode: "Dark Mode",
             ruler: "Reading Ruler",
@@ -46,7 +54,9 @@ export const translations: Record<string, any> = {
             links: "Highlight All Links",
             headings: "Highlight Headings",
             buttons: "Large Buttons",
-            cursor: "Cursor Size",
+            cursor: "Pointer size",
+            cursorStyle: "Pointer style",
+            cursorColor: "Pointer colour",
             motion: "Reduce Motion",
             tts: "Text to Speech",
             speechToText: "Speech to Text",
@@ -56,8 +66,13 @@ export const translations: Record<string, any> = {
             descriptions: "Image Desc",
             plainText: "Plain Text Mode",
             summarization: "Page Summarization",
+            stopVideos: "Stop Videos",
+            readingProgressBar: "Scrolling Progress Bar (Horizontal)",
+            pageSummary: "Page Summary",
             selectToRead: "Select to Read",
             pronunciation: "Pronunciation Guide",
+            realTimeTranslation: "Real-Time Translation",
+            smartSuggestions: "Smart Suggestions",
             phonetics: "Phonetics",
             autoPlay: "Click to Speak",
             readPageContent: "Read whole page of content",
@@ -85,15 +100,172 @@ export const translations: Record<string, any> = {
             serif: "Serif",
             sans: "Sans",
             mono: "Monospace",
+            tahoma: "Tahoma",
+            trebuchet: "Trebuchet MS",
+            verdana: "Verdana",
+            'comic-sans': "Comic Sans MS",
+            andika: "Andika",
+
+            lexend: "Lexend",
+            arial: "Arial",
+            'century-gothic': "Century Gothic",
+            'open-sans': "Open Sans",
+            calibri: "Calibri",
+            'fs-me': "FS Me",
+            allFonts: "Fonts",
+            dyslexiaFonts: "Dyslexia Friendly Fonts",
             currentSelection: "Current selection",
             voiceControl: "Voice Control",
             readWholePage: "Read Whole Page",
             stopReading: "Stop Reading",
+            pause: "Pause",
+            resume: "Resume",
             startListening: "Start Listening",
             stopListening: "Stop Listening",
             selectToReadDesc: "Read highlighted text",
             voiceControlDesc: "Control site with your voice",
-            translateWebsite: "Translate Website"
+            translateWebsite: "Translate Website",
+            feedbackTitle: "YOUR FEEDBACK",
+            feedbackPlaceholder: "Anything else you'd like to share?",
+            submitFeedback: "Submit",
+            rating: "How was your overall experience of using the toolbar?",
+            q1: "Is the toolbar easy to use?",
+            q2: "Did you find the accessibility features helpful?",
+            q3: "Was the text clear and readable?",
+            q4: "Did you find the voice controls intuitive?",
+            q5: "Is the layout easy to navigate?",
+            q6: "Would you recommend this tool to others?",
+            wordLimit: "Word limit: 50 words",
+            otherFeedback: "Any other feedback?",
+            yes: "Yes",
+            no: "No",
+            nameLabel: "NAME",
+            emailLabel: "EMAIL",
+            optional: "optional",
+            white: "White",
+            black: "Black",
+            inverted: "Inverted",
+            circle: "Circle",
+            custom: "Custom",
+
+            crosshair: "Crosshair",
+            pointer: "Pointer",
+            help: "Help",
+            person: "Person",
+            pointerStyle: "Mouse pointer style",
+            primaryButton: "Primary mouse button",
+            leftButton: "Left",
+            rightButton: "Right"
+        },
+        info: {
+            position: {
+                description: "Customize where the toolbar and panel appear on your screen.",
+                features: {
+                    "Panel Position": "Dock the sidebar to the Left, Right, Top, or Bottom of the screen.",
+                    "Button Position": "Move the trigger button to any corner or side of the screen.",
+                    "Theme": "Choose a color theme for the toolbar.",
+                    "Feature Indicators": "Displays small red indicators on category icons to show which features are currently active."
+                }
+            },
+            font: {
+                description: "Adjust text appearance for maximum readability.",
+                features: {
+                    "Font Size": "Increase or decrease the size of all text on the page.",
+                    "Font Style": "Switch to readable fonts like Open Dyslexic, Arial, or sans-serif.",
+                    "Text Spacing": "Adjust line height, letter spacing, and word spacing.",
+                    "Text Align": "Align text to Left, Centre, Right, or Justify.",
+                    "Line Height": "Increase space between lines of text.",
+                    "Open Dyslexic": "Weighted bottoms, unique letter shapes.",
+                    "Comic Sans": "Irregular character shapes, distinct letterforms.",
+                    "Arial": "Clean, evenly spaced, sans-serif.",
+                    "Verdana": "Wide spacing, clear simplicity, sans-serif.",
+                    "Trebuchet MS": "Strong visual contrast, broad characters."
+                }
+            },
+            contrast: {
+                description: "Change colors to reduce eye strain and improve visibility.",
+                features: {
+                    "High Contrast": "Maximize contrast between text and background.",
+                    "Dark Mode": "Switch to a dark background with light text.",
+                    "Greyscale": "Remove all color from the page.",
+                    "Invert Colors": "Invert all colors on the screen.",
+                    "Color Blindness": "Filters for Protanopia, Deuteranopia, and Tritanopia.",
+                    "Page Background": "Set a specific background color."
+                }
+            },
+            reading: {
+                description: "Tools to help focus on reading and tracking text.",
+                features: {
+                    "Reading Ruler": "A horizontal line to help track your reading position.",
+                    "Reading Mask": "Dims the screen except for a reading strip.",
+                    "Reading Guide": "A simple guide line to follow text.",
+                    "Spotlight": "Highlights a circular area around your cursor.",
+                    "Highlight Links": "Makes all links widely visible.",
+                    "Highlight Headings": "Highlights all headers on the page.",
+                    "Magnifier": "Zoom in on specific parts of the screen."
+                }
+            },
+            layout: {
+                description: "Modify the page structure for easier navigation.",
+                features: {
+                    "Simplify Layout": "Removes clutter and distractions from the page.",
+                    "Plain Text": "Converts the page to a simple text-only view.",
+                    "Page Structure": "Shows a list of all headings and landmarks."
+                }
+            },
+            navigation: {
+                description: "Alternative ways to navigate the site.",
+                features: {
+                    "Keyboard Nav": "Enhanced keyboard shortcuts for all features.",
+                    "Big Cursor": "Enlarge the mouse cursor for better visibility.",
+                    "Large Buttons": "Increase the size of clickable elements."
+                }
+            },
+            cursor: {
+                description: "Customize your mouse cursor.",
+                features: {
+                    "Cursor Size": "Make the cursor larger and easier to see.",
+                    "Cursor Style": "Change the cursor look (High Contrast, Circle, etc.).",
+                    "Reduce Motion": "Stop animations and moving elements."
+                }
+            },
+            images: {
+                description: "Control how images are displayed.",
+                features: {
+                    "Hide Images": "Remove all images from the page.",
+                    "Image Descriptions": "Show alt text descriptions for images.",
+                    "Stop Animations": "Pause GIFs and other animations."
+                }
+            },
+            speech: {
+                description: "Listen to content instead of reading.",
+                features: {
+                    "Text to Speech": "Read the page content aloud.",
+                    "Voice Navigation": "Control the website using voice commands.",
+                    "Select to Read": "Read only the text you select."
+                }
+            },
+            language: {
+                description: "Translation and language tools.",
+                features: {
+                    "Google Translate": "Translate the entire page to another language.",
+                    "Dictionary": "Look up definitions of words on the page.",
+                    "Pronunciation": "See how words are pronounced."
+                }
+            },
+            ai: {
+                description: "Smart AI-powered assistance.",
+                features: {
+                    "Page Summary": "Get a quick AI-generated summary of the page.",
+                    "Smart Suggestions": "AI suggests accessibility settings based on your needs."
+                }
+            },
+            feedback: {
+                description: "Help us improve.",
+                features: {
+                    "Feedback Form": "Send us your comments and suggestions."
+                }
+            }
         }
     },
     ur: {
@@ -106,6 +278,7 @@ export const translations: Record<string, any> = {
             speech: "تقریر",
             tools: "اوزار",
             layout: "خاکہ",
+            feedback: "آپ کی رائے",
             settings: "پوزیشن"
         },
         common: {
@@ -116,7 +289,11 @@ export const translations: Record<string, any> = {
             size: "سائز",
             thickness: "موٹائی",
             dark: "گہرا",
-            light: "ہلکا"
+            light: "ہلکا",
+            resetConfirmTitle: "کیا آپ تمام فونٹس کو ری سیٹ کرنا چاہتے ہیں یا صرف کچھ منتخب کردہ کو؟",
+            resetSelectInstructions: "براہ کرم منتخب کریں یا حذف کریں کہ آپ کون سی خصوصیات کو ری سیٹ کرنا چاہتے ہیں:",
+            resetAllBtn: "تمام ری سیٹ کریں",
+            resetSelectedBtn: "منتخب ری سیٹ کریں"
         },
         controls: {
             fontSize: "تحریر کا سائز",
@@ -124,6 +301,7 @@ export const translations: Record<string, any> = {
             fontStyle: "فونٹ سٹائل",
             lineHeight: "لائنوں کا درمیانی فاصلہ",
             charSpacing: "حروف کا درمیانی فاصلہ",
+            wordSpacing: "لفظوں کا درمیانی فاصلہ",
             contrast: "زیادہ تضاد",
             grayscale: "سیاہ و سفید",
             invert: "رنگوں کا الٹ",
@@ -142,7 +320,7 @@ export const translations: Record<string, any> = {
             links: "لنکس ہائی لائٹ کریں",
             headings: "ہیڈنگز ہائی لائٹ کریں",
             buttons: "بڑے بٹن",
-            cursor: "کرسر کا سائز",
+            cursor: "پوائنٹر کا سائز",
             motion: "موشن کم کریں",
             tts: "تحریر سے تقریر",
             speechToText: "تقریر سے تحریر",
@@ -170,7 +348,7 @@ export const translations: Record<string, any> = {
             originalView: "اصل منظر",
             simplifying: "صفحہ آسان کیا جا رہا ہے...",
             alignLeft: "بائیں",
-            alignCenter: "درمیان",
+            alignCentre: "درمیان",
             alignRight: "دائیں",
             alignJustify: "برابر",
             on: "آن",
@@ -185,11 +363,44 @@ export const translations: Record<string, any> = {
             voiceControl: "وائس کنٹرول",
             readWholePage: "پورا صفحہ پڑھیں",
             stopReading: "پڑھنا بند کریں",
+            pause: "وقفہ کریں",
+            resume: "دوبارہ شروع کریں",
             startListening: "سننا شروع کریں",
             stopListening: "سننا بند کریں",
             selectToReadDesc: "ہائی لائٹ کی ہوئی تحریر منتخب کریں",
             voiceControlDesc: "اپنی آواز سے سائٹ کو کنٹرول کریں",
-            translateWebsite: "ویب سائٹ کا ترجمہ کریں"
+            translateWebsite: "ویب سائٹ کا ترجمہ کریں",
+            feedbackTitle: "آپ کی رائے",
+            feedbackPlaceholder: "کچھ اور جو آپ بتانا چاہیں؟",
+            submitFeedback: "جمع کریں",
+            rating: "آپ کا تجربہ کیسا رہا؟",
+            q1: "کیا ٹول بار استعمال کرنا آسان ہے؟",
+            q2: "کیا آپ کو رسائی کی خصوصیات مفید لگیں؟",
+            q3: "کیا تحریر واضح اور پڑھنے کے قابل تھی؟",
+            q4: "کیا آپ کو آواز کے کنٹرول استعمال کرنے میں آسانی ہوئی؟",
+            q5: "کیا لے آؤٹ میں نیویگیشن آسان ہے؟",
+            q6: "کیا آپ دوسروں کو اس ٹول کی سفارش کریں گے؟",
+            wordLimit: "الفاظ کی حد: 50 الفاظ",
+            otherFeedback: "کوئی اور رائے؟",
+            yes: "جی ہاں",
+            no: "نہیں",
+            nameLabel: "نام",
+            emailLabel: "ای میل",
+            optional: "(اختیاری)",
+            white: "سفید",
+            black: "سیاہ",
+            inverted: "الٹ",
+            circle: "دائرہ",
+            custom: "اپنی مرضی کا",
+
+            crosshair: "کراس ہیر",
+            pointer: "پوائنٹر",
+            help: "مدد",
+            person: "شخص",
+            pointerStyle: "ماؤس پوائنٹر سٹائل",
+            primaryButton: "بنیادی ماؤس بٹن",
+            leftButton: "بایاں",
+            rightButton: "دایاں"
         }
     },
     ar: {
@@ -379,6 +590,7 @@ export const translations: Record<string, any> = {
             fontStyle: "फ़ॉन्ट शैली",
             lineHeight: "लाइन की ऊंचाई",
             charSpacing: "अक्षरों का अंतर",
+            wordSpacing: "शब्दों का अंतर",
             contrast: "उच्च कंट्रास्ट",
             grayscale: "ग्रेस्केल",
             invert: "रंग उलटें",

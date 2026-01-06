@@ -36,7 +36,7 @@ export default function PageStructureOverlay() {
     }, [pageStructure]);
 
     const scanPage = () => {
-      
+
         const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
         const headingList: HeadingItem[] = [];
         headingElements.forEach((el) => {
@@ -93,7 +93,7 @@ export default function PageStructureOverlay() {
     const scrollToElement = (element: Element) => {
         element.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-        
+
         const originalOutline = (element as HTMLElement).style.outline;
         const originalBackground = (element as HTMLElement).style.backgroundColor;
         (element as HTMLElement).style.outline = '3px solid #3B82F6';
@@ -131,7 +131,8 @@ export default function PageStructureOverlay() {
                 backgroundColor: theme.background,
                 borderColor: theme.border,
                 transform: 'translateX(0)',
-                color: theme.text
+                color: theme.text,
+                pointerEvents: 'auto'
             }}
         >
             {/* Header */}
@@ -155,16 +156,17 @@ export default function PageStructureOverlay() {
                 </div>
                 <button
                     onClick={togglePageStructure}
-                    className="p-2 rounded-lg transition-colors"
+                    className="p-2 pr-4 rounded-lg transition-colors flex items-center gap-1.5"
                     style={{ color: theme.text }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${theme.text}10`}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                    <span className="text-xs font-bold uppercase tracking-wide">Close</span>
                 </button>
             </div>
 
-          
+
             <div
                 className="px-4 py-3 border-b"
                 style={{

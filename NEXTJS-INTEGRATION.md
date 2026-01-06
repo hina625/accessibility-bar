@@ -23,7 +23,7 @@ export default function RootLayout({
         
         {/* Accessibility Bar Script */}
         <Script
-          src="/embed-bundle.js"
+          src="/embed-standalone.js"
           strategy="afterInteractive"
         />
       </body>
@@ -47,7 +47,7 @@ export default function App({ Component, pageProps }: AppProps) {
       
       {/* Accessibility Bar Script */}
       <Script
-        src="/embed-bundle.js"
+        src="/embed-standalone.js"
         strategy="afterInteractive"
       />
     </>
@@ -67,7 +67,7 @@ import { useEffect } from 'react'
 export default function AccessibilityBar() {
   useEffect(() => {
     const script = document.createElement('script')
-    script.src = '/embed-bundle.js'
+    script.src = '/embed-standalone.js'
     script.async = true
     document.body.appendChild(script)
 
@@ -110,7 +110,7 @@ export default function Document() {
       <body>
         <Main />
         <NextScript />
-        <script src="/embed-bundle.js" async></script>
+        <script src="/embed-standalone.js" async></script>
       </body>
     </Html>
   )
@@ -119,15 +119,16 @@ export default function Document() {
 
 ## Setup Steps
 
-### Step 1: Copy Bundle File
-
-`public/embed-bundle.js` file ko apne Next.js project ke `public` folder mein copy karein:
-
-```
-your-nextjs-app/
-  public/
-    embed-bundle.js  ← Yahan copy karein
-```
+### Step 1: Copy Standalone File
+25. 
+26. `public/embed-standalone.js` file ko apne Next.js project ke `public` folder mein copy karein.
+27. (NOTE: Aap `embed-bundle.js` bhi use kar sakte hain, but `embed-standalone.js` hamesha latest copy hoti hai).
+28. 
+29. ```
+30. your-nextjs-app/
+31.   public/
+32.     embed-standalone.js  ← Yahan copy karein
+33. ```
 
 ### Step 2: Add Script
 
@@ -163,7 +164,7 @@ export default function RootLayout({
         
         {/* Accessibility Bar */}
         <Script
-          src="/embed-bundle.js"
+          src="/embed-standalone.js"
           strategy="afterInteractive"
         />
       </body>
@@ -188,7 +189,7 @@ export default function App({ Component, pageProps }: AppProps) {
       
       {/* Accessibility Bar */}
       <Script
-        src="/embed-bundle.js"
+        src="/embed-standalone.js"
         strategy="afterInteractive"
       />
     </>
@@ -247,7 +248,7 @@ export default function AccessibilityBarLoader() {
 
   return (
     <Script
-      src="/embed-bundle.js"
+      src="/embed-standalone.js"
       strategy="afterInteractive"
       onLoad={() => {
         if (window.AccessibilityBarEmbed?.init) {
@@ -263,13 +264,13 @@ export default function AccessibilityBarLoader() {
 
 ### Script not loading?
 
-1. Check ki `embed-bundle.js` `public` folder mein hai
+1. Check ki `embed-standalone.js` `public` folder mein hai
 2. Browser console mein errors check karein
 3. Network tab mein check karein ki file load ho rahi hai ya nahi
 
 ### Not working in production?
 
-1. Make sure `embed-bundle.js` production build mein include ho
+1. Make sure `embed-standalone.js` production build mein include ho
 2. Check `next.config.js` mein koi restrictions to nahi
 3. Verify file path correct hai
 

@@ -14,20 +14,19 @@ export default function DictionaryPopup() {
     const [isOpen, setIsOpen] = useState(false);
     const panelRef = useRef<HTMLDivElement>(null);
 
-    // Handle text selection
     useEffect(() => {
         if (!onPageDictionary) {
             setIsOpen(false);
+            // Auto-clear logic
+            setSearchQuery('');
+            setDefinition(null);
             return;
         }
 
         const handleMouseUp = async () => {
-            // Basic delay to ensure selection is complete
             setTimeout(async () => {
                 const selection = window.getSelection();
                 const selectedText = selection?.toString().trim();
-
-                // Allow multi-word selections (e.g. "machine learning") but limit length
                 if (selectedText && selectedText.length > 1 && selectedText.length < 50) {
                     fetchDefinition(selectedText);
                 }
@@ -88,10 +87,11 @@ export default function DictionaryPopup() {
                 transform: onPageDictionary
                     ? 'translateX(0)'
                     : (panelPosition === 'left' ? 'translateX(-100%)' : 'translateX(100%)'),
-                display: 'flex'
+                display: 'flex',
+                pointerEvents: 'auto'
             }}
         >
-            {/* Header */}
+
             <div
                 className="p-4 border-b flex items-center justify-between"
                 style={{ backgroundColor: theme.hover, borderColor: theme.border }}
@@ -104,7 +104,7 @@ export default function DictionaryPopup() {
                 </div>
                 <button
                     onClick={toggleOnPageDictionary}
-                    className="p-1 transition-colors"
+                    className="p-1 pr-3 transition-colors flex items-center gap-1.5"
                     style={{ color: theme.text, opacity: 0.6 }}
                     onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
                     onMouseLeave={(e) => e.currentTarget.style.opacity = '0.6'}
@@ -112,21 +112,21 @@ export default function DictionaryPopup() {
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
+                    <span className="text-xs font-bold uppercase tracking-wide">Close</span>
                 </button>
             </div>
 
-            {/* Content */}
+
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
 
 
-                {/* Search Bar */}
                 <form onSubmit={handleSearchSubmit} className="mb-6 relative">
                     <div className="relative">
                         <input
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search..."
+                            placeholder="Type here to search"
                             className="w-full pl-4 pr-10 py-2 border rounded-lg text-[16px] focus:outline-none transition-all"
                             style={{
                                 backgroundColor: theme.hover,
@@ -134,6 +134,20 @@ export default function DictionaryPopup() {
                                 color: theme.text
                             }}
                         />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchQuery('');
+                                    setDefinition(null);
+                                }}
+                                className="absolute right-8 top-1 bottom-1 p-1.5 rounded text-gray-500 hover:text-gray-700 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        )}
                         <button
                             type="submit"
                             className="absolute right-1 top-1 bottom-1 p-1.5 rounded text-white transition-colors"
@@ -146,7 +160,7 @@ export default function DictionaryPopup() {
                     </div>
                 </form>
 
-                {/* Loading State */}
+
                 {isLoading && (
                     <div className="space-y-4 animate-pulse">
                         <div className="h-6 rounded w-1/3" style={{ backgroundColor: theme.hover }}></div>
@@ -155,10 +169,10 @@ export default function DictionaryPopup() {
                     </div>
                 )}
 
-                {/* Results */}
+
                 {!isLoading && definition && (
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-5">
-                        {/* Word Header */}
+
                         <div className="border-b pb-4" style={{ borderColor: theme.border }}>
                             <div className="flex items-baseline gap-2 mb-1">
                                 <h2 className="text-xl font-bold capitalize" style={{ color: theme.text }}>
@@ -171,7 +185,7 @@ export default function DictionaryPopup() {
                                 )}
                             </div>
 
-                            {/* Phonetics section */}
+
                             <div className="space-y-1">
                                 {definition.phonetic && (
                                     <div className="text-[16px] font-mono" style={{ color: theme.text, opacity: 0.9 }}>
@@ -185,7 +199,7 @@ export default function DictionaryPopup() {
                                 )}
                             </div>
 
-                            {/* Audio Button */}
+
                             <button
                                 onClick={() => playAudio(definition.word)}
                                 className="mt-2 flex items-center gap-1.5 text-[14px] font-bold hover:underline"
@@ -198,7 +212,7 @@ export default function DictionaryPopup() {
                             </button>
                         </div>
 
-                        {/* Definition */}
+
                         <div>
                             <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Definition</h4>
                             <p className="text-[16px] leading-relaxed" style={{ color: theme.text, opacity: 0.9 }}>
@@ -206,7 +220,7 @@ export default function DictionaryPopup() {
                             </p>
                         </div>
 
-                        {/* Example */}
+
                         {definition.example && (
                             <div>
                                 <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Example</h4>
@@ -216,7 +230,7 @@ export default function DictionaryPopup() {
                             </div>
                         )}
 
-                        {/* Synonyms */}
+
                         {definition.synonyms && definition.synonyms.length > 0 && (
                             <div>
                                 <h4 className="text-[16px] font-bold mb-2" style={{ color: theme.text }}>Synonyms</h4>
@@ -249,7 +263,6 @@ export default function DictionaryPopup() {
                     </div>
                 )}
 
-                {/* No Data State */}
                 {!isLoading && !definition && searchQuery && (
                     <div className="mt-8 text-center">
                         <p className="text-sm" style={{ color: theme.text, opacity: 0.9 }}>No definition found for "{searchQuery}"</p>
@@ -257,7 +270,7 @@ export default function DictionaryPopup() {
                 )}
             </div>
 
-            {/* Footer */}
+
             <div
                 className="p-3 border-t text-right text-xs font-medium"
                 style={{ backgroundColor: theme.hover, borderColor: theme.border, color: theme.text, opacity: 0.6 }}

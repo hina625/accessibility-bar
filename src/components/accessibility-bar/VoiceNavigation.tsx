@@ -5,6 +5,7 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
 import { translations } from '@/contexts/accessibility/translations';
+import InfoPopupButton from './InfoPopupButton';
 
 export default function VoiceNavigation() {
     const { toggleDarkMode, toggleHighContrast, increaseFontSize, decreaseFontSize, barTheme, language } = useAccessibility();
@@ -17,6 +18,7 @@ export default function VoiceNavigation() {
     const [feedback, setFeedback] = useState('');
     const [recognitionRef, recognitionRefCurrent] = [useRef<any>(null), null]; // Using dummy for consistency in thought
     const recognition = useRef<any>(null);
+    const isListeningRef = useRef(false);
     const focusedLinkIndex = useRef(0);
     const focusedButtonIndex = useRef(0);
 
@@ -146,6 +148,7 @@ export default function VoiceNavigation() {
                 recognition.current.stop();
             }
             setIsListening(false);
+            isListeningRef.current = false;
             return;
         }
 
@@ -168,7 +171,7 @@ export default function VoiceNavigation() {
                 if (error === 'aborted' || error === 'no-speech') return;
                 console.error('Speech recognition error:', error);
 
-                if (isEnabled) {
+                if (isEnabled && isListeningRef.current) {
                     setTimeout(() => {
                         try { recognition.current?.start(); } catch (e) { }
                     }, 500);
@@ -176,11 +179,10 @@ export default function VoiceNavigation() {
             };
 
             recognition.current.onend = () => {
-                if (isEnabled) {
+                if (isEnabled && isListeningRef.current) {
                     setTimeout(() => {
                         try {
                             recognition.current?.start();
-                            setIsListening(true);
                         } catch (e) { }
                     }, 100);
                 }
@@ -189,6 +191,7 @@ export default function VoiceNavigation() {
             try {
                 recognition.current.start();
                 setIsListening(true);
+                isListeningRef.current = true;
                 setFeedback('🎤 Listening...');
             } catch (e) { }
         }
@@ -206,6 +209,7 @@ export default function VoiceNavigation() {
     const startListening = () => {
         if (recognition.current) {
             try {
+                isListeningRef.current = true;
                 recognition.current.start();
                 setIsListening(true);
                 setFeedback('🎤 Listening...');
@@ -215,6 +219,7 @@ export default function VoiceNavigation() {
 
     const stopListening = () => {
         if (recognition.current) {
+            isListeningRef.current = false;
             recognition.current.stop();
             setIsListening(false);
             setFeedback('');
@@ -231,8 +236,16 @@ export default function VoiceNavigation() {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                 onClick={() => setIsEnabled(!isEnabled)}
             >
-                <div className="flex flex-col">
-                    <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.voiceControl}</span>
+                <div className="flex flex-col flex-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.voiceControl}</span>
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <InfoPopupButton
+                                title={t.controls.voiceControl}
+                                description={t.info?.speech?.features?.["Voice Navigation"] || "Control the website using voice commands."}
+                            />
+                        </div>
+                    </div>
                     <span className="text-[14px]" style={{ color: theme.text, opacity: 0.7 }}>{t.controls.voiceControlDesc}</span>
                 </div>
                 <div
@@ -260,7 +273,7 @@ export default function VoiceNavigation() {
                         <select
                             value={voiceLang}
                             onChange={(e) => setVoiceLang(e.target.value)}
-                            className="w-full p-2 rounded-lg text-[16px]"
+                            className="w-full p-2 rounded-lg text-[16px] appearance-none bg-no-repeat"
                             style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
                         >
                             {LANGUAGES.map(lang => (
@@ -305,9 +318,11 @@ export default function VoiceNavigation() {
                     )}
 
                     {/* Example Command */}
-                    <p className="text-[13px] text-center mt-2 opacity-70" style={{ color: theme.text }}>
-                        Example: "Decrease Text"
-                    </p>
+                    <div className="text-[12px] text-center mt-3 opacity-60 space-y-1 px-4 leading-relaxed" style={{ color: theme.text }}>
+                        <p className="font-bold uppercase tracking-wider mb-1 opacity-80">Try commands like:</p>
+                        <p>"Dark Mode", "Increase Text"</p>
+                        <p>"Go to Top", "Refresh Page", "Next Link"</p>
+                    </div>
                 </>
             )}
         </div>

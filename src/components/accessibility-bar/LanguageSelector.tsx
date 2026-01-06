@@ -46,21 +46,13 @@ export default function LanguageSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 w-full rounded-md text-[16px] font-normal focus:outline-none focus:ring-2"
+        className="flex items-center gap-2 px-3 py-2 w-full mx-auto rounded-md text-[16px] font-semibold focus:outline-none focus:ring-2"
         style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
         aria-label="Select language"
         aria-expanded={isOpen}
       >
         <span className="text-lg">{selectedLang.flag}</span>
         <span className="flex-1 text-left">{selectedLang.name}</span>
-        <svg
-          className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
       </button>
 
       {isOpen && (
@@ -86,9 +78,6 @@ export default function LanguageSelector() {
                   key={lang.code}
                   onClick={() => {
                     setLanguage(lang.code);
-                    if (lang.code !== 'en' && !realTimeTranslation) {
-                      toggleRealTimeTranslation();
-                    }
                     setIsOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-2 text-sm focus:outline-none"
@@ -98,8 +87,8 @@ export default function LanguageSelector() {
                 >
                   <span className="text-xl">{lang.flag}</span>
                   <div className="flex-1 text-left">
-                    <div className="text-[16px] font-normal" style={{ color: theme.text }}>{lang.name}</div>
-                    <div className="text-[13px] font-normal" style={{ color: theme.text, opacity: 0.7 }}>{lang.nativeName}</div>
+                    <div className="text-[16px] font-semibold" style={{ color: theme.text }}>{lang.name}</div>
+                    <div className="text-[14px] font-semibold" style={{ color: theme.text, opacity: 0.7 }}>{lang.nativeName}</div>
                   </div>
                   {language === lang.code && (
                     <svg className="h-5 w-5" style={{ color: theme.text }} fill="currentColor" viewBox="0 0 20 20">

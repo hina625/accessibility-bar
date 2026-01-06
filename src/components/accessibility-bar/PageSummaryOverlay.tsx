@@ -61,11 +61,30 @@ export default function PageSummaryOverlay() {
         setIsSimplified(false);
 
         try {
-            const textContent = Array.from(document.querySelectorAll('p, h1, h2, h3, article, section, li'))
-                .map(el => el.textContent?.trim())
-                .filter(Boolean)
-                .join(' ')
-                .slice(0, 10000);
+            let textContent = '';
+
+            // Robust extraction using innerText (works better for various site structures)
+            if (typeof document !== 'undefined' && document.body) {
+                textContent = document.body.innerText || '';
+                // Also optionally try semantic tags if innerText is too short or messy, but innerText is usually safest for general web
+            }
+
+            // Fallback to simpler selector if innerText failed (unlikely)
+            if (!textContent || textContent.length < 100) {
+                textContent = Array.from(document.querySelectorAll('p, h1, h2, h3, article, section, li'))
+                    .map(el => el.textContent?.trim())
+                    .filter(Boolean)
+                    .join(' ');
+            }
+
+            textContent = textContent.slice(0, 12000); // 12k char limit
+
+            console.log('[AccessibilityBar] Summarizing text length:', textContent.length);
+            console.log('[AccessibilityBar] Using Endpoint:', API_ENDPOINTS.SUMMARIZE);
+
+            if (!textContent || textContent.length < 50) {
+                throw new Error('Could not find enough readable text on this page to summarize.');
+            }
 
             const response = await fetch(API_ENDPOINTS.SUMMARIZE, {
                 method: 'POST',
@@ -134,7 +153,8 @@ export default function PageSummaryOverlay() {
                 backgroundColor: theme.background,
                 borderColor: theme.border,
                 transform: 'translateX(0)',
-                color: theme.text
+                color: theme.text,
+                pointerEvents: 'auto'
             }}
         >
             {/* Header */}
@@ -173,12 +193,13 @@ export default function PageSummaryOverlay() {
                     </button>
                     <button
                         onClick={togglePageSummary}
-                        className="p-2 rounded-lg transition-colors"
+                        className="p-2 pr-3 rounded-lg transition-colors flex items-center gap-1.5"
                         style={{ color: theme.text }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = `${theme.text}10`}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                        <span className="text-xs font-bold uppercase tracking-wide">Close</span>
                     </button>
                 </div>
             </div>
@@ -298,6 +319,26 @@ export default function PageSummaryOverlay() {
                         Copy
                     </button>
                 </div>
+
+                {/* Error Message */}
+                {error && (
+                    <div
+                        className="mb-6 p-4 border-l-4 rounded-none animate-in fade-in slide-in-from-top-2"
+                        style={{
+                            backgroundColor: '#FEF2F2',
+                            borderColor: '#EF4444',
+                            color: '#B91C1C'
+                        }}
+                    >
+                        <div className="flex items-center gap-2 mb-1">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-bold">Error</span>
+                        </div>
+                        <p className="text-sm opacity-90">{error}</p>
+                    </div>
+                )}
 
                 {/* Summary Text */}
                 <div className="mb-8">

@@ -1,57 +1,65 @@
 'use client';
 
+import Image from 'next/image';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
+
+import alignLeftIcon from '../../assets/icons/align-left.png';
+import alignCenterIcon from '../../assets/icons/align-center.png';
+import alignRightIcon from '../../assets/icons/align-right.png';
+import alignJustifyIcon from '../../assets/icons/align-justify.png';
 
 export default function TextAlignControl() {
   const { textAlign, setTextAlign, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
-  const theme = BAR_THEMES[barTheme];
+  const theme = BAR_THEMES[barTheme as BarTheme];
 
-  const getButtonStyle = (align: string) => ({
-    backgroundColor: textAlign === align ? theme.active : theme.hover,
-    color: theme.text,
-  });
+  const getButtonStyle = (align: string) => {
+    const isActive = textAlign === align;
+    return {
+      backgroundColor: isActive ? theme.active : theme.hover,
+      color: theme.text,
+      border: `2px solid ${theme.text}`
+    };
+  };
+
+  const alignOptions = [
+    { id: 'left', label: t.controls.alignLeft, icon: alignLeftIcon },
+    { id: 'right', label: t.controls.alignRight, icon: alignRightIcon },
+    { id: 'center', label: t.controls.alignCentre, icon: alignCenterIcon },
+    { id: 'justify', label: t.controls.alignJustify, icon: alignJustifyIcon },
+  ];
 
   return (
-    <div className="space-y-2">
-      <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
-        {t.controls.textAlign}
+    <div className="space-y-4">
+      <label className="block text-[18px] font-bold text-center" style={{ color: theme.text }}>
+        Text Alignment
       </label>
-      <div className="grid grid-cols-2 gap-2">
-        <button
-          onClick={() => setTextAlign('left')}
-          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
-          style={getButtonStyle('left')}
-          aria-label={`${t.controls.alignLeft} ${t.controls.textAlign}`}
-        >
-          {t.controls.alignLeft}
-        </button>
-        <button
-          onClick={() => setTextAlign('center')}
-          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
-          style={getButtonStyle('center')}
-          aria-label={`${t.controls.alignCentre} ${t.controls.textAlign}`}
-        >
-          {t.controls.alignCentre}
-        </button>
-        <button
-          onClick={() => setTextAlign('right')}
-          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
-          style={getButtonStyle('right')}
-          aria-label={`${t.controls.alignRight} ${t.controls.textAlign}`}
-        >
-          {t.controls.alignRight}
-        </button>
-        <button
-          onClick={() => setTextAlign('justify')}
-          className="px-3 py-2 text-[16px] font-bold rounded-md transition-colors whitespace-nowrap focus:outline-none focus:ring-2"
-          style={getButtonStyle('justify')}
-          aria-label={`${t.controls.alignJustify} ${t.controls.textAlign}`}
-        >
-          {t.controls.alignJustify}
-        </button>
+      <div className="grid grid-cols-2 gap-3 px-1">
+        {alignOptions.map((option) => (
+          <button
+            key={option.id}
+            onClick={() => setTextAlign(option.id as any)}
+            className="p-3 flex flex-col items-center justify-center gap-2 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
+            style={getButtonStyle(option.id)}
+            aria-label={`${option.label} ${t.controls.textAlign}`}
+          >
+            <div className="bg-white rounded-lg p-1.5 w-11 h-11 flex items-center justify-center shadow-sm">
+              <Image
+                src={option.icon}
+                alt=""
+                width={28}
+                height={28}
+                className="object-contain"
+                style={{
+                  filter: 'brightness(0)'
+                }}
+              />
+            </div>
+            <span className="text-[14px] font-bold uppercase">{option.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -29,11 +29,11 @@ export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
         document.body.appendChild(host);
         hostRef.current = host;
 
-        // Attach shadow DOM
+      
         const shadow = host.attachShadow({ mode: 'open' });
         shadowRoot.current = shadow;
 
-        // Inject styles (same as entry.tsx)
+       
         try {
             const tailwindStyle = document.createElement('style');
             tailwindStyle.textContent = tailwindCss;
@@ -46,11 +46,9 @@ export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
             console.error('ShadowPortal: Failed to inject styles', e);
         }
 
-        // Container for React
         const container = document.createElement('div');
         container.id = 'shadow-portal-root';
-        // Ensure the container allows fixed children to work relative to viewport if needed
-        // But since the host is 0x0 absolute, fixed children inside shadow DOM should work fine.
+    
         shadow.appendChild(container);
 
         setReady(true);
@@ -64,7 +62,7 @@ export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
 
     if (!ready || !shadowRoot.current) return null;
 
-    // We render into the container inside the shadow root
+ 
     const container = shadowRoot.current.getElementById('shadow-portal-root');
     if (!container) return null;
 

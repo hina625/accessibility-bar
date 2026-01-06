@@ -16,13 +16,12 @@ export default function GoogleTranslate() {
     useEffect(() => {
         console.log('GoogleTranslate component mounted');
 
-        // 1. Ensure the container div exists in the MAIN document
         let container = document.getElementById('google_translate_element');
         if (!container) {
             console.log('Creating google_translate_element container');
             container = document.createElement('div');
             container.id = 'google_translate_element';
-            // Some versions of Google Translate won't init if display is 'none'
+
             container.style.position = 'fixed';
             container.style.top = '-9999px';
             container.style.left = '-9999px';
@@ -30,7 +29,7 @@ export default function GoogleTranslate() {
             document.body.appendChild(container);
         }
 
-        // 2. Define the callback globally
+
         window.googleTranslateElementInit = () => {
             console.log('googleTranslateElementInit callback triggered!');
             let attempts = 0;
@@ -44,7 +43,6 @@ export default function GoogleTranslate() {
                             autoDisplay: false,
                         };
 
-                        // Only add layout if InlineLayout exists
                         if (window.google.translate.TranslateElement.InlineLayout) {
                             translateOptions.layout = window.google.translate.TranslateElement.InlineLayout.HORIZONTAL;
                         }
@@ -71,7 +69,7 @@ export default function GoogleTranslate() {
             checkAndInit();
         };
 
-        // 3. Load the script
+
         if (!document.getElementById('google-translate-script')) {
             console.log('Loading Google Translate script...');
             const script = document.createElement('script');
@@ -88,7 +86,7 @@ export default function GoogleTranslate() {
             }
         }
 
-        // Hide UI styles
+
         const style = document.createElement('style');
         style.id = 'google-translate-hide-ui';
         style.innerHTML = `
@@ -145,7 +143,7 @@ export default function GoogleTranslate() {
     const { language: accessibilityLanguage, realTimeTranslation } = useAccessibility();
 
     useEffect(() => {
-        const translateTo = realTimeTranslation ? accessibilityLanguage : 'en';
+        const translateTo = accessibilityLanguage;
         if (!translateTo) return;
 
         const translatePage = () => {
@@ -172,7 +170,7 @@ export default function GoogleTranslate() {
 
         const timer = setTimeout(translatePage, 1000);
         return () => clearTimeout(timer);
-    }, [accessibilityLanguage, realTimeTranslation]);
+    }, [accessibilityLanguage]);
 
     return null;
 }

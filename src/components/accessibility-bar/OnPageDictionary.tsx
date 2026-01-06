@@ -21,34 +21,54 @@ export default function OnPageDictionary() {
       return;
     }
 
+    // Use pointerup/down for better compatibility
     const handleMouseUp = (e: MouseEvent) => {
+      // Check if click origin was inside the bar to ignore it
       if (tooltipRef.current?.contains(e.target as Node) ||
-        (e.target as HTMLElement).closest('.accessibility-bar')) {
+        (e.target as HTMLElement).closest('.accessibility-bar') ||
+        (e.target as HTMLElement).closest('.a11y-embed-host')) {
         return;
       }
 
-      const selection = window.getSelection();
-      const text = selection?.toString().trim();
+      // Small timeout to let selection settle
+      setTimeout(() => {
+        const selection = window.getSelection();
+        const text = selection?.toString().trim();
 
-      if (text && text.length > 1 && text.split(/\s+/).length === 1) {
-        const rect = selection!.getRangeAt(0).getBoundingClientRect();
+        console.log('[AccessibilityBar] Selection Event:', text);
 
-        setSelectedWord(text);
-        setPosition({
-          x: rect.left + window.scrollX,
-          y: rect.top + window.scrollY - 10
-        });
-        setIsVisible(true);
-        fetchDefinition(text);
-      } else {
-        setIsVisible(false);
-      }
+        if (text && text.length > 1 && text.split(/\s+/).length === 1) {
+          if (selection && selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+
+            if (rect.width === 0 || rect.height === 0) return;
+
+            setSelectedWord(text);
+            // Simple viewport logic
+            setPosition({
+              x: rect.left + (rect.width / 2),
+              y: rect.top - 10
+            });
+            setIsVisible(true);
+            fetchDefinition(text);
+          }
+        } else {
+          // Only hide if we actually clicked outside and didn't select anything new
+          // But we already checked text length.
+          setIsVisible(false);
+        }
+      }, 10);
     };
 
     const handleMouseDown = (e: MouseEvent) => {
+      // Only hide if clicking outside tooltip and outside bar
+      // And NOT selecting text (which we can't know yet, but usually mousedown starts selection)
+      // Let's rely on mouseup to determine valid selection vs deselect
       if (!tooltipRef.current?.contains(e.target as Node) &&
         !(e.target as HTMLElement).closest('.accessibility-bar')) {
-        setIsVisible(false);
+        // Don't close immediately on mousedown, wait for mouseup results
+        // setIsVisible(false); 
       }
     };
 
@@ -96,7 +116,8 @@ export default function OnPageDictionary() {
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
-            backgroundColor: theme.background
+            backgroundColor: theme.background,
+            pointerEvents: 'auto'
           }}
         >
           <div className="p-3" style={{ backgroundColor: theme.active, color: theme.text }}>

@@ -1,7 +1,8 @@
-export type FontStyle = 'default' | 'dyslexic' | 'readable' | 'serif' | 'sans' | 'mono';
+export type FontStyle = 'default' | 'dyslexic' | 'readable' | 'serif' | 'sans' | 'mono' | 'tahoma' | 'trebuchet' | 'comic-sans' | 'andika' | 'lexend' | 'verdana' | 'arial' | 'century-gothic' | 'open-sans' | 'calibri' | 'fs-me';
 export type ColorBlindFilter = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 export type ButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top' | 'bottom' | 'left' | 'right';
 export type PanelPosition = 'left' | 'right' | 'top' | 'bottom';
+export type CursorStyle = 'white' | 'black' | 'inverted' | 'circle' | 'custom' | 'crosshair' | 'pointer' | 'help' | 'person';
 
 import { BarTheme } from './theme';
 
@@ -15,6 +16,8 @@ export interface AccessibilityState {
     readingGuide: boolean;
     readingGuideColor: string;
     readingGuideThickness: number;
+    readingProgressBar: boolean;
+    readingProgressBarColor: string;
     readingRuler: boolean;
     readingRulerColor: string;
     readingRulerWidth: number;
@@ -28,7 +31,9 @@ export interface AccessibilityState {
     highlightLinks: boolean;
     highlightHeadings: boolean;
     cursorSize: number;
+    cursorStyle: CursorStyle;
     cursorColor: string;
+    primaryButton: 'left' | 'right';
     pageZoom: number;
     colorBlindFilter: ColorBlindFilter;
     largeButtons: boolean;
@@ -44,6 +49,7 @@ export interface AccessibilityState {
     textSpacing: number;
     lineHeight: number;
     characterSpacing: number;
+    wordSpacing: number;
     buttonPosition: ButtonPosition;
     panelPosition: PanelPosition;
     hideImages: boolean;
@@ -65,7 +71,12 @@ export interface AccessibilityState {
     summarizationHistory: any[];
     pronunciationGuide: boolean;
     magnifier: boolean;
+    magnifierScale: number;
     smartSuggestions: boolean;
     ttsHoverToSpeak: boolean;
     realTimeTranslation: boolean;
+    selectionLanguage: string;
+    showActiveIndicators: boolean;
+    audioPingEnabled: boolean;
+    isPaused: boolean;
 }

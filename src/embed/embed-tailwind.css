@@ -19,7 +19,7 @@
   }
 }
 
-/* Custom animations and styles for embed */
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -120,7 +120,6 @@
 
 
 
-/* Content Filtering Utilities */
 html.hide-images img,
 html.hide-images svg:not(.accessibility-bar *),
 html.hide-images video,

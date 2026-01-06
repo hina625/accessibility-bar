@@ -21,10 +21,13 @@ export function useToolsSettings() {
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
     const [ttsHoverToSpeak, setTtsHoverToSpeak] = useState<boolean>(false);
     const [realTimeTranslation, setRealTimeTranslation] = useState<boolean>(false);
+    const [selectionLanguage, setSelectionLanguage] = useState<string>('es');
+    const [isPaused, setIsPaused] = useState<boolean>(false);
 
 
     useEffect(() => {
         const saved = {
+            textToSpeech: localStorage.getItem('accessibility-textToSpeech'),
             keyboardNavigation: localStorage.getItem('accessibility-keyboardNavigation'),
             onPageDictionary: localStorage.getItem('accessibility-onPageDictionary'),
             ttsAutoPlay: localStorage.getItem('accessibility-ttsAutoPlay'),
@@ -38,8 +41,10 @@ export function useToolsSettings() {
             smartSuggestions: localStorage.getItem('accessibility-smartSuggestions'),
             pageSummary: localStorage.getItem('accessibility-pageSummary'),
             realTimeTranslation: localStorage.getItem('accessibility-realTimeTranslation'),
+            selectionLanguage: localStorage.getItem('accessibility-selectionLanguage'),
         };
 
+        if (saved.textToSpeech === 'true') setTextToSpeech(true);
         if (saved.keyboardNavigation === 'true') setKeyboardNavigation(true);
         if (saved.onPageDictionary === 'true') setOnPageDictionary(true);
         if (saved.ttsAutoPlay === 'true') setTtsAutoPlay(true);
@@ -53,6 +58,7 @@ export function useToolsSettings() {
         if (saved.smartSuggestions === 'false') setSmartSuggestions(false); // Default logic inverted because default is true
         if (saved.pageSummary === 'true') setPageSummary(true);
         if (saved.realTimeTranslation === 'true') setRealTimeTranslation(true);
+        if (saved.selectionLanguage) setSelectionLanguage(saved.selectionLanguage);
     }, []);
 
 
@@ -82,6 +88,7 @@ export function useToolsSettings() {
         localStorage.setItem('accessibility-pageSummary', pageSummary.toString());
     }, [pageSummary]);
 
+    useEffect(() => localStorage.setItem('accessibility-textToSpeech', textToSpeech.toString()), [textToSpeech]);
     useEffect(() => localStorage.setItem('accessibility-ttsAutoPlay', ttsAutoPlay.toString()), [ttsAutoPlay]);
     useEffect(() => localStorage.setItem('accessibility-ttsReadWholePage', ttsReadWholePage.toString()), [ttsReadWholePage]);
     useEffect(() => localStorage.setItem('accessibility-ttsMovableControls', ttsMovableControls.toString()), [ttsMovableControls]);
@@ -90,52 +97,112 @@ export function useToolsSettings() {
     useEffect(() => localStorage.setItem('accessibility-ttsReadSelectedText', ttsReadSelectedText.toString()), [ttsReadSelectedText]);
     useEffect(() => localStorage.setItem('accessibility-ttsHoverToSpeak', ttsHoverToSpeak.toString()), [ttsHoverToSpeak]);
     useEffect(() => localStorage.setItem('accessibility-realTimeTranslation', realTimeTranslation.toString()), [realTimeTranslation]);
+    useEffect(() => localStorage.setItem('accessibility-selectionLanguage', selectionLanguage), [selectionLanguage]);
 
-    // Handle TTS Logic (Selection & Page Reading)
+
+    // 1. Sync Logic: When main TTS is turned OFF, turn off all sub-features
     useEffect(() => {
         if (!textToSpeech) {
-            if (window.speechSynthesis) window.speechSynthesis.cancel();
-            return;
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            setTtsAutoPlay(false);
+            setTtsReadWholePage(false);
+            setTtsHoverToSpeak(false);
+            setTtsMovableControls(false);
+            setIsPaused(false);
         }
+    }, [textToSpeech]);
 
-        // --- Selection Reading ---
+    // 2. Reading Logic: Handles actual speech synthesis
+    useEffect(() => {
+        if (!textToSpeech) return;
+
+        const getVoices = () => {
+            return new Promise<SpeechSynthesisVoice[]>((resolve) => {
+                let voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    resolve(voices);
+                    return;
+                }
+                const handler = () => {
+                    window.speechSynthesis.removeEventListener('voiceschanged', handler);
+                    resolve(window.speechSynthesis.getVoices());
+                };
+                window.speechSynthesis.addEventListener('voiceschanged', handler);
+                // Fallback timeout
+                setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
+            });
+        };
+
+        const speak = async (text: string) => {
+            if (!window.speechSynthesis) {
+                console.error('Speech synthesis not supported');
+                return;
+            }
+
+            console.log('Speaking text (length):', text.length);
+            window.speechSynthesis.cancel();
+
+            const voices = await getVoices();
+            console.log('Available voices:', voices.length);
+
+            // Split text into chunks to avoid browser limits (usually around 200-300 chars)
+            const chunks = text.match(/[^.!?]+[.!?]+|[^.!?]+/g) || [text];
+
+            for (const chunk of chunks) {
+                if (chunk.trim().length === 0) continue;
+
+                const utterance = new SpeechSynthesisUtterance(chunk.trim());
+                utterance.rate = ttsReadingSpeed;
+
+                if (voices.length > 0) {
+                    const selectedVoice = voices.find(v =>
+                        ttsVoiceGender === 'male'
+                            ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                            : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                    );
+                    if (selectedVoice) utterance.voice = selectedVoice;
+                }
+
+                // Create a promise to wait for this utterance to finish or error
+                await new Promise((resolve) => {
+                    utterance.onend = resolve;
+                    utterance.onerror = (e) => {
+                        console.error('TTS Chunk Error:', e);
+                        resolve(null);
+                    };
+                    window.speechSynthesis.speak(utterance);
+                });
+            }
+        };
+
         const handleMouseUp = () => {
             setTimeout(() => {
                 const selection = window.getSelection();
                 const selectedText = selection?.toString().trim();
 
                 if (selectedText && selectedText.length > 0) {
+                    console.log('Selected text to speak:', selectedText);
                     speak(selectedText);
                 }
             }, 50);
         };
 
-        // --- Page Reading ---
         if (ttsReadWholePage) {
-            const content = document.getElementById('accessible-content');
+            const content = document.getElementById('accessible-content') || document.body;
             if (content) {
+                console.log('Reading whole page content...');
                 speak(content.innerText);
+            } else {
+                console.warn('No content found to read');
             }
-        }
-
-        // Utility to speak with current settings
-        function speak(text: string) {
-            if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = ttsReadingSpeed;
-
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                const selectedVoice = voices.find(v =>
-                    ttsVoiceGender === 'male'
-                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                );
-                if (selectedVoice) utterance.voice = selectedVoice;
+        } else {
+            // Cancel speech if "Read Whole Page" is turned off
+            if (window.speechSynthesis) {
+                console.log('Read Whole Page disabled, cancelling synthesis');
+                window.speechSynthesis.cancel();
             }
-
-            window.speechSynthesis.speak(utterance);
         }
 
         document.addEventListener('mouseup', handleMouseUp);
@@ -145,7 +212,7 @@ export function useToolsSettings() {
         };
     }, [textToSpeech, ttsReadWholePage, ttsReadingSpeed, ttsVoiceGender]);
 
-    // Handle Hover to Speak
+
     useEffect(() => {
         if (!textToSpeech || !ttsHoverToSpeak) {
             return;
@@ -154,12 +221,37 @@ export function useToolsSettings() {
         let lastElement: HTMLElement | null = null;
         let speakTimeout: any = null;
 
+        const speak = async (text: string) => {
+            if (!window.speechSynthesis) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = ttsReadingSpeed;
+
+            const voices = window.speechSynthesis.getVoices();
+            if (voices.length > 0) {
+                const selectedVoice = voices.find(v =>
+                    ttsVoiceGender === 'male'
+                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                );
+                if (selectedVoice) utterance.voice = selectedVoice;
+            }
+            window.speechSynthesis.speak(utterance);
+        };
+
         const handleMouseOver = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
+            // Use composedPath to find the actual element even through Shadow DOM
+            const path = e.composedPath();
+            const target = path[0] as HTMLElement;
+
             if (!target || target === lastElement) return;
 
-            // Filter elements that shouldn't be read (like the bar itself)
-            if (target.closest('.accessibility-bar-panel')) return;
+            // Stop if we're hovering over the accessibility bar
+            const isBar = path.some(node =>
+                (node as HTMLElement).classList?.contains('accessibility-bar') ||
+                (node as HTMLElement).id === 'a11y-embed-host-react'
+            );
+            if (isBar) return;
 
             const text = target.innerText?.trim();
             if (text && text.length > 0) {
@@ -168,27 +260,9 @@ export function useToolsSettings() {
 
                 speakTimeout = setTimeout(() => {
                     speak(text);
-                }, 400); // 400ms delay to avoid jittery speech
+                }, 400);
             }
         };
-
-        function speak(text: string) {
-            if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = ttsReadingSpeed;
-
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                const selectedVoice = voices.find(v =>
-                    ttsVoiceGender === 'male'
-                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                );
-                if (selectedVoice) utterance.voice = selectedVoice;
-            }
-            window.speechSynthesis.speak(utterance);
-        }
 
         document.addEventListener('mouseover', handleMouseOver);
         return () => {
@@ -197,24 +271,11 @@ export function useToolsSettings() {
         };
     }, [textToSpeech, ttsHoverToSpeak, ttsReadingSpeed, ttsVoiceGender]);
 
-    // Handle "Auto Play" (Redefined as Click to Speak)
+
     useEffect(() => {
         if (!textToSpeech || !ttsAutoPlay) return;
 
-        const handleClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (!target) return;
-
-            // Filter elements
-            if (target.closest('.accessibility-bar-panel') || target.closest('.accessibility-trigger')) return;
-
-            const text = target.innerText?.trim();
-            if (text && text.length > 0) {
-                speak(text);
-            }
-        };
-
-        function speak(text: string) {
+        const speak = (text: string) => {
             if (!window.speechSynthesis) return;
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
@@ -230,9 +291,28 @@ export function useToolsSettings() {
                 if (selectedVoice) utterance.voice = selectedVoice;
             }
             window.speechSynthesis.speak(utterance);
-        }
+        };
 
-        document.addEventListener('mousedown', handleClick); // mousedown feels more responsive for "click to speak"
+        const handleClick = (e: MouseEvent) => {
+            const path = e.composedPath();
+            const target = path[0] as HTMLElement;
+            if (!target) return;
+
+            // Filter elements: stop if we click the bar itself
+            const isBarOrTrigger = path.some(node =>
+                (node as HTMLElement).classList?.contains('accessibility-bar') ||
+                (node as HTMLElement).classList?.contains('accessibility-trigger') ||
+                (node as HTMLElement).id === 'a11y-embed-host-react'
+            );
+            if (isBarOrTrigger) return;
+
+            const text = target.innerText?.trim();
+            if (text && text.length > 0) {
+                speak(text);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClick);
         return () => document.removeEventListener('mousedown', handleClick);
     }, [textToSpeech, ttsAutoPlay, ttsReadingSpeed, ttsVoiceGender]);
 
@@ -265,6 +345,27 @@ export function useToolsSettings() {
         }
     };
 
+    const pauseTts = () => {
+        if (window.speechSynthesis && window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+            window.speechSynthesis.pause();
+            setIsPaused(true);
+        }
+    };
+
+    const resumeTts = () => {
+        if (window.speechSynthesis && window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+            setIsPaused(false);
+        }
+    };
+
+    const stopTts = () => {
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+            setIsPaused(false);
+        }
+    };
+
     return {
         textToSpeech, setTextToSpeech,
         speechToText, setSpeechToText,
@@ -285,5 +386,7 @@ export function useToolsSettings() {
         pronunciationGuide, setPronunciationGuide,
         smartSuggestions, setSmartSuggestions,
         realTimeTranslation, setRealTimeTranslation,
+        selectionLanguage, setSelectionLanguage,
+        isPaused, pauseTts, resumeTts, stopTts
     };
 }

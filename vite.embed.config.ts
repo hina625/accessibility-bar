@@ -4,6 +4,12 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  resolve: {
+    alias: {
+      'next/image': path.resolve(__dirname, 'src/embed/next-image-shim.tsx'),
+      '@': path.resolve(__dirname, 'src')
+    }
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/embed/entry.tsx'),

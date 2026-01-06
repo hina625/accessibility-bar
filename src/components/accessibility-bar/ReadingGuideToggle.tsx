@@ -8,13 +8,14 @@ export default function ReadingGuideToggle() {
   const theme = BAR_THEMES[barTheme];
 
   const colors = [
-    { name: 'Red', value: '#ef4444' },
-    { name: 'Yellow', value: '#eab308' },
-    { name: 'Green', value: '#22c55e' },
-    { name: 'Blue', value: '#3b82f6' },
+    { name: 'Red', value: '#b91c1c' }, // Darker Red
+    { name: 'Yellow', value: '#a16207' }, // Darker Yellow
+    { name: 'Green', value: '#15803d' }, // Darker Green
+    { name: 'Blue', value: '#1d4ed8' }, // Darker Blue
+    { name: 'Black', value: '#000000' },
   ];
 
-  const thicknesses = [2, 4, 6, 8, 10];
+
 
   return (
     <div className="space-y-4">
@@ -44,8 +45,8 @@ export default function ReadingGuideToggle() {
       {readingGuide && (
         <>
           <div className="space-y-2 pl-2">
-            <label className="text-xs font-normal" style={{ color: theme.text, opacity: 0.7 }}>Color</label>
-            <div className="grid grid-cols-4 gap-2">
+            <label className="text-[14px] font-bold" style={{ color: theme.text }}>Colour</label>
+            <div className="grid grid-cols-5 gap-2">
               {colors.map((color) => (
                 <button
                   key={color.name}
@@ -62,19 +63,25 @@ export default function ReadingGuideToggle() {
           </div>
 
           <div className="space-y-2 pl-2">
-            <label className="text-xs font-normal" style={{ color: theme.text, opacity: 0.7 }}>Thickness</label>
-            <div className="grid grid-cols-5 gap-1">
-              {thicknesses.map((th) => (
+            <label className="text-[14px] font-bold" style={{ color: theme.text }}>Thickness</label>
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { label: 'Thin', value: 2 },
+                { label: 'Medium', value: 4 },
+                { label: 'Large', value: 6 },
+                { label: 'XL', value: 8 },
+                { label: 'XXL', value: 10 }
+              ].map((t) => (
                 <button
-                  key={th}
-                  onClick={() => setReadingGuideThickness(th)}
-                  className="py-1.5 text-xs rounded"
+                  key={t.label}
+                  onClick={() => setReadingGuideThickness(t.value)}
+                  className="h-8 flex items-center justify-center text-[12px] font-bold rounded text-center w-full px-1"
                   style={{
-                    backgroundColor: readingGuideThickness === th ? theme.active : theme.hover,
+                    backgroundColor: readingGuideThickness === t.value ? theme.active : theme.hover,
                     color: theme.text
                   }}
                 >
-                  {th}px
+                  {t.label}
                 </button>
               ))}
             </div>

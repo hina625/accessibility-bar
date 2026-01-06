@@ -31,7 +31,7 @@ export default function ReadingSpotlightToggle() {
                             <button
                                 key={option.label}
                                 onClick={() => setReadingSpotlightBrightness(option.value)}
-                                className={`p-1.5 rounded border transition-all text-[14px] ${readingSpotlightBrightness === option.value ? 'font-bold' : ''}`}
+                                className={`p-1.5 rounded border transition-all text-[14px] ${readingSpotlightBrightness === option.value ? 'font-semibold' : ''}`}
                                 style={{
                                     borderColor: readingSpotlightBrightness === option.value ? theme.text : `${theme.text}33`,
                                     backgroundColor: readingSpotlightBrightness === option.value ? 'rgba(0,0,0,0.15)' : 'transparent',

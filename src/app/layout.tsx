@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lexend } from "next/font/google";
+import { Geist, Geist_Mono, Lexend, Open_Sans } from "next/font/google";
 import "./globals.css";
 import "./accessibility-responsive.css";
 import Script from 'next/script';
@@ -21,6 +21,11 @@ const lexend = Lexend({
   subsets: ["latin"],
 });
 
+const openSans = Open_Sans({
+  variable: "--font-open-sans",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Accessibility Bar",
   description: "Accessibility features for better web experience",
@@ -33,8 +38,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/dist/external/open-dyslexic.css" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} antialiased font-sans`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} ${openSans.variable} antialiased font-sans`}
       >
         <a
           href="#accessible-content"
@@ -61,10 +69,6 @@ export default function RootLayout({
           </div>
           <AccessibilityBar />
         </AccessibilityProvider>
-        <Script src="/embed-standalone.js" strategy="afterInteractive" />
-        <Script id="init-embed" strategy="afterInteractive">
-          {`window.addEventListener('load', function(){ if(window.AccessibilityBarEmbed) window.AccessibilityBarEmbed.init({ targetSelector: 'body' }); });`}
-        </Script>
       </body >
     </html >
   );

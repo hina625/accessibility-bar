@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Bar Embed Test</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f8fafc;
+        }
+
+        h1 {
+            color: #1e293b;
+        }
+
+        p {
+            color: #334155;
+            margin-bottom: 20px;
+        }
+
+        .test-box {
+            padding: 20px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        .select-me {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: #2563eb;
+            user-select: all;
+            /* Explicitly allowed for testing */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Embed Test Page</h1>
+    <p>This is a test page to verify text selection while the accessibility bar is embedded.</p>
+
+    <div class="test-box">
+        <p>Try to select the text below:</p>
+        <p class="select-me">Can you select this specific sentence?</p>
+        <p>Selection should work normally on the whole page.</p>
+    </div>
+
+    <p>More text to test selection behavior across the entire viewport. Lorem ipsum dolor sit amet, consectetur
+        adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+        quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+    <!-- Load the accessibility bar bundle -->
+    <script src="public/embed-standalone.js"></script>
+</body>
+
+</html>

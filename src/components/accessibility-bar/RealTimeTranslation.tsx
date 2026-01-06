@@ -23,10 +23,10 @@ const LANGUAGES = [
 ];
 
 export default function RealTimeTranslation() {
-    const { barTheme, realTimeTranslation, toggleRealTimeTranslation, language, setLanguage } = useAccessibility();
+    const { barTheme, realTimeTranslation, toggleRealTimeTranslation, language, selectionLanguage, setSelectionLanguage } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
     const t = translations[language] || translations.en;
-    const [targetLanguage, setTargetLanguage] = useState(language || 'es');
+    // const [targetLanguage, setTargetLanguage] = useState(language || 'es'); // Removed local state preference
     const [inputText, setInputText] = useState('');
     const [translatedText, setTranslatedText] = useState('');
     const [isTranslating, setIsTranslating] = useState(false);
@@ -43,7 +43,7 @@ export default function RealTimeTranslation() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     text: inputText.trim(),
-                    targetLanguage: LANGUAGES.find(l => l.code === targetLanguage)?.name || 'Spanish'
+                    targetLanguage: LANGUAGES.find(l => l.code === selectionLanguage)?.name || 'Spanish'
                 })
             });
 
@@ -57,13 +57,13 @@ export default function RealTimeTranslation() {
         } finally {
             setIsTranslating(false);
         }
-    }, [inputText, targetLanguage]);
+    }, [inputText, selectionLanguage]);
 
     return (
         <div className="space-y-4">
             <ToggleCheckbox
                 id="enable-translation-toggle"
-                label={t.controls.translateWebsite || "Translate Website"}
+                label={t.controls.translateWebsite || "Translate Selection"}
                 checked={realTimeTranslation}
                 onChange={toggleRealTimeTranslation}
             />
@@ -72,15 +72,14 @@ export default function RealTimeTranslation() {
                 <>
                     {/* Language Selection */}
                     <div>
-                        <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text, opacity: 0.6 }}>Website Language</label>
+                        <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text, opacity: 0.6 }}>Translation Language</label>
                         <select
-                            value={targetLanguage}
+                            value={selectionLanguage}
                             onChange={(e) => {
                                 const newLang = e.target.value;
-                                setTargetLanguage(newLang);
-                                if (realTimeTranslation) setLanguage(newLang);
+                                setSelectionLanguage(newLang);
                             }}
-                            className="w-full p-2 rounded-lg border text-[16px] focus:outline-none transition-all"
+                            className="w-full p-2 rounded-lg border text-[16px] focus:outline-none transition-all appearance-none bg-no-repeat"
                             style={{
                                 backgroundColor: theme.hover,
                                 borderColor: theme.border,
@@ -131,7 +130,7 @@ export default function RealTimeTranslation() {
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                 </svg>
-                                Translate to {LANGUAGES.find(l => l.code === targetLanguage)?.name}
+                                Translate to {LANGUAGES.find(l => l.code === selectionLanguage)?.name}
                             </>
                         )}
                     </button>
@@ -144,7 +143,7 @@ export default function RealTimeTranslation() {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                 </svg>
                                 <span className="text-[14px] font-bold uppercase" style={{ color: theme.active }}>
-                                    {LANGUAGES.find(l => l.code === targetLanguage)?.name}
+                                    {LANGUAGES.find(l => l.code === selectionLanguage)?.name}
                                 </span>
                             </div>
                             <p className="text-[16px] leading-relaxed" style={{ color: theme.text }}>

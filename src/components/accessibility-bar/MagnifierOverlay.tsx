@@ -23,13 +23,41 @@ export default function MagnifierOverlay() {
             rafRef.current = requestAnimationFrame(() => {
                 setPosition({ x: e.clientX, y: e.clientY });
 
-                const target = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement;
-                if (target && !target.closest('.magnifier-lens') && !target.closest('.accessibility-bar')) {
+                // Use elementsFromPoint to pierce through overlays/backdrops
+                const elements = document.elementsFromPoint(e.clientX, e.clientY);
+
+                // Find the first relevant element (not the lens, not the backdrop)
+                let target: HTMLElement | null = null;
+
+                for (const el of elements) {
+                    const htmlEl = el as HTMLElement;
+                    // Skip the lens itself
+                    if (htmlEl.closest('.magnifier-lens')) continue;
+
+                    // Skip the backdrop used for closing the menu
+                    if (htmlEl.classList.contains('accessibility-backdrop')) continue;
+
+                    // Skip the active indicator lines we added (visual only)
+                    if (htmlEl.classList.contains('pointer-events-none')) continue;
+
+                    target = htmlEl;
+                    break;
+                }
+
+                if (target) {
                     let extractedText = '';
 
                     // Try to get text at exact cursor position
                     try {
                         let range: Range | null = null;
+
+                        // Temporarily disable pointer events on backdrop to allow piercing
+                        const backdrop = document.querySelector('.accessibility-backdrop') as HTMLElement;
+                        let originalPointerEvents = '';
+                        if (backdrop) {
+                            originalPointerEvents = backdrop.style.pointerEvents;
+                            backdrop.style.pointerEvents = 'none';
+                        }
 
                         // Try modern API first
                         if (document.caretRangeFromPoint) {
@@ -41,6 +69,11 @@ export default function MagnifierOverlay() {
                                 range.setStart(position.offsetNode, position.offset);
                                 range.setEnd(position.offsetNode, position.offset);
                             }
+                        }
+
+                        // Restore backdrop pointer events
+                        if (backdrop) {
+                            backdrop.style.pointerEvents = originalPointerEvents;
                         }
 
                         if (range && range.startContainer.nodeType === Node.TEXT_NODE) {
@@ -62,20 +95,31 @@ export default function MagnifierOverlay() {
                                 end++;
                             }
 
-                            // If we found a single word, try to get surrounding context (sentence)
-                            let sentenceStart = start;
-                            let sentenceEnd = end;
+                            // If we found a single word, try to get one more word for "word or two" context
+                            let phraseStart = start;
+                            let phraseEnd = end;
 
-                            // Expand to sentence boundaries (. ! ? or newline)
-                            while (sentenceStart > 0 && !/[.!?\n]/.test(text[sentenceStart - 1])) {
-                                sentenceStart--;
+                            // Look ahead for one more word
+                            let nextWordEnd = end;
+                            // Skip whitespace
+                            while (nextWordEnd < text.length && /\s/.test(text[nextWordEnd])) {
+                                nextWordEnd++;
                             }
-                            while (sentenceEnd < text.length && !/[.!?\n]/.test(text[sentenceEnd])) {
-                                sentenceEnd++;
+                            // Find end of next word
+                            let hasNextWord = false;
+                            while (nextWordEnd < text.length && !/\s/.test(text[nextWordEnd]) && !/[.!?\n]/.test(text[nextWordEnd])) {
+                                nextWordEnd++;
+                                hasNextWord = true;
                             }
 
-                            // Get the sentence or phrase
-                            extractedText = text.substring(sentenceStart, sentenceEnd).trim();
+                            if (hasNextWord) {
+                                phraseEnd = nextWordEnd;
+                            }
+
+                            // Get the phrase (1-2 words)
+                            extractedText = text.substring(phraseStart, phraseEnd).trim();
+
+
 
                             // Limit length
                             if (extractedText.length > 100) {
@@ -116,46 +160,55 @@ export default function MagnifierOverlay() {
 
     return (
         <div
-            className="magnifier-lens fixed z-[2147483647] pointer-events-none flex items-center justify-center"
+            className="magnifier-lens fixed z-[2147483647] pointer-events-none flex items-center justify-center p-4"
             style={{
                 left: `${position.x}px`,
-                top: `${position.y - 150}px`, // Float above cursor
-                transform: 'translate(-50%, -50%)', // Center on coordinates
+                top: `${position.y - 120}px`, // Adjusted offset
+                transform: 'translate(-50%, -50%)',
             }}
         >
             {/* Handle */}
             <div
                 className="absolute bg-neutral-800 border-2 border-neutral-600 shadow-md"
                 style={{
-                    width: '20px',
-                    height: '100px',
-                    bottom: '-60px',
+                    width: '16px',
+                    height: '80px',
+                    bottom: '-40px',
                     right: '-20px',
                     transform: 'rotate(-45deg)',
-                    borderRadius: '10px',
+                    borderRadius: '8px',
                     zIndex: -1
                 }}
             />
 
             {/* Lens Frame (Outer Ring) */}
             <div
-                className="relative bg-white dark:bg-gray-900 border-[12px] border-neutral-800 shadow-2xl flex items-center justify-center overflow-hidden"
+                className="relative bg-white dark:bg-gray-900 border-[10px] border-neutral-800 shadow-2xl flex items-center justify-center overflow-hidden"
                 style={{
-                    width: '220px',
-                    height: '220px',
+                    width: '200px',
+                    height: '200px',
                     borderRadius: '50%',
-                    boxShadow: '0 10px 25px rgba(0,0,0,0.5), inset 0 0 40px rgba(0,0,0,0.2)'
+                    boxShadow: 'none'
                 }}
             >
-                {/* Text Content */}
-                <div className="p-6 text-center w-full h-full flex items-center justify-center">
-                    <p className="text-[20px] font-bold text-black dark:text-white leading-tight line-clamp-5">
+                {/* Crosshair Target - Added for better precision */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+                    <div className="w-8 h-[1px] bg-red-600 absolute"></div>
+                    <div className="h-8 w-[1px] bg-red-600 absolute"></div>
+                    <div className="w-16 h-16 border border-red-600 rounded-full absolute opacity-50"></div>
+                </div>
+
+                {/* Content Area */}
+                <div
+                    className="p-6 text-center w-full h-full flex flex-col items-center justify-center"
+                >
+                    <span className="text-[20px] font-bold text-black dark:text-white leading-tight break-words max-w-full">
                         {content}
-                    </p>
+                    </span>
                 </div>
 
                 {/* Glass Reflection/Gloss */}
-                <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-black/10 pointer-events-none rounded-full" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/20 pointer-events-none rounded-full" />
             </div>
         </div>
     );

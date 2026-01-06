@@ -12,30 +12,34 @@ export default function ContentFiltering() {
     } = useAccessibility();
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-4 pt-2">
             <ToggleCheckbox
                 id="hide-images-toggle"
                 label="Hide Images"
                 checked={hideImages}
                 onChange={toggleHideImages}
+                labelClassName="text-[18px] font-medium"
             />
             <ToggleCheckbox
                 id="show-descriptions-toggle"
                 label="Image Descriptions"
                 checked={showImageDescriptions}
                 onChange={toggleShowImageDescriptions}
+                labelClassName="text-[18px] font-medium"
             />
             <ToggleCheckbox
                 id="pause-animations-toggle"
                 label="Pause Animations"
                 checked={pauseAnimations}
                 onChange={togglePauseAnimations}
+                labelClassName="text-[18px] font-medium"
             />
             <ToggleCheckbox
                 id="stop-videos-toggle"
                 label="Stop Videos"
                 checked={stopVideos}
                 onChange={toggleStopVideos}
+                labelClassName="text-[18px] font-medium"
             />
         </div>
     );

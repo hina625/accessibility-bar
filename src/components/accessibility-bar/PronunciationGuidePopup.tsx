@@ -35,7 +35,8 @@ export default function PronunciationGuidePopup() {
         const handleMouseUp = (e: MouseEvent) => {
             // Don't trigger if clicking inside the tooltip or the accessibility bar
             if (tooltipRef.current?.contains(e.target as Node) ||
-                (e.target as HTMLElement).closest('.accessibility-bar')) {
+                (e.target as HTMLElement).closest('.accessibility-bar') ||
+                (e.target as HTMLElement).closest('.a11y-embed-host')) {
                 return;
             }
 
@@ -47,18 +48,23 @@ export default function PronunciationGuidePopup() {
                 // Allow up to 10 words or 100 characters to support phrases
                 if (text && text.length > 0 && text.length < 100 && text.split(/\s+/).length <= 10) {
 
-                    // Get selection coordinates
-                    const range = selection!.getRangeAt(0);
-                    const rect = range.getBoundingClientRect();
+                    if (selection && selection.rangeCount > 0) {
+                        // Get selection coordinates
+                        const range = selection.getRangeAt(0);
+                        const rect = range.getBoundingClientRect();
 
-                    // Calculate center of selection
-                    const x = rect.left + (rect.width / 2);
-                    const y = rect.top + window.scrollY - 10; // 10px above selection
+                        if (rect.width === 0 || rect.height === 0) return;
 
-                    setSelectedText(text);
-                    setPosition({ x, y });
-                    setIsVisible(true);
-                    fetchPronunciation(text);
+                        // Calculate center of selection
+                        const x = rect.left + (rect.width / 2);
+                        const y = rect.top - 10; // 10px above selection
+                        // Removed window.scrollY because fixed position + no transform = viewport coords
+
+                        setSelectedText(text);
+                        setPosition({ x, y });
+                        setIsVisible(true);
+                        fetchPronunciation(text);
+                    }
                 } else if (!tooltipRef.current?.contains(e.target as Node)) {
                     setIsVisible(false);
                 }
@@ -68,7 +74,7 @@ export default function PronunciationGuidePopup() {
         const handleMouseDown = (e: MouseEvent) => {
             if (tooltipRef.current && !tooltipRef.current.contains(e.target as Node) &&
                 !(e.target as HTMLElement).closest('.accessibility-bar')) {
-                setIsVisible(false);
+                // setIsVisible(false); // Rely on mouseup
             }
         };
 
@@ -135,7 +141,8 @@ export default function PronunciationGuidePopup() {
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 backgroundColor: theme.background,
-                borderColor: theme.border
+                borderColor: theme.border,
+                pointerEvents: 'auto'
             }}
         >
             <div

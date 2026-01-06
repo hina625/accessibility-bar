@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 
 export function useReadingSettings() {
     const [readingGuide, setReadingGuide] = useState<boolean>(false);
-    const [readingGuideColor, setReadingGuideColor] = useState<string>('rgba(59,130,246,0.5)');
+    const [readingGuideColor, setReadingGuideColor] = useState<string>('#000000');
     const [readingGuideThickness, setReadingGuideThickness] = useState<number>(4);
     const [readingRuler, setReadingRuler] = useState<boolean>(false);
-    const [readingRulerColor, setReadingRulerColor] = useState<string>('rgba(22, 163, 74, 0.8)');
+    const [readingRulerColor, setReadingRulerColor] = useState<string>('rgba(0, 0, 0, 1)');
     const [readingRulerWidth, setReadingRulerWidth] = useState<number>(60);
     const [readingMask, setReadingMask] = useState<boolean>(false);
     const [readingMaskColor, setReadingMaskColor] = useState<string>('rgba(0, 0, 0, 1)');
@@ -15,6 +15,8 @@ export function useReadingSettings() {
     const [highlightLinks, setHighlightLinks] = useState<boolean>(false);
     const [highlightHeadings, setHighlightHeadings] = useState<boolean>(false);
     const [largeButtons, setLargeButtons] = useState<boolean>(false);
+    const [readingProgressBar, setReadingProgressBar] = useState<boolean>(true);
+    const [readingProgressBarColor, setReadingProgressBarColor] = useState<string>('#000000');
 
     // Initial load
     useEffect(() => {
@@ -33,6 +35,8 @@ export function useReadingSettings() {
             highlightLinks: localStorage.getItem('accessibility-highlightLinks'),
             highlightHeadings: localStorage.getItem('accessibility-highlightHeadings'),
             largeButtons: localStorage.getItem('accessibility-largeButtons'),
+            readingProgressBar: localStorage.getItem('accessibility-readingProgressBar'),
+            readingProgressBarColor: localStorage.getItem('accessibility-readingProgressBarColor'),
         };
 
         if (saved.readingGuide === 'true') setReadingGuide(true);
@@ -49,6 +53,9 @@ export function useReadingSettings() {
         if (saved.highlightLinks === 'true') setHighlightLinks(true);
         if (saved.highlightHeadings === 'true') setHighlightHeadings(true);
         if (saved.largeButtons === 'true') setLargeButtons(true);
+        if (saved.readingProgressBar === 'false') setReadingProgressBar(false);
+        else setReadingProgressBar(true);
+        if (saved.readingProgressBarColor) setReadingProgressBarColor(saved.readingProgressBarColor);
     }, []);
 
     // Effects
@@ -93,6 +100,42 @@ export function useReadingSettings() {
         localStorage.setItem('accessibility-largeButtons', largeButtons.toString());
     }, [largeButtons]);
 
+    useEffect(() => {
+        localStorage.setItem('accessibility-readingProgressBar', readingProgressBar.toString());
+        localStorage.setItem('accessibility-readingProgressBarColor', readingProgressBarColor);
+
+        // Update browser scrollbar color
+        const styleId = 'accessibility-scrollbar-style';
+        let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = styleId;
+            document.head.appendChild(styleEl);
+        }
+
+        styleEl.textContent = `
+            html {
+                scrollbar-color: ${readingProgressBarColor} transparent !important;
+            }
+            ::-webkit-scrollbar {
+                width: 12px !important;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent !important;
+            }
+            ::-webkit-scrollbar-thumb {
+                background-color: ${readingProgressBarColor} !important;
+                border-radius: 6px !important;
+                border: 3px solid transparent !important;
+                background-clip: content-box !important;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: ${readingProgressBarColor} !important;
+                opacity: 0.8 !important;
+            }
+        `;
+    }, [readingProgressBar, readingProgressBarColor]);
+
     return {
         readingGuide, setReadingGuide,
         readingGuideColor, setReadingGuideColor,
@@ -108,5 +151,7 @@ export function useReadingSettings() {
         highlightLinks, setHighlightLinks,
         highlightHeadings, setHighlightHeadings,
         largeButtons, setLargeButtons,
+        readingProgressBar, setReadingProgressBar,
+        readingProgressBarColor, setReadingProgressBarColor,
     };
 }

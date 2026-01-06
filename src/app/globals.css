@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -92,6 +93,66 @@ body {
   font-family: inherit !important;
 }
 
+[data-font-style="sans"] #accessible-content {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+[data-font-style="mono"] #accessible-content {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
+[data-font-style="tahoma"] #accessible-content {
+  font-family: Tahoma, Verdana, Segoe, sans-serif !important;
+}
+
+[data-font-style="serif"] #accessible-content {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
+[data-font-style="trebuchet"] #accessible-content {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
+}
+
+[data-font-style="verdana"] #accessible-content {
+  font-family: Verdana, Geneva, Tahoma, sans-serif !important;
+}
+
+[data-font-style="arial"] #accessible-content {
+  font-family: Arial, Helvetica, sans-serif !important;
+}
+
+[data-font-style="calibri"] #accessible-content {
+  font-family: Calibri, 'Gill Sans', 'Gill Sans MT', 'Myriad Pro', Myriad, 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+}
+
+[data-font-style="century-gothic"] #accessible-content {
+  font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif !important;
+}
+
+[data-font-style="comic-sans"] #accessible-content {
+  font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
+}
+
+[data-font-style="andika"] #accessible-content {
+  font-family: 'Andika', sans-serif !important;
+}
+
+[data-font-style="fs-me"] #accessible-content {
+  font-family: 'FS Me', sans-serif !important;
+}
+
+[data-font-style="lexend"] #accessible-content {
+  font-family: var(--font-lexend), sans-serif !important;
+}
+
+[data-font-style="open-sans"] #accessible-content {
+  font-family: var(--font-open-sans), sans-serif !important;
+}
+
+[data-font-style] *:not(.accessibility-bar):not(.accessibility-bar *) {
+  font-family: inherit !important;
+}
+
 .grayscale-mode #accessible-content {
   filter: grayscale(100%) !important;
 }
@@ -104,23 +165,7 @@ body {
   filter: invert(100%) hue-rotate(180deg) !important;
 }
 
-.highlight-links a:not(.accessibility-bar *) {
-  background-color: rgba(255, 255, 0, 0.4) !important;
-  color: #000 !important;
-  padding: 2px 4px !important;
-  border-radius: 3px !important;
-  text-decoration: underline !important;
-  font-weight: bold !important;
-}
-
-.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *) {
-  background-color: rgba(255, 255, 0, 0.4) !important;
-  color: #000 !important;
-  padding: 4px 8px !important;
-  border-radius: 4px !important;
-  display: inline-block !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
-}
+/* Highlights moved to the end for specificity */
 
 :root {
   --text-spacing: 1rem;
@@ -160,9 +205,10 @@ body {
   header,
   footer,
   nav) {
-  line-height: calc(1.5 * var(--text-spacing)) !important;
-  letter-spacing: calc(0.1px * var(--text-spacing)) !important;
-  word-spacing: calc(0.3em * var(--text-spacing)) !important;
+  line-height: var(--line-height, 1.5) !important;
+  letter-spacing: var(--letter-spacing, normal) !important;
+  word-spacing: var(--word-spacing, normal) !important;
+  text-align: var(--text-align, left) !important;
 }
 
 
@@ -192,6 +238,17 @@ body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibil
   transform: none !important;
 }
 
+.accessibility-bar select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: none !important;
+}
+
+.accessibility-bar select::-ms-expand {
+  display: none !important;
+}
+
 /* Explicit exclusion for the bar to avoid inheriting global filters/colors */
 .accessibility-bar {
   --text-color: inherit !important;
@@ -201,6 +258,28 @@ body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibil
 
 * {
   cursor: default;
+}
+
+/* Ensure text selection works everywhere - website content and accessibility bar */
+body,
+body *,
+.accessibility-bar,
+.accessibility-bar *,
+.a11y-embed-host,
+.a11y-embed-host * {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
+.keyboard-navigation button:not(.accessibility-bar *):not(.a11y-embed-host *),
+.keyboard-navigation a:not(.accessibility-bar *):not(.a11y-embed-host *),
+.keyboard-navigation input:not(.accessibility-bar *):not(.a11y-embed-host *),
+.keyboard-navigation select:not(.accessibility-bar *):not(.a11y-embed-host *),
+.keyboard-navigation textarea:not(.accessibility-bar *):not(.a11y-embed-host *),
+.keyboard-navigation [tabindex]:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  cursor: pointer !important;
 }
 
 .large-cursor *:not(.accessibility-bar):not(.accessibility-bar *) {
@@ -237,10 +316,10 @@ body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibil
 }
 
 
-.keyboard-navigation *:focus {
-  outline: 4px solid #3b82f6 !important;
-  outline-offset: 4px !important;
-  box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3) !important;
+.keyboard-navigation *:focus:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  outline: 3px solid #000000 !important;
+  outline-offset: 2px !important;
+  box-shadow: none !important;
   z-index: 2147483647 !important;
 }
 
@@ -439,4 +518,37 @@ body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibil
 
 .animate-progress-once {
   animation: progress-once 0.5s ease-out forwards;
+}
+
+/* HIGH-SPECIFICITY ACCESSIBILITY HIGHLIGHTS */
+/* These must stay at the bottom of the file to guarantee they override global backgrounds */
+html.highlight-links #accessible-content a:not(.accessibility-bar *),
+html.highlight-links body a:not(.accessibility-bar *),
+html.highlight-links a:not(.accessibility-bar *) {
+  background-color: #FFD700 !important;
+  background: #FFD700 !important;
+  color: #000000 !important;
+  opacity: 1 !important;
+  background-image: none !important;
+  padding: 2px 4px !important;
+  border-radius: 3px !important;
+  text-decoration: underline !important;
+  font-weight: bold !important;
+  display: inline !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.highlight-headings #accessible-content :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *),
+html.highlight-headings body :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *),
+html.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *) {
+  background-color: #FFD700 !important;
+  background: #FFD700 !important;
+  color: #000000 !important;
+  opacity: 1 !important;
+  background-image: none !important;
+  padding: 3px 6px !important;
+  border-radius: 3px !important;
+  display: inline-block !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  font-weight: bold !important;
 }

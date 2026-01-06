@@ -13,7 +13,11 @@ export default function TtsPlayer() {
         barTheme,
         language,
         ttsReadingSpeed,
-        ttsVoiceGender
+        ttsVoiceGender,
+        isPaused,
+        pauseTts,
+        resumeTts,
+        stopTts
     } = useAccessibility();
 
     const [position, setPosition] = useState({ x: 20, y: 20 });
@@ -73,7 +77,8 @@ export default function TtsPlayer() {
                 top: `${position.y}px`,
                 backgroundColor: theme.background,
                 border: `2px solid ${theme.active}`,
-                cursor: isDragging ? 'grabbing' : 'auto'
+                cursor: isDragging ? 'grabbing' : 'auto',
+                pointerEvents: 'auto'
             }}
         >
             {/* Header / Drag Handle */}
@@ -88,20 +93,38 @@ export default function TtsPlayer() {
                 </div>
                 <button
                     onClick={toggleTtsMovableControls}
-                    className="p-1 rounded-full transition-all hover:bg-black/10"
+                    className="p-1 pr-2 rounded-full transition-all hover:bg-black/10 flex items-center gap-1"
                     style={{ color: theme.text }}
                     aria-label={t.common.close}
                 >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Close</span>
                 </button>
             </div>
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-4 py-2">
                 <button
-                    onClick={handleStop}
+                    onClick={isPaused ? resumeTts : pauseTts}
+                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    style={{ backgroundColor: `${theme.text}11`, color: theme.text }}
+                    title={isPaused ? (t.controls.play || "Play") : (t.controls.pause || "Pause")}
+                >
+                    {isPaused ? (
+                        <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    ) : (
+                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                        </svg>
+                    )}
+                </button>
+
+                <button
+                    onClick={stopTts}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
                     style={{ backgroundColor: `${theme.text}11`, color: theme.text }}
                     title={t.controls.stopReading || "Stop"}
@@ -114,12 +137,12 @@ export default function TtsPlayer() {
 
             {/* Status Info */}
             <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-[16px] font-bold uppercase tracking-tight" style={{ color: theme.text, opacity: 0.6 }}>
+                <div className="flex items-center justify-between text-[16px] font-bold uppercase tracking-tight" style={{ color: theme.text, opacity: 0.8 }}>
                     <span>{ttsReadingSpeed.toFixed(1)}x Speed</span>
                     <span>{ttsVoiceGender}</span>
                 </div>
-                <div className="h-1 rounded-full bg-black/10 overflow-hidden">
-                    <div className="h-full transition-all duration-300" style={{ width: '100%', backgroundColor: theme.active, opacity: 0.5 }} />
+                <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${theme.text}33` }}>
+                    <div className="h-full transition-all duration-300" style={{ width: '100%', backgroundColor: theme.active }} />
                 </div>
             </div>
         </div>

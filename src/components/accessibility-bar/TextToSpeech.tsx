@@ -5,6 +5,7 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { speak } from '@/utils/speechUtils';
 import { translations } from '@/contexts/accessibility/translations';
+import InfoPopupButton from './InfoPopupButton';
 
 export default function TextToSpeech() {
     const {
@@ -24,6 +25,7 @@ export default function TextToSpeech() {
     return (
         <div className="space-y-4">
             {/* Main Toggle: Text to Speech (On/Off) */}
+            {/* Main Toggle: Text to Speech (On/Off) */}
             <div
                 className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
                 style={{ backgroundColor: theme.hover }}
@@ -31,8 +33,17 @@ export default function TextToSpeech() {
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                 onClick={toggleTextToSpeech}
             >
-                <div className="flex flex-col">
-                    <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.tts} (On/Off)</span>
+                <div className="flex flex-col flex-1">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[16px] font-medium" style={{ color: theme.text }}>{t.controls.tts}</span>
+                        <div onClick={(e) => e.stopPropagation()}>
+                            <InfoPopupButton
+                                title={t.controls.tts}
+                                description={t.info?.speech?.features?.["Text to Speech"] || "Read the page content aloud."}
+                            />
+                        </div>
+                    </div>
+                    <span className="text-[14px]" style={{ color: theme.text, opacity: 0.7 }}>{t.info?.speech?.features?.["Text to Speech"] || "Read the page content aloud."}</span>
                 </div>
                 <div
                     className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"

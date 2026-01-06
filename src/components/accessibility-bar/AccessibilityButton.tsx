@@ -30,7 +30,7 @@ export default function AccessibilityButton({
       <span className={`flex items-center justify-center w-10 h-10 rounded-md transition-colors ${active ? 'bg-white/10' : 'bg-transparent'
         }`}>{icon}</span>
 
-      <span className="mt-1 text-[11px] font-normal text-black dark:text-gray-300 text-center select-none">
+      <span className="mt-1 text-[11px] font-semibold text-black dark:text-gray-300 text-center select-none">
         {label}
       </span>
 

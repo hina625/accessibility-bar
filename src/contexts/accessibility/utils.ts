@@ -7,6 +7,8 @@ export const MAX_TEXT_SPACING = 2.5;
 export const DEFAULT_CURSOR_SIZE = 1;
 export const MIN_CURSOR_SIZE = 1;
 export const MAX_CURSOR_SIZE = 5;
+export const DEFAULT_CURSOR_STYLE = 'white';
+export const DEFAULT_PRIMARY_BUTTON = 'left';
 export const DEFAULT_PAGE_ZOOM = 100;
 export const MIN_PAGE_ZOOM = 50;
 export const MAX_PAGE_ZOOM = 200;
@@ -21,7 +23,7 @@ export const isInsideAccessibilityBar = (element: HTMLElement | null): boolean =
         if (root instanceof ShadowRoot && root.host === shadowHost) return true;
     }
 
-   
+
     return !!element.closest('.accessibility-bar') ||
         !!element.closest('.a11y-embed-host') ||
         !!element.closest('[role="dialog"][aria-label="Accessibility options"]');

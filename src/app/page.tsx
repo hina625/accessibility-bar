@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Script from 'next/script'
 
 // --- Premium Icons ---
 
@@ -424,7 +423,7 @@ export default function Page() {
 
   return (
     <div style={{ scrollBehavior: 'smooth' }}>
-      <div style={{ fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
+      <div id="accessible-content" style={{ fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}>
         <Nav onChangeName={changeName} author={author} />
         <main>
           <Hero />
@@ -436,11 +435,6 @@ export default function Page() {
       </div>
 
       <div id="a11y-embed-container" />
-
-      <Script src="/embed-standalone.js" strategy="afterInteractive" />
-      <Script id="init-embed" strategy="afterInteractive">
-        {`window.addEventListener('load', function(){ if(window.AccessibilityBarEmbed) window.AccessibilityBarEmbed.init({ targetSelector: 'body' }); });`}
-      </Script>
     </div>
   )
 }

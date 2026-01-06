@@ -1,4 +1,4 @@
-export type BarTheme = 'white' | 'black' | 'purple' | 'yellow' | 'orange' | 'deepBlue';
+export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'blue' | 'navy' | 'yellow' | 'purple';
 
 export interface ThemeColors {
     background: string;
@@ -10,46 +10,60 @@ export interface ThemeColors {
 
 export const BAR_THEMES: Record<BarTheme, ThemeColors> = {
     white: {
-        background: '#f5f5f5de',
+        background: '#F5F5F5',
         text: '#000000',
-        hover: '#e0e0e0',
-        active: '#d0d0d0',
-        border: '#c0c0c0',
+        hover: '#C0C0C0',
+        active: '#A0A0A0',
+        border: '#B0B0B0',
+    },
+    grayscale: {
+        background: '#5A5A5A',
+        text: '#FFFFFF',
+        hover: '#353535',
+        active: '#7A7A7A',
+        border: '#B0B0B0',
     },
     black: {
-        background: '#0e0d0dff',
+        background: '#0E0D0D',
         text: '#FFFFFF',
-        hover: '#1d1d1dff',
-        active: '#272727dc',
-        border: '#555555',
+        hover: '#3A3A3A',
+        active: '#606060',
+        border: '#A0A0A0',
     },
-    purple: {
-        background: '#763fd4ff',
+    oceanBlue: {
+        background: '#005A9E',
         text: '#FFFFFF',
-        hover: '#8056e2ff',
-        active: '#5818beff',
-        border: '#8c6fe0ff',
+        hover: '#0090DD',
+        active: '#0072be',
+        border: '#2378b9',
     },
-    yellow: {
-        background: '#FACC15',
-        text: '#000000',
-        hover: '#ffdc2cff',
-        active: '#f1ba15ff',
-        border: '#ffe93eff',
-    },
-    orange: {
-        background: '#fd500bff',
+    blue: {
+        background: '#1A34C9',
         text: '#FFFFFF',
-        hover: '#fd7435ff',
-        active: '#f8652aff',
-        border: '#fd7739ff',
+        hover: '#4060FF',
+        active: '#3050E8',
+        border: '#2e4bf3',
     },
-    deepBlue: {
+    navy: {
         background: '#06334A',
         text: '#FFFFFF',
-        hover: '#0A4A6A',
-        active: '#0F5C85',
-        border: '#123E5A',
+        hover: '#066b96',
+        active: '#0C5580',
+        border: '#0c618b',
+    },
+    yellow: {
+        background: '#ffd015',
+        text: '#000000',
+        hover: '#f5d018',
+        active: '#f8c323',
+        border: '#ffe944',
+    },
+    purple: {
+        background: '#6432C4',
+        text: '#FFFFFF',
+        hover: '#9570FF',
+        active: '#7D50E0',
+        border: '#9161f8',
     },
 };
 
@@ -63,7 +77,7 @@ export const THEME = {
     border: BAR_THEMES.purple.border,
     borderLight: 'rgba(124, 58, 237, 0.4)',
     highlight: '#EDE9FE',
-    deepBlue: BAR_THEMES.deepBlue.background,
+    navy: BAR_THEMES.navy.background,
     white: '#FFFFFF',
     black: '#000000',
     transparent: 'transparent',

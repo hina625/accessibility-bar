@@ -5,55 +5,54 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function ReadingGuideLine() {
   const { readingGuide, readingGuideColor, readingGuideThickness } = useAccessibility();
-  const [position, setPosition] = useState<{ x: number; y: number } | null>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (typeof document === 'undefined') return;
-    let vert: HTMLDivElement | null = null;
-    let horz: HTMLDivElement | null = null;
+    if (!readingGuide) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (vert) vert.style.left = `${e.clientX}px`;
-      if (horz) horz.style.top = `${e.clientY}px`;
+      setPosition({ x: e.clientX, y: e.clientY });
     };
 
-    if (readingGuide) {
-      vert = document.createElement('div');
-      horz = document.createElement('div');
-      vert.setAttribute('aria-hidden', 'true');
-      horz.setAttribute('aria-hidden', 'true');
-      Object.assign(vert.style, {
-        position: 'fixed',
-        pointerEvents: 'none',
-        zIndex: '2147483646',
-        borderLeft: `${readingGuideThickness}px solid ${readingGuideColor}`,
-        top: '0',
-        bottom: '0',
-        width: `${readingGuideThickness}px`,
-        transform: 'translateX(-50%)',
-      });
-      Object.assign(horz.style, {
-        position: 'fixed',
-        pointerEvents: 'none',
-        zIndex: '2147483646',
-        borderTop: `${readingGuideThickness}px solid ${readingGuideColor}`,
-        left: '0',
-        right: '0',
-        height: `${readingGuideThickness}px`,
-        transform: 'translateY(-50%)',
-      });
-      document.body.appendChild(vert);
-      document.body.appendChild(horz);
-      window.addEventListener('mousemove', handleMouseMove);
-    }
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [readingGuide]);
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      if (vert && vert.parentNode) vert.parentNode.removeChild(vert);
-      if (horz && horz.parentNode) horz.parentNode.removeChild(horz);
-    };
-  }, [readingGuide, readingGuideColor, readingGuideThickness]);
+  if (!readingGuide) return null;
 
-  return null;
+  return (
+    <>
+      {/* Vertical Line */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          pointerEvents: 'none',
+          zIndex: 2147483646,
+          borderLeft: `${readingGuideThickness}px solid ${readingGuideColor}`,
+          top: 0,
+          bottom: 0,
+          left: position.x,
+          width: `${readingGuideThickness}px`,
+          transform: 'translateX(-50%)',
+        }}
+      />
+      {/* Horizontal Line */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'fixed',
+          pointerEvents: 'none',
+          zIndex: 2147483646,
+          borderTop: `${readingGuideThickness}px solid ${readingGuideColor}`,
+          left: 0,
+          right: 0,
+          top: position.y,
+          height: `${readingGuideThickness}px`,
+          transform: 'translateY(-50%)',
+        }}
+      />
+    </>
+  );
 }
 
