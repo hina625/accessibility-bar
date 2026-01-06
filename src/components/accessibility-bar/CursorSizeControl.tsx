@@ -114,6 +114,18 @@ export default function CursorSizeControl() {
       }
     },
     {
+      id: 'highlight',
+      label: t.controls.highlight || 'Highlight',
+      icon: (size, color) => {
+        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        return (
+          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+            <circle cx="12" cy="12" r="11.5" fill={iconColor} />
+          </svg>
+        );
+      }
+    },
+    {
       id: 'custom',
       label: t.controls.custom || 'Custom',
       icon: (size, color) => (

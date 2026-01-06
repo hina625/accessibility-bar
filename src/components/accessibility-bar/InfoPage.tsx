@@ -146,7 +146,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col items-start pt-1">
-                                                    <h2 className="text-2xl font-black uppercase tracking-widest text-white drop-shadow-md leading-[1.1]">{displayName}</h2>
+                                                    <h2 className="text-2xl font-black uppercase tracking-widest drop-shadow-md leading-[1.1]" style={{ color: guideTheme.text }}>{displayName}</h2>
                                                     <div className="h-2 bg-yellow-400 rounded-full shadow-lg mt-3 w-full opacity-100 transition-all duration-300"></div>
                                                 </div>
                                             </div>
@@ -166,8 +166,8 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                                 >
                                                     <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-yellow-400 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
 
-                                                    <h3 className="font-black text-2xl mb-4 uppercase tracking-tight text-white">{fName.replace(/color/gi, 'colour')}</h3>
-                                                    <p className="text-[22px] opacity-80 mb-10 font-bold leading-relaxed text-white/90">
+                                                    <h3 className="font-black text-2xl mb-4 uppercase tracking-tight" style={{ color: guideTheme.text }}>{fName.replace(/color/gi, 'colour')}</h3>
+                                                    <p className="text-[22px] opacity-80 mb-10 font-bold leading-relaxed" style={{ color: guideTheme.text }}>
                                                         {(fDesc as string).replace(/color/gi, 'colour')}
                                                     </p>
 
@@ -188,8 +188,8 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                         <div className="mt-8 px-4 flex justify-center">
                             <div className="w-full max-w-4xl bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl backdrop-blur-md">
                                 <div className="max-w-xl text-center md:text-left">
-                                    <h2 className="text-2xl font-black uppercase tracking-tight mb-2 text-white">Need More Help?</h2>
-                                    <p className="text-xl opacity-70 font-bold text-white/80 leading-relaxed">
+                                    <h2 className="text-2xl font-black uppercase tracking-tight mb-2" style={{ color: guideTheme.text }}>Need More Help?</h2>
+                                    <p className="text-xl opacity-70 font-bold leading-relaxed" style={{ color: guideTheme.text }}>
                                         Explore our documentation or use the feedback tool to let us know how we can improve your browsing experience.
                                     </p>
                                 </div>
@@ -208,10 +208,10 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                     <div className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
 
                         <div className="w-full md:w-1/3 flex flex-col pt-4">
-                            <h2 className="text-4xl font-black uppercase tracking-tight mb-4 leading-none text-white drop-shadow-sm">Contact Us</h2>
+                            <h2 className="text-4xl font-black uppercase tracking-tight mb-4 leading-none drop-shadow-sm" style={{ color: guideTheme.text }}>Contact Us</h2>
                             <div className="w-20 h-2 bg-yellow-400 rounded-full mb-8 shadow-sm"></div>
 
-                            <p className="text-2xl mb-12 font-medium leading-relaxed text-white">
+                            <p className="text-2xl mb-12 font-medium leading-relaxed" style={{ color: guideTheme.text }}>
                                 Interested in our Accessibility Bar? Have questions or need a demo? We'd love to hear from you.
                             </p>
 
@@ -260,32 +260,32 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                 }}
                             >
                                 <div className="group">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">First Name <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>First Name <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
                                     <input type="text" required className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80" placeholder="First Name" />
                                 </div>
                                 <div className="group">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">Last Name <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Last Name <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
                                     <input type="text" required className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80" placeholder="Last Name" />
                                 </div>
                                 <div className="group md:col-span-2">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">Email Address <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Email Address <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
                                     <input type="email" required className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80" placeholder="sarfraz123@.com" />
                                 </div>
                                 <div className="group">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">Phone Number</label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Phone Number</label>
                                     <input type="tel" className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80" placeholder="+1 (555) 000-0000" />
                                 </div>
                                 <div className="group">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">Website URL</label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Website URL</label>
                                     <input type="url" className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80" placeholder="https://videodesk.co.uk" />
                                 </div>
                                 <div className="group md:col-span-2">
-                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all text-white">Message <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
+                                    <label className="text-sm font-black uppercase tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Message <span className="text-red-500 text-2xl font-bold ml-1">*</span></label>
                                     <textarea required rows={4} className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80 resize-none" placeholder="How can we help you?"></textarea>
                                 </div>
 
                                 <div className="md:col-span-2 pt-4 flex items-center justify-between">
-                                    <p className="text-base font-bold tracking-widest uppercase text-white">* Required fields</p>
+                                    <p className="text-base font-bold tracking-widest uppercase" style={{ color: guideTheme.text }}>* Required fields</p>
                                     <button
                                         type="submit"
                                         className="px-10 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-sm transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-yellow-400/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"

@@ -33,7 +33,7 @@ export default function ColorBlindFilter() {
               setHeadingColor('#000000');
             }
           }}
-          className="w-full rounded-md px-3 py-2 text-[16px] font-normal focus:outline-none focus:ring-2 appearance-none cursor-pointer pr-10"
+          className="w-full rounded-md px-3 py-3 text-[16px] font-normal focus:outline-none focus:ring-2 appearance-none cursor-pointer pr-10"
           style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
           aria-label={t.controls.colorBlind}
         >

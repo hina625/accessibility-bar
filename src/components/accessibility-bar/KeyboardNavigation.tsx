@@ -2,7 +2,6 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
-import Image from 'next/image';
 
 export default function KeyboardNavigation() {
   const { barTheme, isPanelPinned, togglePanelPin } = useAccessibility();
@@ -25,14 +24,17 @@ export default function KeyboardNavigation() {
             }}
             title={isPanelPinned ? "Unpin Panel" : "Pin Panel"}
           >
-            <Image
-              src="/office-push-pin.png"
-              alt="Pin"
-              width={30}
-              height={30}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
               className={`transition-all ${isPanelPinned ? 'opacity-100' : 'opacity-60'}`}
-              style={{ filter: 'brightness(0)' }}
-            />
+              style={{ transform: 'rotate(45deg)' }}
+            >
+              <path d="M16 12V4H17V2H7V4H8V12L6 14V16H11V22H13V16H18V14L16 12Z" />
+            </svg>
           </button>
         </div>
       </div>

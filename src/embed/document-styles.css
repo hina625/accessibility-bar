@@ -95,6 +95,44 @@
     --page-bg-color: transparent;
     --text-color: inherit;
     --heading-color: inherit;
+    /* Default empty vars to valid values or custom property fallbacks */
+    --text-align: left;
+    --font-size: 100%;
+    /* For zoom scale */
+    --line-height: normal;
+    --letter-spacing: normal;
+    --word-spacing: normal;
+}
+
+/* ==========================================================================
+   GLOBAL TEXT OVERRIDES
+   ========================================================================== */
+
+/* Font Size Override (Zoom) */
+html[style*="--font-size"] {
+    font-size: var(--font-size) !important;
+    /* This helps rem units scale */
+}
+
+/* Text Align Override */
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
+html[style*="--text-align"] :is(p, h1, h2, h3, h4, h5, h6, li, td, th, div, span):not(.a11y-embed-host *):not(.accessibility-bar *) {
+    text-align: var(--text-align) !important;
+}
+
+/* Line Height Override */
+html[style*="--line-height"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
+html[style*="--line-height"] :is(p, h1, h2, h3, h4, h5, h6, li, td, th, div, span):not(.a11y-embed-host *):not(.accessibility-bar *) {
+    line-height: var(--line-height) !important;
+}
+
+/* Spacing Overrides */
+html[style*="--letter-spacing"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    letter-spacing: var(--letter-spacing) !important;
+}
+
+html[style*="--word-spacing"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    word-spacing: var(--word-spacing) !important;
 }
 
 /* Global Background/Text overrides for Host Content when using Accessibility Bar */

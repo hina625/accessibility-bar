@@ -46,7 +46,7 @@ export default function LanguageSelector() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 w-full mx-auto rounded-md text-[16px] font-semibold focus:outline-none focus:ring-2"
+        className="flex items-center gap-2 px-3 py-3 w-full mx-auto rounded-md text-[16px] font-semibold focus:outline-none focus:ring-2"
         style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
         aria-label="Select language"
         aria-expanded={isOpen}
@@ -80,7 +80,7 @@ export default function LanguageSelector() {
                     setLanguage(lang.code);
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-sm focus:outline-none"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-sm focus:outline-none"
                   style={{ backgroundColor: language === lang.code ? theme.active : 'transparent', color: theme.text }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = language === lang.code ? theme.active : 'transparent'}

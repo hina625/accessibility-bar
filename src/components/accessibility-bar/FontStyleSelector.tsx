@@ -78,7 +78,7 @@ export default function FontStyleSelector() {
             if (type === 'all') setDyslexiaFontsOpen(false);
             else setAllFontsOpen(false);
           }}
-          className="w-full rounded-md px-3 py-2 text-[15px] font-normal flex items-center justify-between transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
+          className="w-full rounded-md px-3 py-3 text-[15px] font-normal flex items-center justify-between transition-all duration-200 hover:brightness-110 active:scale-[0.98]"
           style={{
             backgroundColor: theme.active,
             color: theme.text,
@@ -115,7 +115,7 @@ export default function FontStyleSelector() {
                     setFontStyle(option.value as any);
                     setIsOpen(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-sm text-[15px] transition-colors ${fontStyle === option.value ? 'font-bold' : 'font-normal hover:bg-black/5 dark:hover:bg-white/10'}`}
+                  className={`w-full text-left px-3 py-3 rounded-sm text-[15px] transition-colors ${fontStyle === option.value ? 'font-bold' : 'font-normal hover:bg-black/5 dark:hover:bg-white/10'}`}
                   style={{
                     color: theme.text,
                     backgroundColor: fontStyle === option.value ? `${theme.active}60` : 'transparent'

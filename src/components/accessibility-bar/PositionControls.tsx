@@ -9,6 +9,7 @@ import InfoPopupButton from './InfoPopupButton';
 import { translations } from '@/contexts/accessibility/translations';
 import Image from 'next/image';
 import accessibilityIcon from '../../assets/icons/first_icon_accessibility.png';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 interface PositionControlsProps {
     hideLanguage?: boolean;
@@ -98,7 +99,10 @@ export default function PositionControls({
                                 </button>
                             ))}
                             <button
-                                onClick={() => setPage(p => p === 0 ? 1 : 0)}
+                                onClick={() => {
+                                    if (audioPingEnabled) playAudioPing();
+                                    setPage(p => p === 0 ? 1 : 0);
+                                }}
                                 className="col-span-2 p-2 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95"
                                 style={{
                                     borderColor: `${theme.text}33`,
@@ -170,19 +174,19 @@ export default function PositionControls({
                         <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>Feature Indicators</h3>
                         <InfoPopupButton
                             title="Feature Indicators"
-                            description={t.info?.position?.features?.["Feature Indicators"] || "Displays small red indicators on category icons to show which features are currently active."}
+                            description={t.info?.position?.features?.["Feature Indicators"] || "Displays small red circles (dots) on category icons to show which features are currently active."}
                         />
                     </div>
                     <ToggleCheckbox
                         id="show-active-indicators"
-                        label="Show Active Feature Lines"
+                        label="Show Active Feature Circles (Red Dots)"
                         checked={showActiveIndicators}
                         onChange={toggleShowActiveIndicators}
                     />
 
                     {showActiveIndicators && (
                         <div className="mt-4 space-y-2">
-                            {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language'].map((catId) => {
+                            {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'navigation'].map((catId) => {
                                 const features = getActiveFeaturesWithActions(catId);
                                 if (features.length === 0) return null;
                                 return (
@@ -199,7 +203,10 @@ export default function PositionControls({
                                             >
                                                 <span>{feature.label}</span>
                                                 <button
-                                                    onClick={() => feature.onRemove()}
+                                                    onClick={() => {
+                                                        if (audioPingEnabled) playAudioPing();
+                                                        feature.onRemove();
+                                                    }}
                                                     className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
                                                     style={{ backgroundColor: '#EF4444', color: 'white' }}
                                                     aria-label={`Remove ${feature.label}`}

@@ -2,7 +2,7 @@ export type FontStyle = 'default' | 'dyslexic' | 'readable' | 'serif' | 'sans' |
 export type ColorBlindFilter = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 export type ButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top' | 'bottom' | 'left' | 'right';
 export type PanelPosition = 'left' | 'right' | 'top' | 'bottom';
-export type CursorStyle = 'white' | 'black' | 'inverted' | 'circle' | 'custom' | 'crosshair' | 'pointer' | 'help' | 'person';
+export type CursorStyle = 'white' | 'black' | 'inverted' | 'circle' | 'custom' | 'crosshair' | 'pointer' | 'help' | 'person' | 'highlight';
 
 import { BarTheme } from './theme';
 
@@ -79,4 +79,11 @@ export interface AccessibilityState {
     showActiveIndicators: boolean;
     audioPingEnabled: boolean;
     isPaused: boolean;
+    notification: NotificationState;
+}
+
+export interface NotificationState {
+    message: string | null;
+    visible: boolean;
+    position?: { top: number; left: number };
 }

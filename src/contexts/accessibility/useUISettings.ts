@@ -113,6 +113,11 @@ export function useUISettings() {
                     <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M12 2l4.5 9-4.5 9-4.5-9L12 2z"/>
                 </svg>`;
                 hotspot = Math.round(12 * (size / 24));
+            } else if (cursorStyle === 'highlight') {
+                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="11.5" fill="${color}" />
+                </svg>`;
+                hotspot = Math.round(12 * (size / 24));
             } else {
                 // Default arrow for white, black, inverted, custom
                 svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
@@ -206,6 +211,7 @@ export function useUISettings() {
         panelPosition, setPanelPosition,
         barTheme, setBarTheme,
         showActiveIndicators, setShowActiveIndicators,
+        audioPingEnabled, setAudioPingEnabled,
         isMobile,
         isPanelPinned, setIsPanelPinned, togglePanelPin,
     };

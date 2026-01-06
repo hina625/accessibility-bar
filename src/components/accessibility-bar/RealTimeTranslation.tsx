@@ -79,7 +79,7 @@ export default function RealTimeTranslation() {
                                 const newLang = e.target.value;
                                 setSelectionLanguage(newLang);
                             }}
-                            className="w-full p-2 rounded-lg border text-[16px] focus:outline-none transition-all appearance-none bg-no-repeat"
+                            className="w-full px-3 py-3 rounded-lg border text-[16px] focus:outline-none transition-all appearance-none bg-no-repeat"
                             style={{
                                 backgroundColor: theme.hover,
                                 borderColor: theme.border,

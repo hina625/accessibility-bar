@@ -273,7 +273,7 @@ export default function VoiceNavigation() {
                         <select
                             value={voiceLang}
                             onChange={(e) => setVoiceLang(e.target.value)}
-                            className="w-full p-2 rounded-lg text-[16px] appearance-none bg-no-repeat"
+                            className="w-full px-3 py-3 rounded-lg text-[16px] appearance-none bg-no-repeat"
                             style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
                         >
                             {LANGUAGES.map(lang => (

@@ -8,6 +8,7 @@ import AZFeatureList from './AZFeatureList';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import Image from 'next/image';
 import { speak } from '@/utils/speechUtils';
+import { playAudioPing } from '@/utils/audioPingUtils';
 import FontSizeControls from './FontSizeControls';
 import FontStyleSelector from './FontStyleSelector';
 import ContrastToggle from './ContrastToggle';
@@ -91,6 +92,7 @@ import ThemeSelector from './ThemeSelector';
 import SelectionTranslator from './SelectionTranslator';
 import InfoPage from './InfoPage';
 import SidebarTutorial from './SidebarTutorial';
+import VisualConfirmation from './VisualConfirmation';
 import FeedbackPopup from './FeedbackPopup';
 import { translations } from '@/contexts/accessibility/translations';
 
@@ -109,10 +111,11 @@ export default function AccessibilityBar() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [categoryStartIndex, setCategoryStartIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const itemsPerPage = 5;
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showActiveFeaturesList, setShowActiveFeaturesList] = useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
 
   const context = useAccessibility();
   const {
@@ -148,7 +151,8 @@ export default function AccessibilityBar() {
     showActiveIndicators,
     getActiveFeaturesWithActions,
     isPanelPinned,
-    togglePanelPin
+    togglePanelPin,
+    audioPingEnabled
   } = context;
   const barTheme = (context as any).barTheme as BarTheme | undefined;
   const buttonPosition = (context as any).buttonPosition as string | undefined || 'bottom-right';
@@ -512,8 +516,8 @@ export default function AccessibilityBar() {
 
   const categories = [
     { id: 'reset', name: `RESET`, icon: resetIcon, colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
-    { id: 'move_ui', name: `SIDEBAR\nPOSITION`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'position', name: `CUSTOMISE\nTOOLBAR`, icon: profileIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
+    { id: 'move_ui', name: `SIDEBAR\nPOSITION`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'font', name: `FONT TOOLS`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'textSpacing', name: `TEXT\nALIGNMENT`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
     { id: 'lineHeight', name: `LINE HEIGHT`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
@@ -529,7 +533,7 @@ ZOOM`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass
     },
     {
       id: 'images', name: `IMAGES AND
-ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
+ANIMATION`, icon: '/hide.png', colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
     },
     { id: 'speech', name: `TEXT TO\nSPEECH`, icon: speakIcon, colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
     { id: 'language', name: `LANGUAGE\nTOOLS`, icon: translateIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
@@ -544,7 +548,10 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
       case 'az':
         return (
           <AZFeatureList
-            onNavigate={(cat) => setSelectedCategory(cat)}
+            onNavigate={(cat) => {
+              if (audioPingEnabled) playAudioPing();
+              setSelectedCategory(cat);
+            }}
             onCloseBar={() => setIsOpen(false)}
             onOpenFeedback={() => {
 
@@ -1017,8 +1024,8 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
               }`}>
               <div
                 className={`flex items-center p-1.5 ${isVertical
-                  ? `flex-col w-20 sm:w-[100px] space-y-3 sm:space-y-4 h-full overflow-y-auto custom-scrollbar`
-                  : `flex-row h-full w-full justify-center overflow-x-auto custom-scrollbar-hide ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
+                  ? `flex-col w-20 sm:w-[100px] gap-3 sm:gap-4 h-full overflow-y-auto custom-scrollbar`
+                  : `flex-row h-full w-full justify-center overflow-x-auto custom-scrollbar gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                   }`}
                 style={{
                   background: isVertical
@@ -1037,10 +1044,133 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                   boxShadow: 'none'
                 }}
               >
+                {/* Plus Button - Side of Icon Bar */}
+                <div
+                  className="absolute z-[2147483649]"
+                  style={{
+                    ...(isVertical
+                      ? {
+                        [panelPosition === 'right' ? 'right' : 'left']: '100%',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '-6px'
+                      }
+                      : {
+                        [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
+                        right: '20px',
+                        [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '-6px'
+                      })
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      if (audioPingEnabled) playAudioPing();
+                      setShowSettingsDropdown(!showSettingsDropdown);
+                    }}
+                    className="relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-300 hover:scale-110 active:scale-95"
+                    style={{
+                      background: showSettingsDropdown
+                        ? 'linear-gradient(135deg, #00D9FF, #00B8D4)'
+                        : 'linear-gradient(135deg, #00E5FF, #00BCD4)',
+                      border: '4px solid #FFFFFF',
+                      boxShadow: '0 6px 20px rgba(0, 229, 255, 0.4)'
+                    }}
+                    aria-label="Settings Menu"
+                    title="Settings"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="28"
+                      height="28"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="#FFFFFF"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="transition-transform duration-300"
+                      style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+
+                  {/* Dropdown Menu */}
+                  {showSettingsDropdown && (
+                    <div
+                      className="absolute rounded-2xl shadow-2xl overflow-hidden"
+                      style={{
+                        ...(isVertical
+                          ? {
+                            [panelPosition === 'right' ? 'right' : 'left']: '100%',
+                            top: '0',
+                            [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '12px'
+                          }
+                          : {
+                            [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '12px'
+                          }),
+                        background: `linear-gradient(135deg, ${currentTheme.background}f5, ${currentTheme.background}e8)`,
+                        backdropFilter: 'blur(20px) saturate(180%)',
+                        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                        border: `3px solid ${currentTheme.border}`,
+                        minWidth: '200px',
+                        zIndex: 2147483650
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          if (audioPingEnabled) playAudioPing();
+                          // Size functionality will be added later
+                          setShowSettingsDropdown(false);
+                        }}
+                        className="w-full px-6 py-4 text-left font-bold text-[17px] transition-all hover:scale-[1.02]"
+                        style={{
+                          color: currentTheme.text,
+                          backgroundColor: 'transparent',
+                          borderBottom: `2px solid ${currentTheme.border}`
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = currentTheme.hover;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        Size
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (audioPingEnabled) playAudioPing();
+                          // Profiles functionality will be added later
+                          setShowSettingsDropdown(false);
+                        }}
+                        className="w-full px-6 py-4 text-left font-bold text-[17px] transition-all hover:scale-[1.02]"
+                        style={{
+                          color: currentTheme.text,
+                          backgroundColor: 'transparent'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = currentTheme.hover;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
+                      >
+                        Profiles
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Logo removed as per user request */}
 
                 <button
                   onClick={() => {
+                    if (audioPingEnabled) playAudioPing();
                     setIsOpen(false);
                     setSelectedCategory(null);
 
@@ -1058,7 +1188,7 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                     setShowFeedbackPopup(true);
                     // }
                   }}
-                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95`}
+                  className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95`}
                   style={{
                     background: barTheme === 'white'
                       ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
@@ -1091,35 +1221,60 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                   </svg>
                 </button>
 
-                <button
-                  onClick={() => togglePanelPin()}
-                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 z-10 flex items-center justify-center shadow-md`}
-                  style={{
-                    background: isPanelPinned ? '#FFD700' : (barTheme === 'white'
-                      ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-                      : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))'),
-                    backdropFilter: 'blur(10px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                    border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
-                    width: isVertical ? '55px' : '58px',
-                    height: isVertical ? '55px' : '58px',
-                    boxShadow: 'none'
-                  }}
-                  title={isPanelPinned ? "Unpin Panel" : "Pin Panel"}
-                >
-                  <Image
-                    src="/office-push-pin.png"
-                    alt="Pin"
-                    width={32}
-                    height={32}
-                    className={`transition-all ${isPanelPinned ? 'opacity-100' : 'opacity-60'}`}
-                    style={{ filter: 'brightness(0)' }}
-                  />
-                </button>
+                <div className="relative">
+                  <button
+                    onClick={() => {
+                      if (audioPingEnabled) playAudioPing();
+                      togglePanelPin();
+                    }}
+                    className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 z-10 flex items-center justify-center shadow-md`}
+                    style={{
+                      background: isPanelPinned ? '#FFD700' : (barTheme === 'white'
+                        ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
+                        : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))'),
+                      backdropFilter: 'blur(10px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(10px) saturate(180%)',
+                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
+                      width: isVertical ? '55px' : '58px',
+                      height: isVertical ? '55px' : '58px',
+                      boxShadow: 'none'
+                    }}
+                    title={isPanelPinned ? "Unpin Panel" : "Pin Panel"}
+                  >
+                    <Image
+                      src="/office-push-pin.png"
+                      alt="Pin"
+                      width={32}
+                      height={32}
+                      className={`transition-all ${isPanelPinned ? 'opacity-100' : 'opacity-60'}`}
+                      style={{ filter: 'brightness(0)' }}
+                    />
+                  </button>
+
+                  {/* Red 'X' Dismiss Button */}
+                  {isPanelPinned && (
+                    <div
+                      className="absolute -top-1 -right-1 w-5 h-5 bg-[#EF4444] rounded-full flex items-center justify-center border-2 border-white z-20 pointer-events-none"
+                    >
+                      <svg
+                        className="w-3 h-3 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={4}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
 
                 <button
-                  onClick={() => setSelectedCategory(selectedCategory === 'az' ? null : 'az')}
-                  className={`${isVertical ? 'mb-2' : 'mr-2'} p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 z-10 flex flex-col items-center justify-center shadow-md`}
+                  onClick={() => {
+                    if (audioPingEnabled) playAudioPing();
+                    setSelectedCategory(selectedCategory === 'az' ? null : 'az');
+                  }}
+                  className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 z-10 flex flex-col items-center justify-center shadow-md`}
                   style={{
                     background: selectedCategory === 'az' ? '#FFD700' : (barTheme === 'white'
                       ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
@@ -1150,23 +1305,60 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
 
 
                   {(() => {
-                    // Exclude reset from paginated categories
-                    const allCategories = categories.filter(c => c.id !== 'reset' && c.id !== 'az');
-                    const shouldPaginate = false;
+                    // Exclude constant categories from paginated list
+                    const constantCategoryIds = ['reset', 'az', 'move_ui_extra']; // az and reset are handled separately
+                    const paginatedCategories = categories.filter(c => c.id !== 'reset' && c.id !== 'az');
+                    const shouldPaginate = isVertical;
                     const startIndex = (currentPage - 1) * itemsPerPage;
                     const visibleCategories = shouldPaginate
-                      ? allCategories.slice(startIndex, startIndex + itemsPerPage)
-                      : categories; // For horizontal, show all including reset
-                    const totalPages = shouldPaginate ? Math.ceil(allCategories.length / itemsPerPage) : 1;
+                      ? paginatedCategories.slice(startIndex, startIndex + itemsPerPage)
+                      : categories;
+                    const totalPages = shouldPaginate ? Math.ceil(paginatedCategories.length / itemsPerPage) : 1;
 
                     return (
                       <>
+                        {/* Reset button - rendered constantly before paginated list */}
+                        {shouldPaginate && (() => {
+                          const resetCategory = categories.find(c => c.id === 'reset');
+                          if (!resetCategory) return null;
+                          return (
+                            <div key="reset-constant" className="relative group/category">
+                              <button
+                                data-category-btn
+                                onClick={() => setShowResetConfirm(true)}
+                                onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
+                                onMouseEnter={() => textToSpeech && speak(resetCategory.name)}
+                                className={`group relative flex flex-col items-center justify-center ${isVertical ? 'w-[78px] h-[80px]' : 'w-[58px] h-[58px]'} rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
+                                style={{
+                                  background: 'linear-gradient(135deg, #FF0000, #CC0000)',
+                                  backdropFilter: 'blur(5px) saturate(180%)',
+                                  WebkitBackdropFilter: 'blur(5px) saturate(180%)',
+                                  border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
+                                  boxShadow: 'none'
+                                }}
+                                aria-label={resetCategory.name}
+                                title={resetCategory.name}
+                              >
+                                <Image
+                                  src={resetCategory.icon || ''}
+                                  alt=""
+                                  width={isVertical ? 50 : 44}
+                                  height={isVertical ? 50 : 44}
+                                  style={{ filter: 'brightness(0) invert(1)' }}
+                                  className="transition-all duration-300 translate-y-0"
+                                />
+                              </button>
+                            </div>
+                          );
+                        })()}
+
                         {visibleCategories.map((category, index) => (
                           <div key={category.id} className="relative group/category">
                             <button
                               data-category-btn
-                              onKeyDown={(e) => handleCategoryKeyDown(e, index)}
+                              onKeyDown={(e) => handleCategoryKeyDown(e, shouldPaginate ? index + 1 : index)}
                               onClick={(e) => {
+                                if (audioPingEnabled) playAudioPing();
                                 if (category.id === 'reset') {
                                   setShowResetConfirm(true);
                                   return;
@@ -1201,21 +1393,30 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                                 ? 'text-black scale-105'
                                 : 'hover:scale-105'
                                 }`}
-                              style={selectedCategory === category.id
-                                ? {
-                                  background: `linear-gradient(135deg, ${barTheme === 'yellow' ? '#87CEEB' : '#FFD700'}, ${barTheme === 'yellow' ? '#6BB6D6' : '#E6C200'})`,
-                                  backdropFilter: 'blur(5px) saturate(180%)',
-                                  WebkitBackdropFilter: 'blur(5px) saturate(180%)',
-                                  border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.4)' : '4px solid rgba(255,255,255,0.4)',
-                                  boxShadow: 'none'
-                                }
-                                : {
-                                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
-                                  backdropFilter: 'blur(5px) saturate(180%)',
-                                  WebkitBackdropFilter: 'blur(5px) saturate(180%)',
-                                  border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
-                                  boxShadow: 'none'
-                                }
+                              style={
+                                category.id === 'reset'
+                                  ? {
+                                    background: 'linear-gradient(135deg, #FF0000, #CC0000)',
+                                    backdropFilter: 'blur(5px) saturate(180%)',
+                                    WebkitBackdropFilter: 'blur(5px) saturate(180%)',
+                                    border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
+                                    boxShadow: 'none'
+                                  }
+                                  : selectedCategory === category.id
+                                    ? {
+                                      background: `linear-gradient(135deg, ${barTheme === 'yellow' ? '#87CEEB' : '#FFD700'}, ${barTheme === 'yellow' ? '#6BB6D6' : '#E6C200'})`,
+                                      backdropFilter: 'blur(5px) saturate(180%)',
+                                      WebkitBackdropFilter: 'blur(5px) saturate(180%)',
+                                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.4)' : '4px solid rgba(255,255,255,0.4)',
+                                      boxShadow: 'none'
+                                    }
+                                    : {
+                                      background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
+                                      backdropFilter: 'blur(5px) saturate(180%)',
+                                      WebkitBackdropFilter: 'blur(5px) saturate(180%)',
+                                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
+                                      boxShadow: 'none'
+                                    }
                               }
                               aria-label={category.name}
                               title={category.name}
@@ -1227,20 +1428,20 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                                     : category.icon || ''
                                 }
                                 alt=""
-                                width={isVertical ? (category.id === 'reset' ? 42 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 44 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))}
-                                height={isVertical ? (category.id === 'reset' ? 42 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 44 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))}
+                                width={isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))}
+                                height={isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))}
                                 style={{
-                                  filter: category.id === 'info' ? 'none' : 'brightness(0)',
+                                  filter: category.id === 'reset' ? 'brightness(0) invert(1)' : (category.id === 'info' ? 'none' : 'brightness(0)'),
                                   ...(category.id === 'reset' ? {} : {})
                                 }}
-                                className={`transition-all duration-300 ${category.id === 'reset' ? '' : '-translate-y-1'} ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
+                                className={`transition-all duration-300 translate-y-[-5px] ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
                                   ? ''
                                   : 'opacity-70 group-hover:opacity-100'
                                   }`}
                               />
                               {isVertical && category.id !== 'reset' && category.id !== 'az' && (
                                 <span
-                                  className={`text-[9px] font-bold leading-tight text-center px-0.5 whitespace-pre-line uppercase opacity-100`}
+                                  className={`text-[9px] font-bold leading-tight text-center px-0.5 whitespace-pre-line uppercase opacity-100 ${category.id === 'images' ? 'translate-y-[-6px]' : 'translate-y-[-3px]'}`}
                                   style={{ color: '#000000', letterSpacing: '0.02em' }}
                                 >
                                   {category.name}
@@ -1257,12 +1458,12 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
 
                                 return (
                                   <div
-                                    className={`absolute bottom-1 flex gap-0.5 z-10 ${linesToShow <= 3 ? 'left-1/2 -translate-x-1/2' : 'left-1'}`}
+                                    className={`absolute bottom-0.5 flex gap-0.5 z-10 ${linesToShow <= 3 ? 'left-1/2 -translate-x-1/2' : 'left-1'}`}
                                   >
                                     {Array.from({ length: linesToShow }).map((_, i) => (
                                       <div
                                         key={i}
-                                        className="w-[3px] h-2 rounded-full shadow-sm"
+                                        className="w-2 h-2 rounded-full shadow-sm"
                                         style={{ backgroundColor: '#FF0000' }}
                                       />
                                     ))}
@@ -1282,6 +1483,51 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                           </div>
                         ))}
 
+                        {/* Pagination Control - for vertical sidebar */}
+                        {shouldPaginate && totalPages > 1 && (
+                          <div className="flex flex-col items-center py-0.5 space-y-0.5 mt-0">
+                            {/* Directional Arrow */}
+                            <button
+                              onClick={() => setCurrentPage(p => p === totalPages ? 1 : p + 1)}
+                              className="flex items-center justify-center mb-0 mt-[-14px] hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+                              aria-label="Next Page"
+                            >
+                              <svg width="50" height="15" viewBox="0 0 60 20" fill="none">
+                                <path
+                                  d="M5 10 H55 M45 3 L55 10 L45 17"
+                                  stroke={currentTheme.text}
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </button>
+
+                            {/* Page Indicator Pill */}
+                            <div
+                              className="px-1 py-0.5 rounded-full flex gap-1 items-center backdrop-blur-md"
+                              style={{
+                                background: `${currentTheme.text}1A`, // 10% opacity
+                                border: `1px solid ${currentTheme.text}1A`
+                              }}
+                            >
+                              {Array.from({ length: totalPages }).map((_, i) => (
+                                <button
+                                  key={i + 1}
+                                  onClick={() => setCurrentPage(i + 1)}
+                                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-black transition-all`}
+                                  style={{
+                                    backgroundColor: currentPage === i + 1 ? currentTheme.text : 'transparent',
+                                    color: currentPage === i + 1 ? currentTheme.background : currentTheme.text,
+                                    opacity: currentPage === i + 1 ? 1 : 0.6
+                                  }}
+                                >
+                                  {i + 1}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </>
                     );
                   })()}
@@ -1371,7 +1617,10 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                       <div className="flex items-center absolute top-0 right-0">
 
                         <button
-                          onClick={() => setSelectedCategory(null)}
+                          onClick={() => {
+                            if (audioPingEnabled) playAudioPing();
+                            setSelectedCategory(null);
+                          }}
                           className="p-3 pr-4 rounded-none transition-all hover:bg-black/10 z-10 flex items-center gap-1.5"
                           style={{ color: currentTheme.text }}
                           aria-label={t.common.close}
@@ -1572,7 +1821,10 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
                 </button>
 
                 <button
-                  onClick={handleResetSelected}
+                  onClick={() => {
+                    if (audioPingEnabled) playAudioPing();
+                    handleResetSelected();
+                  }}
                   className="group relative overflow-hidden px-8 py-5 rounded-2xl font-black tracking-widest hover:scale-[1.02] transition-all active:scale-95 border-2"
                   style={{
                     background: barTheme === 'white'
@@ -1727,22 +1979,24 @@ ANIMATION`, icon: photoIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorC
       `}</style>
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 3px !important;
+          width: 5px !important;
+          height: 5px !important;
           background: transparent !important;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: ${currentTheme.active} !important;
-          border-radius: 4px !important;
+          background-color: ${currentTheme.active}cc !important;
+          border-radius: 10px !important;
           transition: background-color 0.2s ease !important;
-          filter: brightness(0.6) !important;
+          border: 1px solid rgba(255, 255, 255, 0.1) !important;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background-color: ${currentTheme.text} !important;
+          background-color: ${currentTheme.active} !important;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent !important;
         }
       `}</style>
+      <VisualConfirmation />
     </>
   );
 }

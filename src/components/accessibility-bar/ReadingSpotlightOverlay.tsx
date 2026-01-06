@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 export default function ReadingSpotlightOverlay() {
-    const { readingSpotlight, readingSpotlightBrightness } = useAccessibility();
+    const { readingSpotlight, readingSpotlightBrightness, toggleReadingSpotlight } = useAccessibility();
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const rafRef = useRef<number | undefined>(undefined);
 
@@ -48,6 +48,17 @@ export default function ReadingSpotlightOverlay() {
                 }}
                 aria-hidden="true"
             />
+            {/* Close Button - fixed at top right since spotlight follows cursor */}
+            <button
+                onClick={toggleReadingSpotlight}
+                className="fixed top-4 right-4 z-[2147483648] w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border bg-red-600 hover:bg-red-700 border-white/20 text-white hover:scale-110"
+                aria-label="Close Spotlight"
+                title="Close Spotlight"
+            >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </>
     );
 }

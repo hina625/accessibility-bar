@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 interface FeatureItem {
     label: string;
@@ -88,6 +89,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         textToSpeech,
         stopVideos,
         speechToText,
+        audioPingEnabled,
     } = context;
 
     const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
@@ -219,13 +221,13 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 <div className="relative group">
                     <input
                         type="text"
-                        placeholder="Search accessibility features..."
+                        placeholder="Search features A-Z"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-full px-5 py-4 pl-12 rounded-2xl text-[15px] font-medium transition-all duration-300 border-4 focus:outline-none"
                         style={{
                             backgroundColor: `${currentTheme.background}80`,
-                            color: '#FFFFFF',
+                            color: currentTheme.text,
                             borderColor: `${currentTheme.text}20`,
                             backdropFilter: 'blur(10px)',
                         }}
@@ -235,16 +237,19 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
-                        style={{ color: '#FFFFFF' }}
+                        style={{ color: currentTheme.text }}
                     >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     {searchQuery && (
                         <button
-                            onClick={() => setSearchQuery('')}
+                            onClick={() => {
+                                if (audioPingEnabled) playAudioPing();
+                                setSearchQuery('');
+                            }}
                             className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
                         >
-                            <svg className="w-5 h-5 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg className="w-5 h-5" style={{ color: currentTheme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
                             </svg>
                         </button>
@@ -252,8 +257,84 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 </div>
             </div>
 
+            {/* Alphabet Navigation */}
+            <div className="mb-6 flex flex-col gap-2">
+                {/* Row 1: A-I */}
+                <div className="flex justify-between px-1">
+                    {"ABCDEFGHI".split('').map(letter => (
+                        <button
+                            key={letter}
+                            onClick={() => {
+                                if (audioPingEnabled) playAudioPing();
+                                const element = document.getElementById(`section-${letter}`);
+                                if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
+                            style={{
+                                color: currentTheme.text,
+                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
+                                opacity: 1
+                            }}
+                            disabled={!groupedFeatures[letter]}
+                        >
+                            {letter}
+                        </button>
+                    ))}
+                </div>
+                {/* Row 2: J-R */}
+                <div className="flex justify-between px-1">
+                    {"JKLMNOPQR".split('').map(letter => (
+                        <button
+                            key={letter}
+                            onClick={() => {
+                                if (audioPingEnabled) playAudioPing();
+                                const element = document.getElementById(`section-${letter}`);
+                                if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
+                            style={{
+                                color: currentTheme.text,
+                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
+                                opacity: 1
+                            }}
+                            disabled={!groupedFeatures[letter]}
+                        >
+                            {letter}
+                        </button>
+                    ))}
+                </div>
+                {/* Row 3: S-Z */}
+                <div className="flex justify-between px-1">
+                    {"STUVWXYZ".split('').map(letter => (
+                        <button
+                            key={letter}
+                            onClick={() => {
+                                if (audioPingEnabled) playAudioPing();
+                                const element = document.getElementById(`section-${letter}`);
+                                if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
+                            style={{
+                                color: currentTheme.text,
+                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
+                                opacity: 1
+                            }}
+                            disabled={!groupedFeatures[letter]}
+                        >
+                            {letter}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             {/* Feature Grid */}
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 pb-8">
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 pb-8 scroll-smooth">
                 {Object.keys(groupedFeatures).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
                         <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white/5 border-4 border-white/10">
@@ -265,78 +346,74 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     </div>
                 ) : (
                     Object.entries(groupedFeatures).map(([letter, items]) => (
-                        <div key={letter} className="space-y-4">
+                        <div key={letter} id={`section-${letter}`} className="space-y-4 scroll-mt-24">
                             <div className="flex items-center gap-4">
-                                <span className="text-[22px] font-black text-white px-4 py-2 rounded-xl border-2 shadow-lg" style={{ backgroundColor: currentTheme.active, borderColor: 'rgba(255,255,255,0.3)' }}>
+                                <span className="text-[28px] font-black px-5 py-2 rounded-2xl border-2 shadow-lg" style={{ backgroundColor: currentTheme.active, borderColor: 'rgba(255,255,255,0.3)', color: currentTheme.text }}>
                                     {letter}
                                 </span>
                                 <div className="h-[2px] flex-1 bg-white/20 rounded-full" />
                             </div>
 
                             <div className="flex flex-col gap-2">
-                                {items.map((item, idx) => (
-                                    <button
-                                        key={`${letter}-${idx}`}
-                                        onClick={() => {
-                                            if (item.action) {
-                                                item.action();
-                                            } else if (item.category) {
-                                                onNavigate(item.category);
-                                            }
-                                        }}
-                                        className="relative group flex items-center justify-between p-4 rounded-xl transition-all duration-300 text-left border-2"
-                                        style={{
-                                            backgroundColor: 'transparent',
-                                            borderColor: item.isActive ? currentTheme.active : `${currentTheme.text}25`,
-                                        }}
-                                    >
-                                        <div className="flex flex-col w-full gap-3">
-                                            {/* Top Section: Name */}
-                                            <div className="flex items-start gap-4">
-                                                <div
-                                                    className="w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1.5 transition-all duration-300"
-                                                    style={{ backgroundColor: item.isActive ? currentTheme.active : `${currentTheme.text}40` }}
-                                                />
-                                                <span
-                                                    className="text-[17px] font-extrabold leading-tight transition-colors duration-300"
-                                                    style={{ color: '#FFFFFF' }}
-                                                >
-                                                    {item.label}
-                                                </span>
-                                            </div>
+                                {items.map((item, idx) => {
+                                    const match = item.label.match(/^([^(]+)(\(.*\))$/);
+                                    const name = match ? match[1].trim() : item.label;
+                                    const properties = match ? match[2].trim() : '';
 
-                                            {/* Bottom Section: Action Indicator */}
-                                            <div className="flex items-center justify-end gap-3 mt-1">
-                                                {item.category && (
-                                                    <span className="text-[11px] font-black uppercase tracking-[0.1em] text-white">
-                                                        Open Tools
-                                                    </span>
-                                                )}
-                                                <div
-                                                    className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300"
-                                                    style={{ backgroundColor: `${currentTheme.active}20`, border: `1px solid ${currentTheme.active}40` }}
-                                                >
-                                                    <svg
-                                                        className="w-5 h-5 text-white opacity-100 group-hover:translate-x-1 transition-all"
-                                                        fill="none"
-                                                        viewBox="0 0 24 24"
-                                                        stroke="currentColor"
+                                    return (
+                                        <button
+                                            key={`${letter}-${idx}`}
+                                            onClick={() => {
+                                                if (audioPingEnabled) playAudioPing();
+                                                if (item.action) {
+                                                    item.action();
+                                                } else if (item.category) {
+                                                    onNavigate(item.category);
+                                                }
+                                            }}
+                                            className="relative group flex items-center justify-between p-4 px-1 rounded-xl transition-all duration-300 text-left"
+                                            style={{
+                                                backgroundColor: 'transparent',
+                                            }}
+                                        >
+                                            <div className="flex flex-col w-full gap-1">
+                                                {/* Top Section: Name */}
+                                                <div className="flex items-center gap-3">
+                                                    <div
+                                                        className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-300"
+                                                        style={{ backgroundColor: item.isActive ? currentTheme.active : `${currentTheme.text}40` }}
+                                                    />
+                                                    <span
+                                                        className="text-[15px] font-black leading-tight transition-all duration-300 uppercase tracking-tight underline decoration-2 decoration-white/50 underline-offset-[6px] group-hover:decoration-white/80"
+                                                        style={{ color: currentTheme.text }}
                                                     >
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M9 5l7 7-7 7" />
-                                                    </svg>
+                                                        {name}
+                                                    </span>
                                                 </div>
-                                            </div>
-                                        </div>
 
-                                        {/* Status Indicator Glow */}
-                                        {item.isActive && (
-                                            <div
-                                                className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-r-full"
-                                                style={{ backgroundColor: currentTheme.active, boxShadow: `0 0 10px ${currentTheme.active}` }}
-                                            />
-                                        )}
-                                    </button>
-                                ))}
+                                                {/* Second Line: Properties */}
+                                                {properties && (
+                                                    <div className="pl-5">
+                                                        <span
+                                                            className="text-[14px] font-bold transition-colors"
+                                                            style={{ color: currentTheme.text, opacity: 1 }}
+                                                        >
+                                                            {properties}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Status Indicator Glow */}
+                                            {item.isActive && (
+                                                <div
+                                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-r-full"
+                                                    style={{ backgroundColor: currentTheme.active, boxShadow: `0 0 10px ${currentTheme.active}` }}
+                                                />
+                                            )}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     ))
@@ -347,15 +424,19 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
                 }
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 5px;
+                }
                 .custom-scrollbar::-webkit-scrollbar-track {
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: rgba(255, 255, 255, 0.1);
+                    background: ${currentTheme.active}cc;
                     border-radius: 10px;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: rgba(255, 255, 255, 0.2);
+                    background: ${currentTheme.active};
                 }
             `}</style>
         </div>

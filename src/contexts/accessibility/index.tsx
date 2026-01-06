@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle } from './types';
-export type { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle };
+import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState } from './types';
+export type { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState };
 export type { BarTheme } from './theme';
 export { BAR_THEMES } from './theme';
 import type { BarTheme } from './theme';
@@ -102,6 +102,8 @@ export interface AccessibilityContextType extends AccessibilityState {
     stopTts: () => void;
     isPanelPinned: boolean;
     togglePanelPin: () => void;
+    showNotification: (message: string, position?: { top: number, left: number }) => void;
+    notification: NotificationState;
 }
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -113,6 +115,27 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     const content = useContentSettings() as any;
     const tools = useToolsSettings() as any;
     const ui = useUISettings() as any;
+    const t = (translations as any)[text.language || 'en'] || (translations as any)['en'];
+    const [notification, setNotification] = React.useState<NotificationState>({ message: null, visible: false });
+    const notificationTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+
+    const showNotification = (message: string, position?: { top: number, left: number }) => {
+        if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
+
+        let pos = position;
+        if (!pos && typeof document !== 'undefined' && document.activeElement && document.activeElement !== document.body) {
+            const rect = document.activeElement.getBoundingClientRect();
+            pos = {
+                top: rect.top,
+                left: rect.left + rect.width / 2
+            };
+        }
+
+        setNotification({ message, visible: true, position: pos });
+        notificationTimeoutRef.current = setTimeout(() => {
+            setNotification(prev => ({ ...prev, visible: false }));
+        }, 3000);
+    };
 
     const withAudioPing = (fn: any) => {
         return (...args: any[]) => {
@@ -237,6 +260,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         audioPingEnabled: ui.audioPingEnabled,
         isPanelPinned: ui.isPanelPinned,
 
+        notification,
+        showNotification,
+
 
         increaseFontSize: withAudioPing(text.increaseFontSize),
         decreaseFontSize: withAudioPing(text.decreaseFontSize),
@@ -246,21 +272,41 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setLanguage: withAudioPing(text.setLanguage),
         setLineHeight: withAudioPing(text.setLineHeight),
         setTextSpacing: withAudioPing(text.setLineHeight),
-        setCharacterSpacing: text.setCharacterSpacing,
-        setWordSpacing: text.setWordSpacing,
+        setCharacterSpacing: withAudioPing(text.setCharacterSpacing),
+        setWordSpacing: withAudioPing(text.setWordSpacing),
 
-        toggleHighContrast: withAudioPing(() => visual.setHighContrast((prev: boolean) => !prev)),
-        toggleGrayscale: withAudioPing(() => visual.setGrayscale((prev: boolean) => !prev)),
-        toggleInvertColors: withAudioPing(() => visual.setInvertColors((prev: boolean) => !prev)),
-        toggleDarkMode: withAudioPing(() => visual.setDarkMode((prev: boolean) => !prev)),
-        setColorBlindFilter: visual.setColorBlindFilter,
-        setPageZoom: visual.setPageZoom,
-        setBackgroundColor: visual.setBackgroundColor,
-        setTextColor: visual.setTextColor,
-        setHeadingColor: visual.setHeadingColor,
+        toggleHighContrast: withAudioPing(() => {
+            const next = !visual.highContrast;
+            visual.setHighContrast(next);
+            showNotification(next ? `${t.controls.contrast || "High Contrast"} Enabled` : `${t.controls.contrast || "High Contrast"} Disabled`);
+        }),
+        toggleGrayscale: withAudioPing(() => {
+            const next = !visual.grayscale;
+            visual.setGrayscale(next);
+            showNotification(next ? `${t.controls.grayscale || "Greyscale"} Enabled` : `${t.controls.grayscale || "Greyscale"} Disabled`);
+        }),
+        toggleInvertColors: withAudioPing(() => {
+            const next = !visual.invertColors;
+            visual.setInvertColors(next);
+            showNotification(next ? `${t.controls.invert || "Invert Colors"} Enabled` : `${t.controls.invert || "Invert Colors"} Disabled`);
+        }),
+        toggleDarkMode: withAudioPing(() => {
+            const next = !visual.darkMode;
+            visual.setDarkMode(next);
+            showNotification(next ? `${t.controls.darkMode || "Dark Mode"} Enabled` : `${t.controls.darkMode || "Dark Mode"} Disabled`);
+        }),
+        setColorBlindFilter: withAudioPing((filter: ColorBlindFilter) => {
+            visual.setColorBlindFilter(filter);
+            if (filter !== 'none') showNotification(`${t.controls.colorBlind || "Color Blind Mode"}: ${filter}`);
+        }),
+        setPageZoom: withAudioPing(visual.setPageZoom),
+        setBackgroundColor: withAudioPing(visual.setBackgroundColor),
+        setTextColor: withAudioPing(visual.setTextColor),
+        setHeadingColor: withAudioPing(visual.setHeadingColor),
         toggleMagnifier: withAudioPing(() => {
             const next = !visual.magnifier;
             visual.setMagnifier(next);
+            showNotification(next ? `${t.controls.magnifier || "Magnifier"} Selected` : `${t.controls.magnifier || "Magnifier"} Removed`);
             if (next) {
                 reading.setReadingGuide(false);
                 reading.setReadingRuler(false);
@@ -272,6 +318,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         toggleReadingGuide: withAudioPing(() => {
             const next = !reading.readingGuide;
             reading.setReadingGuide(next);
+            showNotification(next ? `${t.controls.guide || "Reading Guide"} Selected` : `${t.controls.guide || "Reading Guide"} Removed`);
             if (next) {
                 visual.setMagnifier(false);
                 reading.setReadingRuler(false);
@@ -279,11 +326,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                 reading.setReadingSpotlight(false);
             }
         }),
-        setReadingGuideColor: reading.setReadingGuideColor,
-        setReadingGuideThickness: reading.setReadingGuideThickness,
+        setReadingGuideColor: withAudioPing(reading.setReadingGuideColor),
+        setReadingGuideThickness: withAudioPing(reading.setReadingGuideThickness),
         toggleReadingRuler: withAudioPing(() => {
             const next = !reading.readingRuler;
             reading.setReadingRuler(next);
+            showNotification(next ? `${t.controls.ruler || "Reading Ruler"} Selected` : `${t.controls.ruler || "Reading Ruler"} Removed`);
             if (next) {
                 visual.setMagnifier(false);
                 reading.setReadingGuide(false);
@@ -291,11 +339,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                 reading.setReadingSpotlight(false);
             }
         }),
-        setReadingRulerColor: reading.setReadingRulerColor,
-        setReadingRulerWidth: reading.setReadingRulerWidth,
+        setReadingRulerColor: withAudioPing(reading.setReadingRulerColor),
+        setReadingRulerWidth: withAudioPing(reading.setReadingRulerWidth),
         toggleReadingMask: withAudioPing(() => {
             const next = !reading.readingMask;
             reading.setReadingMask(next);
+            showNotification(next ? `${t.controls.mask || "Reading Mask"} Selected` : `${t.controls.mask || "Reading Mask"} Removed`);
             if (next) {
                 visual.setMagnifier(false);
                 reading.setReadingGuide(false);
@@ -303,11 +352,12 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                 reading.setReadingSpotlight(false);
             }
         }),
-        setReadingMaskColor: reading.setReadingMaskColor,
-        setReadingMaskSize: reading.setReadingMaskSize,
+        setReadingMaskColor: withAudioPing(reading.setReadingMaskColor),
+        setReadingMaskSize: withAudioPing(reading.setReadingMaskSize),
         toggleReadingSpotlight: withAudioPing(() => {
             const next = !reading.readingSpotlight;
             reading.setReadingSpotlight(next);
+            showNotification(next ? `${t.controls.spotlight || "Spotlight"} Selected` : `${t.controls.spotlight || "Spotlight"} Removed`);
             if (next) {
                 visual.setMagnifier(false);
                 reading.setReadingGuide(false);
@@ -315,54 +365,154 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                 reading.setReadingMask(false);
             }
         }),
-        setReadingSpotlightBrightness: reading.setReadingSpotlightBrightness,
-        toggleHighlightLinks: withAudioPing(() => reading.setHighlightLinks((prev: boolean) => !prev)),
-        toggleHighlightHeadings: withAudioPing(() => reading.setHighlightHeadings((prev: boolean) => !prev)),
-        toggleLargeButtons: withAudioPing(() => reading.setLargeButtons((prev: boolean) => !prev)),
-        toggleReadingProgressBar: withAudioPing(() => reading.setReadingProgressBar((prev: boolean) => !prev)),
-        setReadingProgressBarColor: reading.setReadingProgressBarColor,
+        setReadingSpotlightBrightness: withAudioPing(reading.setReadingSpotlightBrightness),
+        toggleHighlightLinks: withAudioPing(() => {
+            const next = !reading.highlightLinks;
+            reading.setHighlightLinks(next);
+            showNotification(next ? `${t.controls.links || "Highlight Links"} Enabled` : `${t.controls.links || "Highlight Links"} Disabled`);
+        }),
+        toggleHighlightHeadings: withAudioPing(() => {
+            const next = !reading.highlightHeadings;
+            reading.setHighlightHeadings(next);
+            showNotification(next ? `${t.controls.headings || "Highlight Headings"} Enabled` : `${t.controls.headings || "Highlight Headings"} Disabled`);
+        }),
+        toggleLargeButtons: withAudioPing(() => {
+            const next = !reading.largeButtons;
+            reading.setLargeButtons(next);
+            showNotification(next ? `${t.controls.buttons || "Large Buttons"} Enabled` : `${t.controls.buttons || "Large Buttons"} Disabled`);
+        }),
+        toggleReadingProgressBar: withAudioPing(() => {
+            const next = !reading.readingProgressBar;
+            reading.setReadingProgressBar(next);
+            showNotification(next ? `${t.controls.progressBar || "Reading Progress"} Enabled` : `${t.controls.progressBar || "Reading Progress"} Disabled`);
+        }),
+        setReadingProgressBarColor: withAudioPing(reading.setReadingProgressBarColor),
 
-        toggleHideImages: withAudioPing(() => content.setHideImages((prev: boolean) => !prev)),
-        toggleShowImageDescriptions: withAudioPing(() => content.setShowImageDescriptions((prev: boolean) => !prev)),
-        togglePlainTextMode: withAudioPing(() => content.setPlainTextMode((prev: boolean) => !prev)),
-        toggleSimplifiedLayout: withAudioPing(() => content.setSimplifiedLayout((prev: boolean) => !prev)),
-        togglePageStructure: withAudioPing(() => content.setPageStructure((prev: boolean) => !prev)),
-        setPlainTextSize: content.setPlainTextSize,
-        togglePauseAnimations: withAudioPing(() => content.setPauseAnimations((prev: boolean) => !prev)),
-        toggleStopVideos: withAudioPing(() => content.setStopVideos((prev: boolean) => !prev)),
-        toggleReduceMotion: withAudioPing(() => content.setReduceMotion((prev: boolean) => !prev)),
+        toggleHideImages: withAudioPing(() => {
+            const next = !content.hideImages;
+            content.setHideImages(next);
+            showNotification(next ? `${t.controls.hideImages || "Hide Images"} Enabled` : `${t.controls.hideImages || "Hide Images"} Disabled`);
+        }),
+        toggleShowImageDescriptions: withAudioPing(() => {
+            const next = !content.showImageDescriptions;
+            content.setShowImageDescriptions(next);
+            showNotification(next ? `${t.controls.descriptions || "Image Descriptions"} Enabled` : `${t.controls.descriptions || "Image Descriptions"} Disabled`);
+        }),
+        togglePlainTextMode: withAudioPing(() => {
+            const next = !content.plainTextMode;
+            content.setPlainTextMode(next);
+            showNotification(next ? `${t.controls.plainText || "Plain Text Mode"} Enabled` : `${t.controls.plainText || "Plain Text Mode"} Disabled`);
+        }),
+        toggleSimplifiedLayout: withAudioPing(() => {
+            const next = !content.simplifiedLayout;
+            content.setSimplifiedLayout(next);
+            showNotification(next ? `${t.controls.simplifyLayout || "Simplified Layout"} Enabled` : `${t.controls.simplifyLayout || "Simplified Layout"} Disabled`);
+        }),
+        togglePageStructure: withAudioPing(() => {
+            const next = !content.pageStructure;
+            content.setPageStructure(next);
+            showNotification(next ? `${t.controls.structure || "Page Structure"} Enabled` : `${t.controls.structure || "Page Structure"} Disabled`);
+        }),
+        setPlainTextSize: withAudioPing(content.setPlainTextSize),
+        togglePauseAnimations: withAudioPing(() => {
+            const next = !content.pauseAnimations;
+            content.setPauseAnimations(next);
+            showNotification(next ? `${t.controls.motion || "Pause Animations"} Enabled` : `${t.controls.motion || "Pause Animations"} Disabled`);
+        }),
+        toggleStopVideos: withAudioPing(() => {
+            const next = !content.stopVideos;
+            content.setStopVideos(next);
+            showNotification(next ? `${t.controls.stopVideos || "Stop Videos"} Enabled` : `${t.controls.stopVideos || "Stop Videos"} Disabled`);
+        }),
+        toggleReduceMotion: withAudioPing(() => {
+            const next = !content.reduceMotion;
+            content.setReduceMotion(next);
+            showNotification(next ? `${t.controls.motion || "Reduce Motion"} Enabled` : `${t.controls.motion || "Reduce Motion"} Disabled`);
+        }),
 
-        toggleTextToSpeech: withAudioPing(() => tools.setTextToSpeech((prev: boolean) => !prev)),
-        toggleSpeechToText: withAudioPing(() => tools.setSpeechToText((prev: boolean) => !prev)),
-        toggleOnPageDictionary: withAudioPing(() => tools.setOnPageDictionary((prev: boolean) => !prev)),
-        togglePronunciationGuide: withAudioPing(() => tools.setPronunciationGuide((prev: boolean) => !prev)),
-        toggleKeyboardNavigation: withAudioPing(() => tools.setKeyboardNavigation((prev: boolean) => !prev)),
-        togglePageSummary: withAudioPing(() => tools.setPageSummary((prev: boolean) => !prev)),
-        setSummaryContent: tools.setSummaryContent,
-        toggleSmartSuggestions: withAudioPing(() => tools.setSmartSuggestions((prev: boolean) => !prev)),
-        toggleTtsAutoPlay: withAudioPing(() => tools.setTtsAutoPlay((prev: boolean) => !prev)),
-        toggleTtsReadWholePage: withAudioPing(() => tools.setTtsReadWholePage((prev: boolean) => !prev)),
-        toggleTtsMovableControls: withAudioPing(() => tools.setTtsMovableControls((prev: boolean) => !prev)),
-        setTtsVoiceGender: tools.setTtsVoiceGender,
-        setTtsReadingSpeed: tools.setTtsReadingSpeed,
-        toggleTtsReadSelectedText: withAudioPing(() => tools.setTtsReadSelectedText((prev: boolean) => !prev)),
-        toggleTtsHoverToSpeak: withAudioPing(() => tools.setTtsHoverToSpeak((prev: boolean) => !prev)),
-        toggleRealTimeTranslation: withAudioPing(() => tools.setRealTimeTranslation((prev: boolean) => !prev)),
-        setSelectionLanguage: tools.setSelectionLanguage,
+        toggleTextToSpeech: withAudioPing(() => {
+            const next = !tools.textToSpeech;
+            tools.setTextToSpeech(next);
+            showNotification(next ? `${t.controls.tts || "Text to Speech"} Enabled` : `${t.controls.tts || "Text to Speech"} Disabled`);
+        }),
+        toggleSpeechToText: withAudioPing(() => {
+            const next = !tools.speechToText;
+            tools.setSpeechToText(next);
+            showNotification(next ? `${t.controls.speechToText || "Voice Control"} Enabled` : `${t.controls.speechToText || "Voice Control"} Disabled`);
+        }),
+        toggleOnPageDictionary: withAudioPing(() => {
+            const next = !tools.onPageDictionary;
+            tools.setOnPageDictionary(next);
+            showNotification(next ? `${t.controls.dictionary || "Dictionary"} Enabled` : `${t.controls.dictionary || "Dictionary"} Disabled`);
+        }),
+        togglePronunciationGuide: withAudioPing(() => {
+            const next = !tools.pronunciationGuide;
+            tools.setPronunciationGuide(next);
+            showNotification(next ? `${t.controls.pronunciation || "Pronunciation Guide"} Enabled` : `${t.controls.pronunciation || "Pronunciation Guide"} Disabled`);
+        }),
+        toggleKeyboardNavigation: withAudioPing(() => {
+            const next = !tools.keyboardNavigation;
+            tools.setKeyboardNavigation(next);
+            showNotification(next ? `${t.controls.keyboardNav || "Keyboard Navigation"} Enabled` : `${t.controls.keyboardNav || "Keyboard Navigation"} Disabled`);
+        }),
+        togglePageSummary: withAudioPing(() => {
+            const next = !tools.pageSummary;
+            tools.setPageSummary(next);
+            showNotification(next ? `${t.controls.pageSummary || "Page Summary"} Enabled` : `${t.controls.pageSummary || "Page Summary"} Disabled`);
+        }),
+        setSummaryContent: withAudioPing(tools.setSummaryContent),
+        toggleSmartSuggestions: withAudioPing(() => {
+            const next = !tools.smartSuggestions;
+            tools.setSmartSuggestions(next);
+            showNotification(next ? `${t.controls.smartSuggestions || "Smart Suggestions"} Enabled` : `${t.controls.smartSuggestions || "Smart Suggestions"} Disabled`);
+        }),
+        toggleTtsAutoPlay: withAudioPing(() => {
+            const next = !tools.ttsAutoPlay;
+            tools.setTtsAutoPlay(next);
+            showNotification(next ? `${t.controls.autoPlay || "Auto Play"} Enabled` : `${t.controls.autoPlay || "Auto Play"} Disabled`);
+        }),
+        toggleTtsReadWholePage: withAudioPing(() => {
+            const next = !tools.ttsReadWholePage;
+            tools.setTtsReadWholePage(next);
+            showNotification(next ? `${t.controls.readPageContent || "Read Page"} Enabled` : `${t.controls.readPageContent || "Read Page"} Disabled`);
+        }),
+        toggleTtsMovableControls: withAudioPing(() => {
+            const next = !tools.ttsMovableControls;
+            tools.setTtsMovableControls(next);
+            showNotification(next ? `${t.controls.movableControls || "Movable Controls"} Enabled` : `${t.controls.movableControls || "Movable Controls"} Disabled`);
+        }),
+        setTtsVoiceGender: withAudioPing(tools.setTtsVoiceGender),
+        setTtsReadingSpeed: withAudioPing(tools.setTtsReadingSpeed),
+        toggleTtsReadSelectedText: withAudioPing(() => {
+            const next = !tools.ttsReadSelectedText;
+            tools.setTtsReadSelectedText(next);
+            showNotification(next ? `${t.controls.readSelected || "Read Selected"} Enabled` : `${t.controls.readSelected || "Read Selected"} Disabled`);
+        }),
+        toggleTtsHoverToSpeak: withAudioPing(() => {
+            const next = !tools.ttsHoverToSpeak;
+            tools.setTtsHoverToSpeak(next);
+            showNotification(next ? `${t.controls.hoverToSpeak || "Hover to Speak"} Enabled` : `${t.controls.hoverToSpeak || "Hover to Speak"} Disabled`);
+        }),
+        toggleRealTimeTranslation: withAudioPing(() => {
+            const next = !tools.realTimeTranslation;
+            tools.setRealTimeTranslation(next);
+            showNotification(next ? `${t.controls.realTimeTranslation || "Real-Time Translation"} Enabled` : `${t.controls.realTimeTranslation || "Real-Time Translation"} Disabled`);
+        }),
+        setSelectionLanguage: withAudioPing(tools.setSelectionLanguage),
         fetchSummarizationHistory: tools.fetchSummarizationHistory,
         deleteHistoryItem: tools.deleteHistoryItem,
         pauseTts: tools.pauseTts,
         resumeTts: tools.resumeTts,
         stopTts: tools.stopTts,
 
-        setCursorSize: ui.setCursorSize,
-        setCursorStyle: ui.setCursorStyle,
-        setCursorColor: ui.setCursorColor,
-        setPrimaryButton: ui.setPrimaryButton,
-        setButtonPosition: ui.setButtonPosition,
-        setPanelPosition: ui.setPanelPosition,
-        setBarTheme: ui.setBarTheme,
-        setMagnifierScale: visual.setMagnifierScale,
+        setCursorSize: withAudioPing(ui.setCursorSize),
+        setCursorStyle: withAudioPing(ui.setCursorStyle),
+        setCursorColor: withAudioPing(ui.setCursorColor),
+        setPrimaryButton: withAudioPing(ui.setPrimaryButton),
+        setButtonPosition: withAudioPing(ui.setButtonPosition),
+        setPanelPosition: withAudioPing(ui.setPanelPosition),
+        setBarTheme: withAudioPing(ui.setBarTheme),
+        setMagnifierScale: withAudioPing(visual.setMagnifierScale),
         toggleShowActiveIndicators: withAudioPing(() => ui.setShowActiveIndicators((prev: boolean) => !prev)),
         toggleAudioPing: () => {
             const next = !ui.audioPingEnabled;
@@ -506,11 +656,14 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (tools.pronunciationGuide) list.push({ label: ct.pronunciation || "Pronunciation Guide", onRemove: () => tools.setPronunciationGuide(false) });
                     if (tools.smartSuggestions) list.push({ label: ct.smartSuggestions || "Smart Suggestions", onRemove: () => tools.setSmartSuggestions(false) });
                     break;
+                case 'navigation':
+                    if (ui.isPanelPinned) list.push({ label: "Panel Pinned", onRemove: () => ui.setIsPanelPinned(false) });
+                    break;
             }
             return list;
         },
 
-        resetAll,
+        resetAll: withAudioPing(resetAll),
     };
 
     return (
