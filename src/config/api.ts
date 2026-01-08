@@ -5,8 +5,9 @@ const USE_LOCAL_BACKEND = false;
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||
-    (isDevelopment && USE_LOCAL_BACKEND ? 'http://localhost:5000' : 'https://bar-backend-9vfh.onrender.com');
+export const API_BASE_URL = USE_LOCAL_BACKEND
+    ? 'http://localhost:5000'
+    : 'https://bar-backend.vercel.app';
 
 
 export const API_ENDPOINTS = {
@@ -20,4 +21,5 @@ export const API_ENDPOINTS = {
     TRANSLATE: `${API_BASE_URL}/api/translate`,
     VOICE_COMMAND: `${API_BASE_URL}/api/voice-command`,
     FEEDBACK: `${API_BASE_URL}/api/feedback`,
+    CONTACT: `${API_BASE_URL}/api/contact`,
 };

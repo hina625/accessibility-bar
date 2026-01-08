@@ -14,7 +14,7 @@ export default function LineHeightControl() {
     const control = {
         value: lineHeight,
         setter: setLineHeight,
-        resetValue: 1.5,
+        resetValue: 1.0,
         min: 0.5,
         max: 2.5,
         step: 0.1,
@@ -29,7 +29,8 @@ export default function LineHeightControl() {
     return (
         <div className="flex flex-col gap-2 w-full">
             <p className="text-[16px] font-normal leading-relaxed mb-4" style={{ color: theme.text }}>
-                Click or tap the minus or plus button signs below to increase the line height of the website page. Click the reset button to clear your selection or to start over again.
+                Click or tap the minus or plus button signs below to increase the line height of the website page.<br />
+                <br /> Click the reset button to clear your selection or to start over again.
             </p>
 
             <div className="flex items-center gap-3">

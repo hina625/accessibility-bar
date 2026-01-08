@@ -11,6 +11,9 @@ import tailwindCss from './embed-tailwind.css?inline'
 // @ts-ignore
 import documentStyles from './document-styles.css?inline'
 
+
+
+
 function mount() {
     if (typeof window !== 'undefined') {
         (window as any).AccessibilityBarEmbed = (window as any).AccessibilityBarEmbed || {}
@@ -29,7 +32,7 @@ function mount() {
 
     // 2. Inject Fonts (matching layout.tsx concept)
     const fontUrls = [
-        'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&family=Lexend:wght@300;400;500;600;700&display=swap',
+        'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Lexend:wght@100..900&family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap',
         'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/dist/external/open-dyslexic.css'
     ]
 

@@ -58,7 +58,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                 onClick={onClose}
             />
             <div
-                className="relative rounded-3xl p-8 shadow-2xl max-w-4xl w-full m-4 z-10 animate-scale-up border-[6px]"
+                className="relative rounded-3xl p-4 sm:p-8 shadow-2xl max-w-4xl w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px]"
                 style={{
                     backgroundColor: currentTheme.background,
                     color: currentTheme.text,
@@ -75,8 +75,8 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                     </svg>
                 </button>
 
-                <div className="text-center">
-                    <h2 className="text-2xl md:text-3xl font-black mb-10 px-4 leading-tight">
+                <div className="text-center w-full">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 sm:mb-10 px-4 leading-tight">
                         How likely are you to recommend our Accessibility Bar to a friend?
                     </h2>
 
@@ -97,13 +97,13 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                                 key={i}
                                 onClick={() => setRating(i)}
                                 className={`flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl text-lg md:text-2xl font-black transition-all duration-200 border-[3px] ${rating === i
-                                    ? 'scale-110 shadow-xl z-10'
-                                    : 'hover:scale-105 hover:shadow-md'
+                                    ? 'shadow-xl z-10'
+                                    : 'hover:shadow-md'
                                     }`}
                                 style={{
                                     backgroundColor: rating === i ? currentTheme.text : 'transparent',
                                     color: rating === i ? currentTheme.background : currentTheme.text,
-                                    borderColor: currentTheme.text
+                                    borderColor: currentTheme.border
                                 }}
                             >
                                 {i}
@@ -111,7 +111,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                         ))}
                     </div>
 
-                    <div className="flex justify-between px-2 md:px-10 mb-10 text-lg font-bold">
+                    <div className="flex justify-between px-2 sm:px-10 mb-8 sm:mb-10 text-base sm:text-lg font-bold">
                         <button
                             onClick={() => setRating(0)}
                             className="hover:underline transition-opacity text-left"
@@ -131,7 +131,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                     <button
                         onClick={handleSubmit}
                         disabled={rating === null}
-                        className="w-full md:w-auto px-16 py-5 rounded-2xl font-black uppercase tracking-widest text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
+                        className="w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-5 rounded-2xl font-black uppercase tracking-widest text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
                         style={{
                             backgroundColor: currentTheme.text,
                             color: currentTheme.background

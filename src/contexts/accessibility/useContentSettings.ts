@@ -7,6 +7,7 @@ export function useContentSettings() {
     const [plainTextMode, setPlainTextMode] = useState<boolean>(false);
     const [plainTextSize, setPlainTextSize] = useState<'small' | 'medium' | 'large'>('medium');
     const [pauseAnimations, setPauseAnimations] = useState<boolean>(false);
+    const [muteAudio, setMuteAudio] = useState<boolean>(false);
     const [stopVideos, setStopVideos] = useState<boolean>(false);
     const [reduceMotion, setReduceMotion] = useState<boolean>(false);
     const [simplifiedLayout, setSimplifiedLayout] = useState<boolean>(false);
@@ -20,6 +21,7 @@ export function useContentSettings() {
             plainTextMode: localStorage.getItem('accessibility-plainTextMode'),
             plainTextSize: localStorage.getItem('accessibility-plainTextSize'),
             pauseAnimations: localStorage.getItem('accessibility-pauseAnimations'),
+            muteAudio: localStorage.getItem('accessibility-muteAudio'),
             stopVideos: localStorage.getItem('accessibility-stopVideos'),
             reduceMotion: localStorage.getItem('accessibility-reduceMotion'),
             pageStructure: localStorage.getItem('accessibility-pageStructure'),
@@ -30,6 +32,7 @@ export function useContentSettings() {
         if (saved.plainTextMode === 'true') setPlainTextMode(true);
         if (saved.plainTextSize) setPlainTextSize(saved.plainTextSize as any);
         if (saved.pauseAnimations === 'true') setPauseAnimations(true);
+        if (saved.muteAudio === 'true') setMuteAudio(true);
         if (saved.stopVideos === 'true') setStopVideos(true);
         if (saved.reduceMotion === 'true') setReduceMotion(true);
         if (saved.pageStructure === 'true') setPageStructure(true);
@@ -77,6 +80,20 @@ export function useContentSettings() {
     }, [pauseAnimations]);
 
     useEffect(() => {
+        // Mute all audio/video elements
+        const mediaElements = document.querySelectorAll('audio, video');
+        mediaElements.forEach((el) => {
+            (el as HTMLMediaElement).muted = muteAudio;
+        });
+
+        // Also handle potential iframe embeds via CSS classes if possible, or leave for future expansion
+        if (muteAudio) document.documentElement.classList.add('mute-audio');
+        else document.documentElement.classList.remove('mute-audio');
+
+        localStorage.setItem('accessibility-muteAudio', muteAudio.toString());
+    }, [muteAudio]);
+
+    useEffect(() => {
         if (stopVideos) {
             document.documentElement.classList.add('stop-videos');
         } else {
@@ -101,6 +118,7 @@ export function useContentSettings() {
         plainTextMode, setPlainTextMode,
         plainTextSize, setPlainTextSize,
         pauseAnimations, setPauseAnimations,
+        muteAudio, setMuteAudio,
         stopVideos, setStopVideos,
         reduceMotion, setReduceMotion,
         simplifiedLayout, setSimplifiedLayout,

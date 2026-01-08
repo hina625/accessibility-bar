@@ -2,10 +2,16 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 export default function ReadingGuideToggle() {
-  const { readingGuide, toggleReadingGuide, readingGuideColor, setReadingGuideColor, readingGuideThickness, setReadingGuideThickness, barTheme } = useAccessibility();
+  const { readingGuide, toggleReadingGuide, readingGuideColor, setReadingGuideColor, readingGuideThickness, setReadingGuideThickness, barTheme, audioPingEnabled } = useAccessibility();
   const theme = BAR_THEMES[barTheme];
+
+  const handleToggle = () => {
+    if (audioPingEnabled) playAudioPing(readingGuide ? 'deselect' : 'select');
+    toggleReadingGuide();
+  };
 
   const colors = [
     { name: 'Red', value: '#b91c1c' }, // Darker Red
@@ -24,7 +30,7 @@ export default function ReadingGuideToggle() {
         style={{ backgroundColor: theme.hover }}
         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-        onClick={() => toggleReadingGuide()}
+        onClick={handleToggle}
       >
         <span className="text-[16px] font-medium" style={{ color: theme.text }}>Reading Lines</span>
         <div

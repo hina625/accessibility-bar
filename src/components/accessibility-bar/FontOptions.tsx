@@ -172,16 +172,23 @@ export default function FontOptions() {
                 <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                     {t.controls.allFonts}
                 </label>
-                <select
-                    value={allFonts.some(f => f.value === fontStyle) ? fontStyle : ''}
-                    onChange={(e) => setFontStyle(e.target.value as any)}
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl p-3 px-4 text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm appearance-none cursor-pointer"
-                >
-                    <option value="" disabled>{t.controls.allFonts}</option>
-                    {allFonts.map((f) => (
-                        <option key={f.value} value={f.value}>{f.name}</option>
-                    ))}
-                </select>
+                <div className="relative group">
+                    <select
+                        value={allFonts.some(f => f.value === fontStyle) ? fontStyle : ''}
+                        onChange={(e) => setFontStyle(e.target.value as any)}
+                        className="w-full bg-white dark:bg-gray-800 text-black dark:text-white border-[3px] border-gray-300 dark:border-gray-500 rounded-xl p-3 px-4 text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm appearance-none cursor-pointer pr-10 hover:border-blue-400"
+                    >
+                        <option value="" disabled>{t.controls.allFonts}</option>
+                        {allFonts.map((f) => (
+                            <option key={f.value} value={f.value}>{f.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-500 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
             {/* Dyslexia Friendly Fonts Dropdown */}
@@ -189,16 +196,23 @@ export default function FontOptions() {
                 <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
                     {t.controls.dyslexiaFonts}
                 </label>
-                <select
-                    value={dyslexiaFonts.some(f => f.value === fontStyle) ? fontStyle : ''}
-                    onChange={(e) => setFontStyle(e.target.value as any)}
-                    className="w-full bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-200 dark:border-gray-700 rounded-xl p-3 px-4 text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm appearance-none cursor-pointer"
-                >
-                    <option value="" disabled>{t.controls.dyslexiaFonts}</option>
-                    {dyslexiaFonts.map((f) => (
-                        <option key={f.value} value={f.value}>{f.name}</option>
-                    ))}
-                </select>
+                <div className="relative group">
+                    <select
+                        value={dyslexiaFonts.some(f => f.value === fontStyle) ? fontStyle : ''}
+                        onChange={(e) => setFontStyle(e.target.value as any)}
+                        className="w-full bg-white dark:bg-gray-800 text-black dark:text-white border-[3px] border-gray-300 dark:border-gray-500 rounded-xl p-3 px-4 text-[16px] focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-sm appearance-none cursor-pointer pr-10 hover:border-blue-400"
+                    >
+                        <option value="" disabled>{t.controls.dyslexiaFonts}</option>
+                        {dyslexiaFonts.map((f) => (
+                            <option key={f.value} value={f.value}>{f.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                        <svg className="w-5 h-5 text-gray-500 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                </div>
             </div>
 
             <p className="text-[14px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 p-2 px-3 rounded-lg border border-blue-100 dark:border-blue-800/50">

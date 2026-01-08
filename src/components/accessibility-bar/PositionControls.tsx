@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useAccessibility, ButtonPosition, PanelPosition } from '@/contexts/AccessibilityContext';
+import { useAccessibility, ButtonPosition, PanelPosition, ResetIconStyle } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import ToggleCheckbox from './ToggleCheckbox';
 import LanguageSelector from './LanguageSelector';
 import InfoPopupButton from './InfoPopupButton';
 import { translations } from '@/contexts/accessibility/translations';
-import Image from 'next/image';
+// import Image from 'next/image';
 import accessibilityIcon from '../../assets/icons/first_icon_accessibility.png';
 import { playAudioPing } from '@/utils/audioPingUtils';
 
@@ -34,7 +34,8 @@ export default function PositionControls({
         readingProgressBarColor, setReadingProgressBarColor,
         language,
         getActiveFeaturesWithActions,
-        audioPingEnabled, toggleAudioPing
+        audioPingEnabled, toggleAudioPing,
+        resetIconStyle, setResetIconStyle
     } = useAccessibility();
     const t = translations[language] || translations['en'];
     const theme = BAR_THEMES[barTheme];
@@ -61,7 +62,7 @@ export default function PositionControls({
     return (
         <div className="space-y-6">
             {!hideLanguage && (
-                <section>
+                <section className="pb-6 border-b border-gray-200/20">
                     <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>Language</h3>
                     <LanguageSelector />
                 </section>
@@ -69,16 +70,16 @@ export default function PositionControls({
 
             {!hidePositioning && (
                 <>
-                    <section>
-                        <div className="flex items-center gap-3 mb-4">
-                            <Image
-                                src={accessibilityIcon}
+                    <section className="pb-6 border-b border-gray-200/20">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>1. Accessibility Position Button</h3>
+                            <img
+                                src={accessibilityIcon.src}
                                 alt=""
                                 width={48}
                                 height={48}
                                 className="object-contain"
                             />
-                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>Accessibility Button Position</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             {buttonPositions.slice(page * 4, (page + 1) * 4).map((pos) => (
@@ -87,10 +88,10 @@ export default function PositionControls({
                                     onClick={() => setButtonPosition(pos.id)}
                                     className={`px-1 py-3 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight ${pos.id === buttonPosition || pos.id === panelPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
                                     style={{
-                                        borderColor: buttonPosition === pos.id ? theme.text : `${theme.text}33`,
-                                        backgroundColor: buttonPosition === pos.id ? 'rgba(0,0,0,0.15)' : 'transparent',
+                                        borderColor: buttonPosition === pos.id ? theme.text : theme.border,
+                                        backgroundColor: buttonPosition === pos.id ? `${theme.active}40` : `${theme.text}08`,
                                         color: theme.text,
-                                        fontSize: '14px',
+                                        fontSize: '16px',
                                         minHeight: '52px',
                                         whiteSpace: 'nowrap'
                                     }}
@@ -100,12 +101,13 @@ export default function PositionControls({
                             ))}
                             <button
                                 onClick={() => {
-                                    if (audioPingEnabled) playAudioPing();
+                                    if (audioPingEnabled) playAudioPing('menu');
                                     setPage(p => p === 0 ? 1 : 0);
                                 }}
                                 className="col-span-2 p-2 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95"
                                 style={{
-                                    borderColor: `${theme.text}33`,
+                                    borderColor: theme.border,
+                                    backgroundColor: `${theme.text}08`,
                                     color: theme.text,
                                     minHeight: '44px'
                                 }}
@@ -128,8 +130,8 @@ export default function PositionControls({
             )}
 
             {!hideProgressBar && (
-                <section>
-                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>Scrolling Progress Bar (Horizontal)</h3>
+                <section className="pb-6 border-b border-gray-200/20">
+                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>2. Scrolling Progress Bar</h3>
                     <ToggleCheckbox
                         id="reading-progress-bar"
                         label="Active on Scrolling"
@@ -147,7 +149,7 @@ export default function PositionControls({
                                     { name: 'Yellow', value: '#FFFF00' },
                                     { name: 'Green', value: '#00FF00' },
                                     { name: 'Blue', value: '#0000FF' },
-                                    { name: 'Gold', value: '#FFD700' },
+                                    { name: 'Turquoise', value: '#17D1C6' },
                                 ].map((color) => (
                                     <button
                                         key={color.name}
@@ -165,13 +167,56 @@ export default function PositionControls({
                     )}
                 </section>
             )}
-
-
+            {!hidePositioning && (
+                <section className="pb-6 border-b border-gray-200/20">
+                    <div className="flex items-center mb-4">
+                        <h3 className="text-[20px] font-bold" style={{ color: theme.text }}>3. Reset Icon (Button)</h3>
+                        <InfoPopupButton
+                            title="Reset Icon (Button)"
+                            description="Customize the appearance of the Reset button."
+                        />
+                    </div>
+                    <div className="flex gap-4">
+                        {[
+                            { id: 'red-black', color: '#FF0000', label: 'Red' },
+                            { id: 'white-black', color: '#FFFFFF', label: 'White' },
+                            { id: 'black-white', color: '#000000', label: 'Black' },
+                            { id: 'turquoise-black', color: '#17D1C6', label: 'Turquoise' }
+                        ].map((style) => (
+                            <button
+                                key={style.id}
+                                onClick={() => {
+                                    if (audioPingEnabled) playAudioPing('menu');
+                                    setResetIconStyle(style.id as ResetIconStyle);
+                                }}
+                                className={`w-10 h-10 rounded-full transition-all duration-300 relative shadow-sm hover:scale-110 active:scale-95`}
+                                style={{
+                                    backgroundColor: style.color,
+                                    border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow: resetIconStyle === style.id
+                                        ? `0 0 0 2px ${theme.background}, 0 0 0 4px ${theme.active}`
+                                        : 'none'
+                                }}
+                                title={style.label}
+                                aria-label={style.label}
+                            >
+                                {resetIconStyle === style.id && (
+                                    <span className="absolute inset-0 flex items-center justify-center">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' ? '#000000' : '#FFFFFF'} strokeWidth={3}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {!hideIndicators && (
-                <section>
+                <section className="pb-6 border-b border-gray-200/20">
                     <div className="flex items-center mb-4">
-                        <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>Feature Indicators</h3>
+                        <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>4. Feature Indicators</h3>
                         <InfoPopupButton
                             title="Feature Indicators"
                             description={t.info?.position?.features?.["Feature Indicators"] || "Displays small red circles (dots) on category icons to show which features are currently active."}
@@ -186,7 +231,7 @@ export default function PositionControls({
 
                     {showActiveIndicators && (
                         <div className="mt-4 space-y-2">
-                            {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'navigation'].map((catId) => {
+                            {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'navigation', 'position'].map((catId) => {
                                 const features = getActiveFeaturesWithActions(catId);
                                 if (features.length === 0) return null;
                                 return (
@@ -204,7 +249,7 @@ export default function PositionControls({
                                                 <span>{feature.label}</span>
                                                 <button
                                                     onClick={() => {
-                                                        if (audioPingEnabled) playAudioPing();
+                                                        if (audioPingEnabled) playAudioPing('deselect'); // Deselect sound for removing feature
                                                         feature.onRemove();
                                                     }}
                                                     className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-black/10 transition-colors"
@@ -227,9 +272,9 @@ export default function PositionControls({
                 </section>
             )}
 
-            <section>
+            <section className="pb-6 border-b border-gray-200/20">
                 <div className="flex items-center mb-4">
-                    <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>Audio Ping</h3>
+                    <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>5. Audio Ping</h3>
                     <InfoPopupButton
                         title="Audio Ping"
                         description="Play a short confirmation sound when you toggle accessibility features. Helps you know when a feature has been activated or deactivated."

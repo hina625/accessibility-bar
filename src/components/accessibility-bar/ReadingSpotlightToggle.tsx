@@ -3,10 +3,16 @@
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import ToggleCheckbox from './ToggleCheckbox';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 export default function ReadingSpotlightToggle() {
-    const { readingSpotlight, toggleReadingSpotlight, readingSpotlightBrightness, setReadingSpotlightBrightness, barTheme } = useAccessibility();
+    const { readingSpotlight, toggleReadingSpotlight, readingSpotlightBrightness, setReadingSpotlightBrightness, barTheme, audioPingEnabled } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
+
+    const handleToggle = () => {
+        if (audioPingEnabled) playAudioPing(readingSpotlight ? 'deselect' : 'select');
+        toggleReadingSpotlight();
+    };
 
     const brightnessOptions = [
         { label: 'Normal', value: 1.0 },
@@ -20,7 +26,7 @@ export default function ReadingSpotlightToggle() {
                 id="reading-spotlight-toggle"
                 label="Reading Spotlight"
                 checked={readingSpotlight}
-                onChange={toggleReadingSpotlight}
+                onChange={handleToggle}
             />
 
             {readingSpotlight && (

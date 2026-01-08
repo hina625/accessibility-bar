@@ -2,52 +2,21 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
-import { useEffect, useState } from 'react';
+
 
 export default function VisualConfirmation() {
     const { notification, barTheme } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
-    const [renderPosition, setRenderPosition] = useState<{ top: number, left: number } | null>(null);
-
-    useEffect(() => {
-        if (notification.visible && notification.position) {
-            // Adjust position to stay on screen
-            // If top is too high, move below
-            let { top, left } = notification.position;
-
-            // Offset logic
-            // Default: 60px above the element
-            top = top - 60;
-
-            if (top < 20) {
-                // If offscreen top, move below (active element top + height + 20)
-                // We'd need element height, but we only have top. 
-                // Let's just put it at 80px fixed from top if default logic fails
-                top = 80;
-            }
-
-            setRenderPosition({ top, left });
-        } else if (notification.visible && !notification.position) {
-            // Fallback to center screen
-            setRenderPosition(null);
-        }
-    }, [notification]);
-
     if (!notification.visible || !notification.message) return null;
 
-    const style: React.CSSProperties = renderPosition
-        ? {
-            position: 'fixed',
-            top: `${renderPosition.top}px`,
-            left: `${renderPosition.left}px`,
-            transform: 'translateX(-50%)',
-        }
-        : {
-            position: 'fixed',
-            bottom: '100px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-        };
+    const style: React.CSSProperties = {
+        position: 'fixed',
+        bottom: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 'max-content',
+        maxWidth: '90vw'
+    };
 
     return (
         <div
@@ -61,7 +30,7 @@ export default function VisualConfirmation() {
             }}
         >
             <div className="flex flex-col items-center">
-                <span className="text-[16px] font-bold text-center leading-tight whitespace-nowrap">
+                <span className="text-[14px] sm:text-[16px] font-bold text-center leading-tight">
                     {notification.message}
                 </span>
             </div>

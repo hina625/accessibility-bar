@@ -1,8 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState } from './types';
-export type { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState };
+import { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState, ResetIconStyle } from './types';
+export type { AccessibilityState, FontStyle, ColorBlindFilter, ButtonPosition, PanelPosition, CursorStyle, NotificationState, ResetIconStyle };
 export type { BarTheme } from './theme';
 export { BAR_THEMES } from './theme';
 import type { BarTheme } from './theme';
@@ -70,6 +70,7 @@ export interface AccessibilityContextType extends AccessibilityState {
     togglePageStructure: () => void;
     setPlainTextSize: (size: 'small' | 'medium' | 'large') => void;
     togglePauseAnimations: () => void;
+    toggleMuteAudio: () => void;
     toggleStopVideos: () => void;
     togglePageSummary: () => void;
     setSummaryContent: (content: string) => void;
@@ -83,6 +84,7 @@ export interface AccessibilityContextType extends AccessibilityState {
     fetchSummarizationHistory: () => Promise<void>;
     deleteHistoryItem: (id: string) => Promise<void>;
     resetAll: () => void;
+    softReset: () => void;
     toggleMagnifier: () => void;
     toggleSmartSuggestions: () => void;
     isMobile: boolean;
@@ -102,6 +104,38 @@ export interface AccessibilityContextType extends AccessibilityState {
     stopTts: () => void;
     isPanelPinned: boolean;
     togglePanelPin: () => void;
+    sidebarIconSize: number;
+    setSidebarIconSize: (size: number) => void;
+    resetIconStyle: ResetIconStyle;
+    setResetIconStyle: (style: ResetIconStyle) => void;
+    setLargeButtons: (enabled: boolean) => void;
+    setKeyboardNavigation: (enabled: boolean) => void;
+    setTextToSpeech: (enabled: boolean) => void;
+    setSpeechToText: (enabled: boolean) => void;
+    setOnPageDictionary: (enabled: boolean) => void;
+    setSimplifiedLayout: (enabled: boolean) => void;
+    setPageStructure: (enabled: boolean) => void;
+    setHighContrast: (enabled: boolean) => void;
+    setGrayscale: (enabled: boolean) => void;
+    setInvertColors: (enabled: boolean) => void;
+    setDarkMode: (enabled: boolean) => void;
+    setReadingRuler: (enabled: boolean) => void;
+    setReadingGuide: (enabled: boolean) => void;
+    setReadingMask: (enabled: boolean) => void;
+    setReadingSpotlight: (enabled: boolean) => void;
+    setMagnifier: (enabled: boolean) => void;
+    setHighlightLinks: (enabled: boolean) => void;
+    setHighlightHeadings: (enabled: boolean) => void;
+    setReduceMotion: (enabled: boolean) => void;
+    setPauseAnimations: (enabled: boolean) => void;
+    setMuteAudio: (enabled: boolean) => void;
+    setStopVideos: (enabled: boolean) => void;
+    setPageSummary: (enabled: boolean) => void;
+    setHideImages: (enabled: boolean) => void;
+    setShowImageDescriptions: (enabled: boolean) => void;
+    setPlainTextMode: (enabled: boolean) => void;
+    setSmartSuggestions: (enabled: boolean) => void;
+    setRealTimeTranslation: (enabled: boolean) => void;
     showNotification: (message: string, position?: { top: number, left: number }) => void;
     notification: NotificationState;
 }
@@ -150,6 +184,64 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
     const resetAll = () => {
         localStorage.clear();
         window.location.reload();
+    };
+
+    const softReset = () => {
+        // Text
+        text.resetFontSize();
+        text.setFontStyle('default');
+        text.setTextAlign('left');
+        text.setLineHeight(1);
+        text.setCharacterSpacing(0);
+        text.setWordSpacing(0);
+
+        // Visual
+        visual.setHighContrast(false);
+        visual.setGrayscale(false);
+        visual.setInvertColors(false);
+        visual.setDarkMode(false);
+        visual.setColorBlindFilter('none');
+        visual.setPageZoom(100);
+        visual.setMagnifier(false);
+        visual.setBackgroundColor('');
+        visual.setTextColor('');
+        visual.setHeadingColor('');
+
+        // Reading
+        reading.setReadingGuide(false);
+        reading.setReadingRuler(false);
+        reading.setReadingMask(false);
+        reading.setReadingSpotlight(false);
+        reading.setHighlightLinks(false);
+        reading.setHighlightHeadings(false);
+        reading.setLargeButtons(false);
+        reading.setReadingProgressBar(false);
+
+        // Content
+        content.setHideImages(false);
+        content.setShowImageDescriptions(false);
+        content.setPlainTextMode(false);
+        content.setSimplifiedLayout(false);
+        content.setPageStructure(false);
+        content.setPauseAnimations(false);
+        content.setMuteAudio(false);
+        content.setStopVideos(false);
+        content.setReduceMotion(false);
+
+        // Tools
+        tools.setTextToSpeech(false);
+        tools.setSpeechToText(false);
+        tools.setOnPageDictionary(false);
+        tools.setPronunciationGuide(false);
+        tools.setKeyboardNavigation(false);
+        tools.setPageSummary(false);
+        tools.setSmartSuggestions(false);
+        tools.setRealTimeTranslation(false);
+
+        // UI
+        ui.setCursorSize(1);
+        ui.setCursorStyle('white');
+        ui.setCursorColor('#000000');
     };
 
     // Triple Click Zoom Feature
@@ -225,6 +317,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         pageStructure: content.pageStructure,
         plainTextSize: content.plainTextSize,
         pauseAnimations: content.pauseAnimations,
+        muteAudio: content.muteAudio,
         stopVideos: content.stopVideos,
         reduceMotion: content.reduceMotion,
 
@@ -259,7 +352,8 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         showActiveIndicators: ui.showActiveIndicators,
         audioPingEnabled: ui.audioPingEnabled,
         isPanelPinned: ui.isPanelPinned,
-
+        sidebarIconSize: ui.sidebarIconSize,
+        resetIconStyle: ui.resetIconStyle,
         notification,
         showNotification,
 
@@ -274,6 +368,34 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setTextSpacing: withAudioPing(text.setLineHeight),
         setCharacterSpacing: withAudioPing(text.setCharacterSpacing),
         setWordSpacing: withAudioPing(text.setWordSpacing),
+        setLargeButtons: withAudioPing(reading.setLargeButtons),
+        setKeyboardNavigation: withAudioPing(tools.setKeyboardNavigation),
+        setTextToSpeech: withAudioPing(tools.setTextToSpeech),
+        setSpeechToText: withAudioPing(tools.setSpeechToText),
+        setOnPageDictionary: withAudioPing(tools.setOnPageDictionary),
+        setSimplifiedLayout: withAudioPing(content.setSimplifiedLayout),
+        setPageStructure: withAudioPing(content.setPageStructure),
+        setHighContrast: withAudioPing(visual.setHighContrast),
+        setGrayscale: withAudioPing(visual.setGrayscale),
+        setInvertColors: withAudioPing(visual.setInvertColors),
+        setDarkMode: withAudioPing(visual.setDarkMode),
+        setReadingRuler: withAudioPing(reading.setReadingRuler),
+        setReadingGuide: withAudioPing(reading.setReadingGuide),
+        setReadingMask: withAudioPing(reading.setReadingMask),
+        setReadingSpotlight: withAudioPing(reading.setReadingSpotlight),
+        setMagnifier: withAudioPing(visual.setMagnifier),
+        setHighlightLinks: withAudioPing(reading.setHighlightLinks),
+        setHighlightHeadings: withAudioPing(reading.setHighlightHeadings),
+        setReduceMotion: withAudioPing(content.setReduceMotion),
+        setPauseAnimations: withAudioPing(content.setPauseAnimations),
+        setMuteAudio: withAudioPing(content.setMuteAudio),
+        setStopVideos: withAudioPing(content.setStopVideos),
+        setPageSummary: withAudioPing(tools.setPageSummary),
+        setHideImages: withAudioPing(content.setHideImages),
+        setShowImageDescriptions: withAudioPing(content.setShowImageDescriptions),
+        setPlainTextMode: withAudioPing(content.setPlainTextMode),
+        setSmartSuggestions: withAudioPing(tools.setSmartSuggestions),
+        setRealTimeTranslation: withAudioPing(tools.setRealTimeTranslation),
 
         toggleHighContrast: withAudioPing(() => {
             const next = !visual.highContrast;
@@ -419,6 +541,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
             content.setPauseAnimations(next);
             showNotification(next ? `${t.controls.motion || "Pause Animations"} Enabled` : `${t.controls.motion || "Pause Animations"} Disabled`);
         }),
+        toggleMuteAudio: withAudioPing(() => {
+            const next = !content.muteAudio;
+            content.setMuteAudio(next);
+            showNotification(next ? `${t.controls.muteAudio || "Mute Audio"} Enabled` : `${t.controls.muteAudio || "Mute Audio"} Disabled`);
+        }),
         toggleStopVideos: withAudioPing(() => {
             const next = !content.stopVideos;
             content.setStopVideos(next);
@@ -512,6 +639,8 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setButtonPosition: withAudioPing(ui.setButtonPosition),
         setPanelPosition: withAudioPing(ui.setPanelPosition),
         setBarTheme: withAudioPing(ui.setBarTheme),
+        setSidebarIconSize: withAudioPing(ui.setSidebarIconSize),
+        setResetIconStyle: withAudioPing(ui.setResetIconStyle),
         setMagnifierScale: withAudioPing(visual.setMagnifierScale),
         toggleShowActiveIndicators: withAudioPing(() => ui.setShowActiveIndicators((prev: boolean) => !prev)),
         toggleAudioPing: () => {
@@ -567,6 +696,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (content.hideImages) list.push(ct.hideImages || "Hide Images");
                     if (content.showImageDescriptions) list.push(ct.descriptions || "Image Desc");
                     if (content.pauseAnimations) list.push(ct.motion || "Reduce Motion");
+                    if (content.muteAudio) list.push(ct.muteAudio || "Muted Audio");
                     if (content.stopVideos) list.push(ct.stopVideos || "Stop Videos");
                     break;
                 case 'speech':
@@ -586,6 +716,9 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (tools.pronunciationGuide) list.push(ct.pronunciation || "Pronunciation Guide");
                     if (tools.smartSuggestions) list.push(ct.smartSuggestions || "Smart Suggestions");
                     break;
+                case 'position':
+                    if (ui.audioPingEnabled) list.push(ct.audioPing || "Audio Ping");
+                    break;
             }
             return list;
         },
@@ -597,73 +730,83 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
 
             switch (categoryId) {
                 case 'font':
-                    if (text.fontSize && text.fontSize !== 16) list.push({ label: ct.fontSize, onRemove: text.resetFontSize });
-                    if (text.lineHeight && text.lineHeight !== 1) list.push({ label: ct.lineHeight, onRemove: () => text.setLineHeight(1) });
-                    if (text.characterSpacing && text.characterSpacing !== 0) list.push({ label: ct.charSpacing, onRemove: () => text.setCharacterSpacing(0) });
-                    if (text.wordSpacing && text.wordSpacing !== 0) list.push({ label: ct.wordSpacing, onRemove: () => text.setWordSpacing(0) });
-                    if (text.fontStyle && text.fontStyle !== 'default') list.push({ label: ct.fontStyle, onRemove: () => text.setFontStyle('default') });
-                    if (text.textAlign && text.textAlign !== 'left') list.push({ label: ct.textAlign, onRemove: () => text.setTextAlign('left') });
+                    if (text.fontSize && text.fontSize !== 16) list.push({ label: ct.fontSize, onRemove: withAudioPing(text.resetFontSize) });
+                    if (text.lineHeight && text.lineHeight !== 1) list.push({ label: ct.lineHeight, onRemove: withAudioPing(() => text.setLineHeight(1)) });
+                    if (text.characterSpacing && text.characterSpacing !== 0) list.push({ label: ct.charSpacing, onRemove: withAudioPing(() => text.setCharacterSpacing(0)) });
+                    if (text.wordSpacing && text.wordSpacing !== 0) list.push({ label: ct.wordSpacing, onRemove: withAudioPing(() => text.setWordSpacing(0)) });
+                    if (text.fontStyle && text.fontStyle !== 'default') list.push({ label: ct.fontStyle, onRemove: withAudioPing(() => text.setFontStyle('default')) });
+                    if (text.textAlign && text.textAlign !== 'left') list.push({ label: ct.textAlign, onRemove: withAudioPing(() => text.setTextAlign('left')) });
                     break;
                 case 'contrast':
-                    if (visual.highContrast) list.push({ label: ct.contrast || "High Contrast", onRemove: () => visual.setHighContrast(false) });
-                    if (visual.darkMode) list.push({ label: ct.darkMode || "Dark Mode", onRemove: () => visual.setDarkMode(false) });
-                    if (visual.grayscale) list.push({ label: ct.grayscale || "Greyscale", onRemove: () => visual.setGrayscale(false) });
-                    if (visual.invertColors) list.push({ label: ct.invert || "Invert", onRemove: () => visual.setInvertColors(false) });
-                    if (visual.pageZoom && visual.pageZoom !== 100) list.push({ label: ct.zoom || "Zoom", onRemove: () => visual.setPageZoom(100) });
-                    if (visual.colorBlindFilter && visual.colorBlindFilter !== 'none') list.push({ label: ct.colorBlind || "Color Blind", onRemove: () => visual.setColorBlindFilter('none') });
+                    if (visual.highContrast) list.push({ label: ct.contrast || "High Contrast", onRemove: withAudioPing(() => visual.setHighContrast(false)) });
+                    if (visual.darkMode) list.push({ label: ct.darkMode || "Dark Mode", onRemove: withAudioPing(() => visual.setDarkMode(false)) });
+                    if (visual.grayscale) list.push({ label: ct.grayscale || "Greyscale", onRemove: withAudioPing(() => visual.setGrayscale(false)) });
+                    if (visual.invertColors) list.push({ label: ct.invert || "Invert", onRemove: withAudioPing(() => visual.setInvertColors(false)) });
+                    if (visual.pageZoom && visual.pageZoom !== 100) list.push({ label: ct.zoom || "Zoom", onRemove: withAudioPing(() => visual.setPageZoom(100)) });
+                    if (visual.colorBlindFilter && visual.colorBlindFilter !== 'none') list.push({ label: ct.colorBlind || "Color Blind", onRemove: withAudioPing(() => visual.setColorBlindFilter('none')) });
                     break;
                 case 'reading':
-                    if (reading.readingRuler) list.push({ label: ct.ruler || "Ruler", onRemove: () => reading.setReadingRuler(false) });
-                    if (reading.readingGuide) list.push({ label: ct.guide || "Guide", onRemove: () => reading.setReadingGuide(false) });
-                    if (reading.readingMask) list.push({ label: ct.mask || "Mask", onRemove: () => reading.setReadingMask(false) });
-                    if (reading.readingSpotlight) list.push({ label: ct.spotlight || "Spotlight", onRemove: () => reading.setReadingSpotlight(false) });
-                    if (reading.largeButtons) list.push({ label: ct.buttons || "Large Buttons", onRemove: () => reading.setLargeButtons(false) });
-                    if (visual.magnifier) list.push({ label: ct.magnifier || "Magnifier", onRemove: () => visual.setMagnifier(false) });
+                    if (reading.readingRuler) list.push({ label: ct.ruler || "Ruler", onRemove: withAudioPing(() => reading.setReadingRuler(false)) });
+                    if (reading.readingGuide) list.push({ label: ct.guide || "Guide", onRemove: withAudioPing(() => reading.setReadingGuide(false)) });
+                    if (reading.readingMask) list.push({ label: ct.mask || "Mask", onRemove: withAudioPing(() => reading.setReadingMask(false)) });
+                    if (reading.readingSpotlight) list.push({ label: ct.spotlight || "Spotlight", onRemove: withAudioPing(() => reading.setReadingSpotlight(false)) });
+                    if (reading.largeButtons) list.push({ label: ct.buttons || "Large Buttons", onRemove: withAudioPing(() => reading.setLargeButtons(false)) });
+                    if (visual.magnifier) list.push({ label: ct.magnifier || "Magnifier", onRemove: withAudioPing(() => visual.setMagnifier(false)) });
                     break;
                 case 'layout':
-                    if (content.pageStructure) list.push({ label: ct.summarization || "Summary", onRemove: () => content.setPageStructure(false) });
-                    if (content.plainTextMode) list.push({ label: ct.plainText || "Plain Text", onRemove: () => content.setPlainTextMode(false) });
-                    if (content.simplifiedLayout) list.push({ label: ct.simplifyLayout || "Simplify", onRemove: () => content.setSimplifiedLayout(false) });
-                    if (reading.highlightLinks) list.push({ label: ct.links || "Highlight Links", onRemove: () => reading.setHighlightLinks(false) });
-                    if (reading.highlightHeadings) list.push({ label: ct.headings || "Highlight Headings", onRemove: () => reading.setHighlightHeadings(false) });
+                    if (content.pageStructure) list.push({ label: ct.summarization || "Summary", onRemove: withAudioPing(() => content.setPageStructure(false)) });
+                    if (content.plainTextMode) list.push({ label: ct.plainText || "Plain Text", onRemove: withAudioPing(() => content.setPlainTextMode(false)) });
+                    if (content.simplifiedLayout) list.push({ label: ct.simplifyLayout || "Simplify", onRemove: withAudioPing(() => content.setSimplifiedLayout(false)) });
+                    if (reading.highlightLinks) list.push({ label: ct.links || "Highlight Links", onRemove: withAudioPing(() => reading.setHighlightLinks(false)) });
+                    if (reading.highlightHeadings) list.push({ label: ct.headings || "Highlight Headings", onRemove: withAudioPing(() => reading.setHighlightHeadings(false)) });
                     break;
                 case 'cursor':
-                    if (ui.cursorSize && ui.cursorSize !== 1) list.push({ label: ct.cursor || "Pointer size", onRemove: () => ui.setCursorSize(1) });
-                    if (ui.cursorStyle && ui.cursorStyle !== 'white') list.push({ label: ct.cursorStyle || "Pointer style", onRemove: () => ui.setCursorStyle('white') });
-                    if (ui.cursorColor && ui.cursorColor !== '#000000' && ui.cursorColor !== '#000') list.push({ label: ct.cursorColor || "Pointer colour", onRemove: () => ui.setCursorColor('#000000') });
-                    if (content.reduceMotion) list.push({ label: ct.motion || "Reduce Motion", onRemove: () => content.setReduceMotion(false) });
+                    if (ui.cursorSize && ui.cursorSize !== 1) list.push({ label: ct.cursor || "Pointer size", onRemove: withAudioPing(() => ui.setCursorSize(1)) });
+                    if (ui.cursorStyle && ui.cursorStyle !== 'white') list.push({ label: ct.cursorStyle || "Pointer style", onRemove: withAudioPing(() => ui.setCursorStyle('white')) });
+                    if (ui.cursorColor && ui.cursorColor !== '#000000' && ui.cursorColor !== '#000') list.push({ label: ct.cursorColor || "Pointer colour", onRemove: withAudioPing(() => ui.setCursorColor('#000000')) });
+                    if (content.reduceMotion) list.push({ label: ct.motion || "Reduce Motion", onRemove: withAudioPing(() => content.setReduceMotion(false)) });
                     break;
                 case 'images':
-                    if (content.hideImages) list.push({ label: ct.hideImages || "Hide Images", onRemove: () => content.setHideImages(false) });
-                    if (content.showImageDescriptions) list.push({ label: ct.descriptions || "Image Desc", onRemove: () => content.setShowImageDescriptions(false) });
-                    if (content.pauseAnimations) list.push({ label: ct.motion || "Reduce Motion", onRemove: () => content.setPauseAnimations(false) });
-                    if (content.stopVideos) list.push({ label: ct.stopVideos || "Stop Videos", onRemove: () => content.setStopVideos(false) });
+                    if (content.hideImages) list.push({ label: ct.hideImages || "Hide Images", onRemove: withAudioPing(() => content.setHideImages(false)) });
+                    if (content.showImageDescriptions) list.push({ label: ct.descriptions || "Image Desc", onRemove: withAudioPing(() => content.setShowImageDescriptions(false)) });
+                    if (content.pauseAnimations) list.push({ label: ct.motion || "Reduce Motion", onRemove: withAudioPing(() => content.setPauseAnimations(false)) });
+                    if (content.muteAudio) list.push({ label: ct.muteAudio || "Muted Audio", onRemove: withAudioPing(() => content.setMuteAudio(false)) });
+                    if (content.stopVideos) list.push({ label: ct.stopVideos || "Stop Videos", onRemove: withAudioPing(() => content.setStopVideos(false)) });
                     break;
                 case 'speech':
-                    if (tools.textToSpeech) list.push({ label: ct.tts || "Speech", onRemove: () => tools.setTextToSpeech(false) });
-                    if (tools.speechToText) list.push({ label: ct.speechToText || "Voice Control", onRemove: () => tools.setSpeechToText(false) });
-                    if (tools.ttsAutoPlay) list.push({ label: ct.autoPlay || "Click to Speak", onRemove: () => tools.setTtsAutoPlay(false) });
-                    if (tools.ttsReadWholePage) list.push({ label: ct.readPageContent || "Read Page", onRemove: () => tools.setTtsReadWholePage(false) });
-                    if (tools.ttsHoverToSpeak) list.push({ label: ct.hoverToSpeak || "Hover to Speak", onRemove: () => tools.setTtsHoverToSpeak(false) });
+                    if (tools.textToSpeech) list.push({ label: ct.tts || "Speech", onRemove: withAudioPing(() => tools.setTextToSpeech(false)) });
+                    if (tools.speechToText) list.push({ label: ct.speechToText || "Voice Control", onRemove: withAudioPing(() => tools.setSpeechToText(false)) });
+                    if (tools.ttsAutoPlay) list.push({ label: ct.autoPlay || "Click to Speak", onRemove: withAudioPing(() => tools.setTtsAutoPlay(false)) });
+                    if (tools.ttsReadWholePage) list.push({ label: ct.readPageContent || "Read Page", onRemove: withAudioPing(() => tools.setTtsReadWholePage(false)) });
+                    if (tools.ttsHoverToSpeak) list.push({ label: ct.hoverToSpeak || "Hover to Speak", onRemove: withAudioPing(() => tools.setTtsHoverToSpeak(false)) });
                     break;
                 case 'ai':
-                    if (tools.pageSummary) list.push({ label: ct.pageSummary || "Page Summary", onRemove: () => tools.setPageSummary(false) });
+                    if (tools.pageSummary) list.push({ label: ct.pageSummary || "Page Summary", onRemove: withAudioPing(() => tools.setPageSummary(false)) });
                     break;
                 case 'language':
-                    if (text.language && text.language !== 'en-GB') list.push({ label: ct.translateWebsite || "Translate", onRemove: () => text.setLanguage('en-GB') });
-                    if (tools.onPageDictionary) list.push({ label: ct.dictionary || "Dictionary", onRemove: () => tools.setOnPageDictionary(false) });
-                    if (tools.realTimeTranslation) list.push({ label: ct.realTimeTranslation || "Real-Time Translation", onRemove: () => tools.setRealTimeTranslation(false) });
-                    if (tools.pronunciationGuide) list.push({ label: ct.pronunciation || "Pronunciation Guide", onRemove: () => tools.setPronunciationGuide(false) });
-                    if (tools.smartSuggestions) list.push({ label: ct.smartSuggestions || "Smart Suggestions", onRemove: () => tools.setSmartSuggestions(false) });
+                    if (text.language && text.language !== 'en-GB') list.push({ label: ct.translateWebsite || "Translate", onRemove: withAudioPing(() => text.setLanguage('en-GB')) });
+                    if (tools.onPageDictionary) list.push({ label: ct.dictionary || "Dictionary", onRemove: withAudioPing(() => tools.setOnPageDictionary(false)) });
+                    if (tools.realTimeTranslation) list.push({ label: ct.realTimeTranslation || "Real-Time Translation", onRemove: withAudioPing(() => tools.setRealTimeTranslation(false)) });
+                    if (tools.pronunciationGuide) list.push({ label: ct.pronunciation || "Pronunciation Guide", onRemove: withAudioPing(() => tools.setPronunciationGuide(false)) });
+                    if (tools.smartSuggestions) list.push({ label: ct.smartSuggestions || "Smart Suggestions", onRemove: withAudioPing(() => tools.setSmartSuggestions(false)) });
                     break;
                 case 'navigation':
-                    if (ui.isPanelPinned) list.push({ label: "Panel Pinned", onRemove: () => ui.setIsPanelPinned(false) });
+                    if (ui.isPanelPinned) list.push({ label: "Panel Pinned", onRemove: withAudioPing(() => ui.setIsPanelPinned(false)) });
+                    break;
+                case 'position':
+                    if (ui.audioPingEnabled) list.push({
+                        label: ct.audioPing || "Audio Ping", onRemove: () => {
+                            if (ui.audioPingEnabled) playAudioPing();
+                            ui.setAudioPingEnabled(false);
+                        }
+                    });
                     break;
             }
             return list;
         },
 
         resetAll: withAudioPing(resetAll),
+        softReset: withAudioPing(softReset),
     };
 
     return (

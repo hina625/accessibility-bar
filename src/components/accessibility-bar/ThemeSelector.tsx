@@ -21,7 +21,7 @@ export default function ThemeSelector() {
     return (
         <div className="space-y-6">
             <h3 className="text-[18px] font-bold uppercase tracking-wide mb-2" style={{ color: currentTheme.text }}>
-                Colour
+                6. Colour
             </h3>
             <div className="grid grid-cols-3 gap-4">
                 {THEME_OPTIONS.map((themeOption) => {
@@ -35,8 +35,8 @@ export default function ThemeSelector() {
                                 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}
                             `}
                             style={{
-                                borderColor: isSelected ? currentTheme.active : 'transparent',
-                                backgroundColor: isSelected ? `${currentTheme.active}22` : currentTheme.hover,
+                                borderColor: isSelected ? currentTheme.active : currentTheme.border,
+                                backgroundColor: isSelected ? `${currentTheme.active}22` : `${currentTheme.text}08`,
                             }}
                             title={themeOption.label}
                         >

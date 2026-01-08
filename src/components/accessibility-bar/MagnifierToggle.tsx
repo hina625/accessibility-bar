@@ -1,12 +1,11 @@
-'use client';
-
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { translations } from '@/contexts/accessibility/translations';
+import { playAudioPing } from '@/utils/audioPingUtils';
 import InfoPopupButton from './InfoPopupButton';
 
 export default function MagnifierToggle() {
-    const { magnifier, toggleMagnifier, barTheme, language } = useAccessibility();
+    const { magnifier, toggleMagnifier, barTheme, language, audioPingEnabled } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
     const t = translations[language] || translations['en'];
 
@@ -16,7 +15,10 @@ export default function MagnifierToggle() {
             style={{ backgroundColor: theme.hover }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-            onClick={() => toggleMagnifier()}
+            onClick={() => {
+                if (audioPingEnabled) playAudioPing(magnifier ? 'deselect' : 'select');
+                toggleMagnifier();
+            }}
         >
             <div className="flex items-center">
                 <span className="text-[16px] font-medium" style={{ color: theme.text }}>Magnifier</span>

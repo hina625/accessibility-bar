@@ -19,12 +19,14 @@
     color-scheme: dark;
 }
 
-.dark-mode body:not(.a11y-embed-host):not(.accessibility-bar) {
+.dark-mode body:not(.a11y-embed-host):not(.accessibility-bar),
+.dark-mode body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *):not(noscript):not(style):not(script) {
     background-color: #1a1a1a !important;
     color: #ffffff !important;
+    border-color: #ffffff !important;
 }
 
-.dark-mode body :is(h1, h2, h3, h4, h5, h6, p, span, div, li, td, th):not(.a11y-embed-host *) {
+.dark-mode body :is(h1, h2, h3, h4, h5, h6, p, span, div, li, td, th):not(.a11y-embed-host *):not(.accessibility-bar *) {
     color: #ffffff !important;
 }
 
@@ -38,15 +40,12 @@
     font-family: 'Georgia', 'Times New Roman', serif !important;
 }
 
-:is(html, body)[data-font-style="dyslexic"] body:not(.a11y-embed-host):not(.accessibility-bar) {
-    font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
+:is(html, body)[data-font-style="dyslexic"] body:not(.a11y-embed-host):not(.accessibility-bar),
+:is(html, body)[data-font-style="dyslexic"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'OpenDyslexic', 'Comic Sans MS', 'Comic Sans', sans-serif !important;
     line-height: 1.6 !important;
     letter-spacing: 1px !important;
     word-spacing: 2px !important;
-}
-
-:is(html, body)[data-font-style="dyslexic"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
-    font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
 }
 
 :is(html, body)[data-font-style="serif"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
@@ -61,11 +60,52 @@
     font-family: 'Courier New', Courier, monospace !important;
 }
 
+:is(html, body)[data-font-style="andika"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'Andika', sans-serif !important;
+}
+
+:is(html, body)[data-font-style="open-sans"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+:is(html, body)[data-font-style="lexend"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'Lexend', sans-serif !important;
+}
+
+:is(html, body)[data-font-style="calibri"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: Calibri, 'Gill Sans', 'Gill Sans MT', sans-serif !important;
+}
+
+:is(html, body)[data-font-style="comic-sans"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
+}
+
+:is(html, body)[data-font-style="fs-me"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'FS Me', Arial, sans-serif !important;
+}
+
+:is(html, body)[data-font-style="tahoma"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: Tahoma, Verdana, Segoe, sans-serif !important;
+}
+
+:is(html, body)[data-font-style="trebuchet"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif !important;
+}
+
+:is(html, body)[data-font-style="verdana"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: Verdana, Geneva, Tahoma, sans-serif !important;
+}
+
+:is(html, body)[data-font-style="arial"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+
 .a11y-embed-host,
 .a11y-embed-host *,
 .accessibility-bar,
 .accessibility-bar * {
-    font-size: 14px !important;
+    font-size: 16px !important;
+    font-family: Arial, Helvetica, sans-serif !important;
     font-family: Arial, Helvetica, sans-serif !important;
     line-height: normal !important;
     letter-spacing: normal !important;
@@ -109,14 +149,25 @@
    ========================================================================== */
 
 /* Font Size Override (Zoom) */
-html[style*="--font-size"] {
+/* Font Size Override (Zoom) */
+html[style*="--font-size"] body:not(.a11y-embed-host):not(.accessibility-bar),
+html[style*="--font-size"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
     font-size: var(--font-size) !important;
     /* This helps rem units scale */
 }
 
 /* Text Align Override */
 html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
-html[style*="--text-align"] :is(p, h1, h2, h3, h4, h5, h6, li, td, th, div, span):not(.a11y-embed-host *):not(.accessibility-bar *) {
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) p,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) div,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) span,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h1,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h2,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h3,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h4,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h5,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h6,
+html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) li {
     text-align: var(--text-align) !important;
 }
 

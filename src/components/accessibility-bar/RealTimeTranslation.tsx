@@ -73,25 +73,39 @@ export default function RealTimeTranslation() {
                     {/* Language Selection */}
                     <div>
                         <label className="text-[14px] font-medium mb-1 block" style={{ color: theme.text, opacity: 0.6 }}>Translation Language</label>
-                        <select
-                            value={selectionLanguage}
-                            onChange={(e) => {
-                                const newLang = e.target.value;
-                                setSelectionLanguage(newLang);
-                            }}
-                            className="w-full px-3 py-3 rounded-lg border text-[16px] focus:outline-none transition-all appearance-none bg-no-repeat"
-                            style={{
-                                backgroundColor: theme.hover,
-                                borderColor: theme.border,
-                                color: theme.text
-                            }}
-                        >
-                            {LANGUAGES.map(lang => (
-                                <option key={lang.code} value={lang.code} style={{ backgroundColor: theme.background, color: theme.text }}>
-                                    {lang.name}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="relative group">
+                            <select
+                                value={selectionLanguage}
+                                onChange={(e) => {
+                                    const newLang = e.target.value;
+                                    setSelectionLanguage(newLang);
+                                }}
+                                className="w-full px-3 py-3 rounded-lg border-[3px] text-[16px] focus:outline-none transition-all appearance-none bg-no-repeat cursor-pointer pr-10 hover:border-blue-400 focus:ring-2"
+                                style={{
+                                    backgroundColor: theme.hover,
+                                    borderColor: theme.border,
+                                    color: theme.text
+                                }}
+                            >
+                                {LANGUAGES.map(lang => (
+                                    <option key={lang.code} value={lang.code} style={{ backgroundColor: theme.background, color: theme.text }}>
+                                        {lang.name}
+                                    </option>
+                                ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <svg
+                                    className="w-6 h-6 transition-transform group-hover:scale-110"
+                                    style={{ color: theme.text }}
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                    strokeWidth={3}
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Text Input */}

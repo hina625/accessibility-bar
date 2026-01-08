@@ -33,8 +33,8 @@ export default function ColorBlindFilter() {
               setHeadingColor('#000000');
             }
           }}
-          className="w-full rounded-md px-3 py-3 text-[16px] font-normal focus:outline-none focus:ring-2 appearance-none cursor-pointer pr-10"
-          style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
+          className="w-full rounded-md px-3 py-3 text-[16px] font-normal focus:outline-none focus:ring-2 appearance-none cursor-pointer pr-10 transition-all"
+          style={{ backgroundColor: theme.active, color: theme.text, border: `3px solid ${theme.border}` }}
           aria-label={t.controls.colorBlind}
         >
           <option value="none">{t.controls.none}</option>
@@ -45,11 +45,11 @@ export default function ColorBlindFilter() {
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
           <svg
             className="w-6 h-6 transition-transform group-hover:scale-110"
-            style={{ color: theme.text }}
+            style={{ color: '#FFFFFF' }}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            strokeWidth={2.5}
+            strokeWidth={3}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>

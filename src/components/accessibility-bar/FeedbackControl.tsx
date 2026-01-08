@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { API_ENDPOINTS } from '@/config/api';
 
 export default function FeedbackControl() {
     const { language, barTheme } = useAccessibility();
@@ -38,7 +39,7 @@ export default function FeedbackControl() {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/feedback', {
+            const response = await fetch(API_ENDPOINTS.FEEDBACK, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,7 +88,7 @@ export default function FeedbackControl() {
                     onChange={onClick}
                     className="appearance-none w-5 h-5 border-2 rounded transition-all cursor-pointer"
                     style={{
-                        borderColor: isSelected ? theme.active : `${theme.text}40`,
+                        borderColor: isSelected ? theme.active : theme.border,
                         backgroundColor: isSelected ? theme.active : 'transparent'
                     }}
                 />
@@ -143,7 +144,7 @@ export default function FeedbackControl() {
                         <div
                             key={num}
                             className="py-3 border-b last:border-b-0"
-                            style={{ borderColor: `${theme.text}25` }}
+                            style={{ borderColor: theme.border }}
                         >
                             <div className="space-y-3">
                                 <span className="text-[16px] font-bold tracking-tight block" style={{ color: theme.text }}>
@@ -176,13 +177,13 @@ export default function FeedbackControl() {
                                     <button
                                         type="button"
                                         onClick={() => setRating(star)}
-                                        className="transition-all hover:scale-110 focus:outline-none"
+                                        className="transition-all focus:outline-none"
                                     >
                                         <svg
                                             className="w-10 h-10"
                                             viewBox="0 0 24 24"
                                             fill={rating >= star ? '#FFD700' : 'none'}
-                                            stroke={rating >= star ? '#FFD700' : `${theme.text}60`}
+                                            stroke={rating >= star ? '#FFD700' : theme.border}
                                             strokeWidth={rating >= star ? 0 : 1.5}
                                         >
                                             <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -211,8 +212,8 @@ export default function FeedbackControl() {
                                 placeholder={t.controls.feedbackPlaceholder}
                                 className="w-full h-32 px-4 py-3 text-[16px] border-2 rounded-md resize-none focus:outline-none focus:ring-0 focus:border-current transition-all"
                                 style={{
-                                    backgroundColor: 'transparent',
-                                    borderColor: theme.active === '#9b87f5' || theme.active.includes('87f5') ? '#FFFFFF' : theme.active === '#FFD700' || theme.active.includes('D700') ? '#000000' : theme.text,
+                                    backgroundColor: `${theme.text}08`,
+                                    borderColor: theme.border,
                                     color: theme.text
                                 }}
                             />
@@ -230,7 +231,7 @@ export default function FeedbackControl() {
                     </div>
 
                     {/* Optional Section - Name and Email */}
-                    <div className="border-t-2 pt-6 mt-6" style={{ borderColor: `${theme.text}20` }}>
+                    <div className="border-t-2 pt-6 mt-6" style={{ borderColor: theme.border }}>
                         <h3 className="text-[16px] font-bold mb-4 uppercase tracking-wide" style={{ color: theme.text }}>
                             Optional
                         </h3>
@@ -245,8 +246,8 @@ export default function FeedbackControl() {
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full px-4 py-2.5 text-[16px] border-2 rounded-md focus:outline-none focus:ring-0 focus:border-current transition-all"
                                     style={{
-                                        backgroundColor: 'transparent',
-                                        borderColor: theme.active === '#9b87f5' || theme.active.includes('87f5') ? '#FFFFFF' : theme.active === '#FFD700' || theme.active.includes('D700') ? '#000000' : theme.text,
+                                        backgroundColor: `${theme.text}08`,
+                                        borderColor: theme.border,
                                         color: theme.text
                                     }}
                                 />
@@ -262,8 +263,8 @@ export default function FeedbackControl() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     className="w-full px-4 py-2.5 text-[16px] border-2 rounded-md focus:outline-none focus:ring-0 focus:border-current transition-all"
                                     style={{
-                                        backgroundColor: 'transparent',
-                                        borderColor: theme.active === '#9b87f5' || theme.active.includes('87f5') ? '#FFFFFF' : theme.active === '#FFD700' || theme.active.includes('D700') ? '#000000' : theme.text,
+                                        backgroundColor: `${theme.text}08`,
+                                        borderColor: theme.border,
                                         color: theme.text
                                     }}
                                 />
@@ -275,7 +276,7 @@ export default function FeedbackControl() {
                     <button
                         type="submit"
                         disabled={rating === 0 || Object.values(answers).some(val => val === null) || isSubmitting}
-                        className="w-full py-3 px-6 rounded-md text-[16px] font-bold uppercase tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg active:scale-[0.98] flex items-center justify-center text-center border-2"
+                        className="w-full py-3 px-6 rounded-md text-[16px] font-bold uppercase tracking-wide transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg flex items-center justify-center text-center border-2"
                         style={{
                             backgroundColor: theme.active,
                             color: theme.text === '#FFFFFF' ? '#FFFFFF' : theme.text,

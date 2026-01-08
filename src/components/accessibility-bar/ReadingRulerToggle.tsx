@@ -4,11 +4,17 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import InfoPopupButton from './InfoPopupButton';
 import { translations } from '@/contexts/accessibility/translations';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 export default function ReadingRulerToggle() {
-    const { readingRuler, toggleReadingRuler, readingRulerColor, setReadingRulerColor, readingRulerWidth, setReadingRulerWidth, barTheme, language } = useAccessibility();
+    const { readingRuler, toggleReadingRuler, readingRulerColor, setReadingRulerColor, readingRulerWidth, setReadingRulerWidth, barTheme, language, audioPingEnabled } = useAccessibility();
     const theme = BAR_THEMES[barTheme];
     const t = translations[language] || translations['en'];
+
+    const handleToggle = () => {
+        if (audioPingEnabled) playAudioPing(readingRuler ? 'deselect' : 'select');
+        toggleReadingRuler();
+    };
 
     const colors = [
         { name: 'Red', value: 'rgba(220, 38, 38, 1)' },
@@ -28,7 +34,7 @@ export default function ReadingRulerToggle() {
                     style={{ backgroundColor: theme.hover }}
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                    onClick={() => toggleReadingRuler()}
+                    onClick={handleToggle}
                 >
                     <div className="flex items-center">
                         <span className="text-[16px] font-medium" style={{ color: theme.text }}>Reading Ruler</span>

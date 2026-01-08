@@ -12,7 +12,7 @@ export function useTextSettings() {
     const [fontStyle, setFontStyleState] = useState<FontStyle>('default');
     const [textAlign, setTextAlignState] = useState<'left' | 'center' | 'right' | 'justify'>('left');
     const [language, setLanguageState] = useState<string>('en-GB');
-    const [lineHeight, setLineHeightState] = useState<number>(1.5);
+    const [lineHeight, setLineHeightState] = useState<number>(1);
     const [characterSpacing, setCharacterSpacingState] = useState<number>(0);
     const [wordSpacing, setWordSpacingState] = useState<number>(0);
 

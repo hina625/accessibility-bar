@@ -2,7 +2,7 @@ export type FontStyle = 'default' | 'dyslexic' | 'readable' | 'serif' | 'sans' |
 export type ColorBlindFilter = 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
 export type ButtonPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'top' | 'bottom' | 'left' | 'right';
 export type PanelPosition = 'left' | 'right' | 'top' | 'bottom';
-export type CursorStyle = 'white' | 'black' | 'inverted' | 'circle' | 'custom' | 'crosshair' | 'pointer' | 'help' | 'person' | 'highlight';
+export type CursorStyle = 'white' | 'black' | 'inverted' | 'circle' | 'custom' | 'crosshair' | 'pointer' | 'help' | 'person' | 'highlight' | 'circle-img' | 'cursor-2' | 'cursor-3' | 'hang' | 'option';
 
 import { BarTheme } from './theme';
 
@@ -57,6 +57,7 @@ export interface AccessibilityState {
     plainTextMode: boolean;
     plainTextSize: 'small' | 'medium' | 'large';
     pauseAnimations: boolean;
+    muteAudio: boolean;
     stopVideos: boolean;
     pageSummary: boolean;
     pageStructure: boolean;
@@ -80,6 +81,88 @@ export interface AccessibilityState {
     audioPingEnabled: boolean;
     isPaused: boolean;
     notification: NotificationState;
+}
+
+export type ResetIconStyle = 'red-black' | 'white-black' | 'black-white' | 'yellow-black';
+
+export interface AccessibilityState {
+    barTheme: BarTheme;
+    fontSize: number;
+    fontStyle: FontStyle;
+    highContrast: boolean;
+    grayscale: boolean;
+    invertColors: boolean;
+    readingGuide: boolean;
+    readingGuideColor: string;
+    readingGuideThickness: number;
+    readingProgressBar: boolean;
+    readingProgressBarColor: string;
+    readingRuler: boolean;
+    readingRulerColor: string;
+    readingRulerWidth: number;
+    readingMask: boolean;
+    readingMaskColor: string;
+    readingMaskSize: number;
+    readingSpotlight: boolean;
+    readingSpotlightBrightness: number;
+    reduceMotion: boolean;
+    darkMode: boolean;
+    highlightLinks: boolean;
+    highlightHeadings: boolean;
+    cursorSize: number;
+    cursorStyle: CursorStyle;
+    cursorColor: string;
+    primaryButton: 'left' | 'right';
+    pageZoom: number;
+    colorBlindFilter: ColorBlindFilter;
+    largeButtons: boolean;
+    textToSpeech: boolean;
+    speechToText: boolean;
+    keyboardNavigation: boolean;
+    onPageDictionary: boolean;
+    textAlign: 'left' | 'center' | 'right' | 'justify';
+    language: string;
+    textColor: string;
+    headingColor: string;
+    backgroundColor: string;
+    textSpacing: number;
+    lineHeight: number;
+    characterSpacing: number;
+    wordSpacing: number;
+    buttonPosition: ButtonPosition;
+    panelPosition: PanelPosition;
+    hideImages: boolean;
+    showImageDescriptions: boolean;
+    plainTextMode: boolean;
+    plainTextSize: 'small' | 'medium' | 'large';
+    pauseAnimations: boolean;
+    muteAudio: boolean;
+    stopVideos: boolean;
+    pageSummary: boolean;
+    pageStructure: boolean;
+    simplifiedLayout: boolean;
+    summaryContent: string;
+    ttsAutoPlay: boolean;
+    ttsReadWholePage: boolean;
+    ttsMovableControls: boolean;
+    ttsVoiceGender: 'male' | 'female';
+    ttsReadingSpeed: number;
+    ttsReadSelectedText: boolean;
+    summarizationHistory: any[];
+    pronunciationGuide: boolean;
+    magnifier: boolean;
+    magnifierScale: number;
+    smartSuggestions: boolean;
+    ttsHoverToSpeak: boolean;
+    realTimeTranslation: boolean;
+    selectionLanguage: string;
+    showActiveIndicators: boolean;
+    audioPingEnabled: boolean;
+    isPaused: boolean;
+    notification: NotificationState;
+    isPanelPinned: boolean;
+    sidebarIconSize: number;
+    resetIconStyle: ResetIconStyle;
 }
 
 export interface NotificationState {

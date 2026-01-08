@@ -4,11 +4,17 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import InfoPopupButton from './InfoPopupButton';
 import { translations } from '@/contexts/accessibility/translations';
+import { playAudioPing } from '@/utils/audioPingUtils';
 
 export default function ReadingMaskToggle() {
-  const { readingMask, toggleReadingMask, readingMaskColor, setReadingMaskColor, readingMaskSize, setReadingMaskSize, barTheme, language } = useAccessibility();
+  const { readingMask, toggleReadingMask, readingMaskColor, setReadingMaskColor, readingMaskSize, setReadingMaskSize, barTheme, language, audioPingEnabled } = useAccessibility();
   const theme = BAR_THEMES[barTheme];
   const t = translations[language] || translations['en'];
+
+  const handleToggle = () => {
+    if (audioPingEnabled) playAudioPing(readingMask ? 'deselect' : 'select');
+    toggleReadingMask();
+  };
 
   const colors = [
     { name: 'Black', value: 'rgba(0, 0, 0, 1)' },
@@ -25,7 +31,7 @@ export default function ReadingMaskToggle() {
           style={{ backgroundColor: theme.hover }}
           onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
           onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-          onClick={() => toggleReadingMask()}
+          onClick={handleToggle}
         >
           <div className="flex items-center">
             <span className="text-[16px] font-medium" style={{ color: theme.text }}>Reading Mask</span>

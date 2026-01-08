@@ -4,8 +4,18 @@ import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
 import { BAR_THEMES } from '@/contexts/accessibility/theme';
 import { CursorStyle } from '@/contexts/accessibility/types';
+import FeatureWrapper from './FeatureWrapper';
+import circleImg from '@/assets/icons/circle.png?inline';
+import cursor2Img from '@/assets/icons/cursor (2).png?inline';
+import cursor3Img from '@/assets/icons/cursor (3).png?inline';
+import hangImg from '@/assets/icons/hang.png?inline';
+import optionImg from '@/assets/icons/option.png?inline';
 
-export default function CursorSizeControl() {
+interface CursorSizeControlProps {
+  highlightedFeature?: string | null;
+}
+
+export default function CursorSizeControl({ highlightedFeature }: CursorSizeControlProps) {
   const {
     cursorSize, setCursorSize,
     cursorStyle, setCursorStyle,
@@ -22,6 +32,35 @@ export default function CursorSizeControl() {
   const scaledSize = baseIconSize * previewScale;
 
   const pointerStyles: { id: CursorStyle; label: string; icon: (size: number, color: string) => React.ReactNode }[] = [
+    {
+      id: 'circle',
+      label: t.controls.circle || 'Circle 1',
+      icon: (size, _) => (
+        <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+          <circle cx="12" cy="12" r="9" fill="none" stroke={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} strokeWidth="2" />
+          <circle cx="12" cy="12" r="2" fill={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} />
+        </svg>
+      )
+    },
+    {
+      id: 'circle-img',
+      label: t.controls.circleImg || 'Circle 2',
+      icon: (size, _) => (
+        <img src={circleImg} style={{ width: size, height: size }} alt="" />
+      )
+    },
+    {
+      id: 'highlight',
+      label: t.controls.highlight || 'Circle 3',
+      icon: (size, color) => {
+        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        return (
+          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+            <circle cx="12" cy="12" r="11.5" fill={iconColor} />
+          </svg>
+        );
+      }
+    },
     {
       id: 'white',
       label: t.controls.white || 'White',
@@ -41,16 +80,6 @@ export default function CursorSizeControl() {
       )
     },
     {
-      id: 'circle',
-      label: t.controls.circle || 'Circle',
-      icon: (size, _) => (
-        <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-          <circle cx="12" cy="12" r="9" fill="none" stroke={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} strokeWidth="2" />
-          <circle cx="12" cy="12" r="2" fill={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} />
-        </svg>
-      )
-    },
-    {
       id: 'inverted',
       label: t.controls.inverted || 'Inverted',
       icon: (size, _) => (
@@ -61,31 +90,14 @@ export default function CursorSizeControl() {
         </div>
       )
     },
-
     {
-      id: 'crosshair',
-      label: t.controls.crosshair || 'Crosshair',
-      icon: (size, color) => {
-        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
-        return (
-          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-            <path fill="none" stroke={iconColor} strokeWidth="2" d="M12 2v20M2 12h20" />
-            <circle cx="12" cy="12" r="3" fill="none" stroke={iconColor} strokeWidth="1.5" />
-          </svg>
-        );
-      }
-    },
-    {
-      id: 'pointer',
-      label: t.controls.pointer || 'Pointer',
-      icon: (size, color) => {
-        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
-        return (
-          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-            <path fill={iconColor} stroke={iconColor === '#fff' ? '#000' : '#fff'} strokeWidth="1.5" d="M12 2l4.5 9-4.5 9-4.5-9L12 2z" />
-          </svg>
-        );
-      }
+      id: 'custom',
+      label: t.controls.custom || 'Custom',
+      icon: (size, color) => (
+        <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+          <path fill={color} stroke={color === '#fff' || color === '#FFFFFF' ? '#000' : '#fff'} strokeWidth="1.5" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
+        </svg>
+      )
     },
     {
       id: 'help',
@@ -101,6 +113,59 @@ export default function CursorSizeControl() {
       }
     },
     {
+      id: 'pointer',
+      label: t.controls.pointer || 'Diamond',
+      icon: (size, color) => {
+        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        return (
+          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+            <path fill={iconColor} stroke={iconColor === '#fff' ? '#000' : '#fff'} strokeWidth="1.5" d="M12 2l4.5 9-4.5 9-4.5-9L12 2z" />
+          </svg>
+        );
+      }
+    },
+    {
+      id: 'cursor-2',
+      label: t.controls.cursor2 || 'Square 1',
+      icon: (size, _) => (
+        <img src={cursor2Img} style={{ width: size, height: size }} alt="" />
+      )
+    },
+    {
+      id: 'cursor-3',
+      label: t.controls.cursor3 || 'Square 2',
+      icon: (size, _) => (
+        <img src={cursor3Img} style={{ width: size, height: size }} alt="" />
+      )
+    },
+    {
+      id: 'option',
+      label: t.controls.option || 'Square 3',
+      icon: (size, _) => (
+        <img src={optionImg} style={{ width: size, height: size }} alt="" />
+      )
+    },
+    {
+      id: 'crosshair',
+      label: t.controls.crosshair || 'Cross',
+      icon: (size, color) => {
+        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        return (
+          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
+            <path fill="none" stroke={iconColor} strokeWidth="2" d="M12 2v20M2 12h20" />
+            <circle cx="12" cy="12" r="3" fill="none" stroke={iconColor} strokeWidth="1.5" />
+          </svg>
+        );
+      }
+    },
+    {
+      id: 'hang',
+      label: t.controls.hand || 'Hand',
+      icon: (size, _) => (
+        <img src={hangImg} style={{ width: size, height: size }} alt="" />
+      )
+    },
+    {
       id: 'person',
       label: t.controls.person || 'Person',
       icon: (size, color) => {
@@ -112,27 +177,6 @@ export default function CursorSizeControl() {
           </svg>
         );
       }
-    },
-    {
-      id: 'highlight',
-      label: t.controls.highlight || 'Highlight',
-      icon: (size, color) => {
-        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
-        return (
-          <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-            <circle cx="12" cy="12" r="11.5" fill={iconColor} />
-          </svg>
-        );
-      }
-    },
-    {
-      id: 'custom',
-      label: t.controls.custom || 'Custom',
-      icon: (size, color) => (
-        <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-          <path fill={color} stroke={color === '#fff' || color === '#FFFFFF' ? '#000' : '#fff'} strokeWidth="1.5" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z" />
-        </svg>
-      )
     }
   ];
 
@@ -148,158 +192,164 @@ export default function CursorSizeControl() {
   return (
     <div className="space-y-6">
       {/* OS Mouse Settings Style Selection */}
-      <div className="space-y-3">
-        <label className="block text-[18px] font-bold" style={{ color: currentTheme.text }}>
-          {t.controls.pointerStyle || 'Mouse pointer style'}
-        </label>
-        <div className="grid grid-cols-3 gap-2">
-          {pointerStyles.map((style) => (
-            <button
-              key={style.id}
-              onClick={() => {
-                setCursorStyle(style.id);
-                // Set default colors for specific styles to match their labels
-                if (style.id === 'white') setCursorColor('#FFFFFF');
-                else if (style.id === 'black') setCursorColor('#000000');
-                else if (style.id === 'inverted') setCursorColor('#000000');
-              }}
-              className="flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-lg border-2 transition-all hover:bg-white/5 h-full min-h-[75px]"
-              style={{
-                borderColor: cursorStyle === style.id ? currentTheme.active : (currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                backgroundColor: cursorStyle === style.id ? `${currentTheme.active}22` : 'transparent'
-              }}
-            >
-              <div className="w-7 h-7 flex items-center justify-center shrink-0">
-                <div className="scale-75 origin-center">
-                  {style.icon(32, cursorColor)}
+      <FeatureWrapper featureId="cursor-style" highlightedFeature={highlightedFeature || null}>
+        <div className="space-y-3">
+          <label className="block text-[18px] font-bold text-center" style={{ color: currentTheme.text }}>
+            {t.controls.pointerStyle || 'Mouse pointer style'}
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {pointerStyles.map((style) => (
+              <button
+                key={style.id}
+                onClick={() => {
+                  setCursorStyle(style.id);
+                  // Set default colors for specific styles to match their labels
+                  if (style.id === 'white') setCursorColor('#FFFFFF');
+                  else if (style.id === 'black') setCursorColor('#000000');
+                  else if (style.id === 'inverted') setCursorColor('#000000');
+                }}
+                className="flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-lg border-2 transition-all hover:bg-white/5 h-full min-h-[75px]"
+                style={{
+                  borderColor: cursorStyle === style.id ? currentTheme.active : currentTheme.border,
+                  backgroundColor: cursorStyle === style.id ? `${currentTheme.active}22` : `${currentTheme.text}08`
+                }}
+              >
+                <div className="w-7 h-7 flex items-center justify-center shrink-0">
+                  <div className="scale-75 origin-center">
+                    {style.icon(32, cursorColor)}
+                  </div>
+                </div>
+                <span className="text-[10px] sm:text-[11px] font-bold leading-tight w-full text-center px-0.5 whitespace-nowrap overflow-hidden text-ellipsis"
+                  style={{ color: currentTheme.text }}>
+                  {style.label}
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </FeatureWrapper>
+
+      <FeatureWrapper featureId="cursor-size" highlightedFeature={highlightedFeature || null}>
+        <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <label className="block text-[18px] font-bold text-center" style={{ color: currentTheme.text }}>
+            {t.controls.cursor}
+          </label>
+
+          <div className="px-1 py-1">
+            <div className="relative h-12 flex items-center group">
+              {/* Visual Track Layer */}
+              <div
+                className="absolute w-full h-1 rounded-lg"
+                style={{ backgroundColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }}
+              />
+
+              {/* Visual Thumb Layer */}
+              <div
+                className="absolute pointer-events-none transition-all duration-75 flex items-center justify-center translate-y-[-1px]"
+                style={{
+                  left: `calc(${(cursorSize - 1) * 25}% - 14px)`,
+                  width: '28px',
+                  height: '28px',
+                }}
+              >
+                <div className="scale-90 origin-center filter drop-shadow-md">
+                  {currentIcon.icon(32, cursorColor)}
                 </div>
               </div>
-              <span className="text-[10px] sm:text-[11px] font-bold leading-tight w-full text-center px-0.5 whitespace-nowrap overflow-hidden text-ellipsis"
-                style={{ color: currentTheme.text }}>
-                {style.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-        <label className="block text-[18px] font-bold" style={{ color: currentTheme.text }}>
-          {t.controls.cursor}
-        </label>
+              {/* Interactive Layer (Topmost) */}
+              <input
+                type="range"
+                min="1"
+                max="5"
+                step="1"
+                value={cursorSize}
+                onChange={(e) => setCursorSize(Number(e.target.value))}
+                className="w-full h-full opacity-0 cursor-pointer absolute z-10"
+              />
 
-        <div className="px-1 py-1">
-          <div className="relative h-12 flex items-center group">
-            {/* Visual Track Layer */}
-            <div
-              className="absolute w-full h-1 rounded-lg"
-              style={{ backgroundColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)' }}
-            />
-
-            {/* Visual Thumb Layer */}
-            <div
-              className="absolute pointer-events-none transition-all duration-75 flex items-center justify-center translate-y-[-1px]"
-              style={{
-                left: `calc(${(cursorSize - 1) * 25}% - 14px)`,
-                width: '28px',
-                height: '28px',
-              }}
-            >
-              <div className="scale-90 origin-center filter drop-shadow-md">
-                {currentIcon.icon(32, cursorColor)}
+              <div className="absolute top-12 flex justify-between w-full px-0.5">
+                <span className="text-[12px] font-bold tracking-tight" style={{ color: currentTheme.text, opacity: 0.6 }}>
+                  {language === 'ur' ? 'چھوٹا' : 'Small'}
+                </span>
+                <span className="text-[12px] font-bold tracking-tight" style={{ color: currentTheme.text, opacity: 0.6 }}>
+                  {language === 'ur' ? 'بڑا' : 'Large'}
+                </span>
               </div>
-            </div>
-
-            {/* Interactive Layer (Topmost) */}
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={cursorSize}
-              onChange={(e) => setCursorSize(Number(e.target.value))}
-              className="w-full h-full opacity-0 cursor-pointer absolute z-10"
-            />
-
-            <div className="absolute top-12 flex justify-between w-full px-0.5">
-              <span className="text-[12px] font-bold tracking-tight" style={{ color: currentTheme.text, opacity: 0.6 }}>
-                {language === 'ur' ? 'چھوٹا' : 'Small'}
-              </span>
-              <span className="text-[12px] font-bold tracking-tight" style={{ color: currentTheme.text, opacity: 0.6 }}>
-                {language === 'ur' ? 'بڑا' : 'Large'}
-              </span>
             </div>
           </div>
         </div>
-      </div>
+      </FeatureWrapper>
 
-      <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-        <label className="block text-[18px] font-bold" style={{ color: currentTheme.text }}>
-          {t.common.colour}
-        </label>
+      <FeatureWrapper featureId="cursor-color" highlightedFeature={highlightedFeature || null}>
+        <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <label className="block text-[18px] font-bold text-center" style={{ color: currentTheme.text }}>
+            {t.common.colour}
+          </label>
 
-        <div className="grid grid-cols-8 gap-1 mb-2">
-          {colors.map((color) => (
-            <button
-              key={color}
-              onClick={() => {
-                setCursorColor(color);
-              }}
-              className="w-full aspect-square rounded border-2 transition-all hover:scale-110"
-              style={{
-                backgroundColor: color,
-                borderColor: (cursorColor === color && cursorStyle === 'custom') ? currentTheme.active : (currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
-                boxShadow: 'none'
-              }}
-              title={color}
-            />
-          ))}
+          <div className="grid grid-cols-8 gap-1 mb-2">
+            {colors.map((color) => (
+              <button
+                key={color}
+                onClick={() => {
+                  setCursorColor(color);
+                }}
+                className="w-full aspect-square rounded border-2 transition-all hover:scale-110"
+                style={{
+                  backgroundColor: color,
+                  borderColor: (cursorColor === color && cursorStyle === 'custom') ? currentTheme.active : (currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'),
+                  boxShadow: 'none'
+                }}
+                title={color}
+              />
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-        <div className="flex items-center gap-2">
-          <input
-            type="color"
-            value={cursorColor || '#000000'}
-            onChange={(e) => {
-              setCursorColor(e.target.value);
-            }}
-            className="w-10 h-10 rounded cursor-pointer border-2 bg-transparent shrink-0"
-            style={{ borderColor: currentTheme.border }}
-          />
-          <div className="relative flex-1 min-w-0">
+        <div className="space-y-3 pt-2 border-t" style={{ borderColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
+          <div className="flex items-center gap-2">
             <input
-              type="text"
+              type="color"
               value={cursorColor || '#000000'}
               onChange={(e) => {
                 setCursorColor(e.target.value);
               }}
-              className="w-full px-2 py-2 text-[13px] font-bold rounded border-2 uppercase text-center"
-              style={{
-                borderColor: currentTheme.border,
-                backgroundColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
-                color: currentTheme.text,
-              }}
-              placeholder="#000000"
+              className="w-10 h-10 rounded cursor-pointer border-2 bg-transparent shrink-0"
+              style={{ borderColor: currentTheme.border }}
             />
+            <div className="relative flex-1 min-w-0">
+              <input
+                type="text"
+                value={cursorColor || '#000000'}
+                onChange={(e) => {
+                  setCursorColor(e.target.value);
+                }}
+                className="w-full px-2 py-2 text-[13px] font-bold rounded border-2 uppercase text-center"
+                style={{
+                  borderColor: currentTheme.border,
+                  backgroundColor: currentTheme.text === '#FFFFFF' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                  color: currentTheme.text,
+                }}
+                placeholder="#000000"
+              />
+            </div>
+            <button
+              onClick={() => {
+                setCursorColor('#FFFFFF');
+                setCursorStyle('white');
+              }}
+              className="px-3 py-2 text-[13px] font-bold rounded-md border-2 transition-all hover:opacity-80 shrink-0"
+              style={{
+                backgroundColor: currentTheme.background,
+                color: currentTheme.text,
+                borderColor: currentTheme.border
+              }}
+            >
+              {t.common.reset}
+            </button>
           </div>
-          <button
-            onClick={() => {
-              setCursorColor('#FFFFFF');
-              setCursorStyle('white');
-            }}
-            className="px-3 py-2 text-[13px] font-bold rounded-md border-2 transition-all hover:opacity-80 shrink-0"
-            style={{
-              backgroundColor: currentTheme.background,
-              color: currentTheme.text,
-              borderColor: currentTheme.border
-            }}
-          >
-            {t.common.reset}
-          </button>
         </div>
-      </div>
+      </FeatureWrapper>
 
     </div>
   );

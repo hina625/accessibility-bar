@@ -1,4 +1,4 @@
-export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'blue' | 'navy' | 'yellow' | 'purple';
+export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'Turquoise' | 'navy' | 'yellow' | 'purple';
 
 export interface ThemeColors {
     background: string;
@@ -12,15 +12,15 @@ export const BAR_THEMES: Record<BarTheme, ThemeColors> = {
     white: {
         background: '#F5F5F5',
         text: '#000000',
-        hover: '#C0C0C0',
-        active: '#A0A0A0',
+        hover: '#c0c0c0d2',
+        active: '#a0a0a0ff',
         border: '#B0B0B0',
     },
     grayscale: {
-        background: '#5A5A5A',
+        background: '#525252',
         text: '#FFFFFF',
         hover: '#353535',
-        active: '#7A7A7A',
+        active: '#9C9C9C',
         border: '#B0B0B0',
     },
     black: {
@@ -33,37 +33,37 @@ export const BAR_THEMES: Record<BarTheme, ThemeColors> = {
     oceanBlue: {
         background: '#005A9E',
         text: '#FFFFFF',
-        hover: '#0090DD',
+        hover: '#3287b4ff',
         active: '#0072be',
-        border: '#2378b9',
+        border: '#6CBFFF',
     },
-    blue: {
-        background: '#1A34C9',
-        text: '#FFFFFF',
-        hover: '#4060FF',
-        active: '#3050E8',
-        border: '#2e4bf3',
+    Turquoise: {
+        background: '#38FFC3',
+        text: '#0E0D0D',
+        hover: '#22c493ff',
+        active: '#129c73ff',
+        border: '#0abd87ff',
     },
     navy: {
         background: '#06334A',
         text: '#FFFFFF',
-        hover: '#066b96',
+        hover: '#2a789cff',
         active: '#0C5580',
-        border: '#0c618b',
+        border: '#4DA8D6',
     },
     yellow: {
         background: '#ffd015',
         text: '#000000',
-        hover: '#f5d018',
-        active: '#f8c323',
-        border: '#ffe944',
+        hover: '#cca818ff',
+        active: '#A78911',
+        border: '#8F7300',
     },
     purple: {
-        background: '#6432C4',
+        background: '#291551',
         text: '#FFFFFF',
-        hover: '#9570FF',
-        active: '#7D50E0',
-        border: '#9161f8',
+        hover: '#653cb8ff',
+        active: '#7643e4ff',
+        border: '#9D70FF',
     },
 };
 

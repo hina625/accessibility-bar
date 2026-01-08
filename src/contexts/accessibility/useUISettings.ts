@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ButtonPosition, PanelPosition } from './types';
+import { ButtonPosition, PanelPosition, ResetIconStyle } from './types';
 import { BarTheme } from './theme';
 import {
     DEFAULT_CURSOR_SIZE,
@@ -9,6 +9,11 @@ import {
     DEFAULT_PRIMARY_BUTTON
 } from './utils';
 import { CursorStyle } from './types';
+import circleImg from '@/assets/icons/circle.png?inline';
+import cursor2Img from '@/assets/icons/cursor (2).png?inline';
+import cursor3Img from '@/assets/icons/cursor (3).png?inline';
+import hangImg from '@/assets/icons/hang.png?inline';
+import optionImg from '@/assets/icons/option.png?inline';
 
 export function useUISettings() {
     const [cursorSize, setCursorSize] = useState<number>(DEFAULT_CURSOR_SIZE);
@@ -22,6 +27,8 @@ export function useUISettings() {
     const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(true);
     const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(false);
     const [isPanelPinned, setIsPanelPinned] = useState<boolean>(false);
+    const [sidebarIconSize, setSidebarIconSize] = useState<number>(1);
+    const [resetIconStyle, setResetIconStyle] = useState<ResetIconStyle>('red-black');
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -43,6 +50,8 @@ export function useUISettings() {
             showActiveIndicators: localStorage.getItem('accessibility-showActiveIndicators'),
             audioPingEnabled: localStorage.getItem('accessibility-audioPingEnabled'),
             isPanelPinned: localStorage.getItem('accessibility-isPanelPinned'),
+            sidebarIconSize: localStorage.getItem('accessibility-sidebarIconSize'),
+            resetIconStyle: localStorage.getItem('accessibility-resetIconStyle'),
         };
 
         if (saved.cursorSize) setCursorSize(Number(saved.cursorSize));
@@ -55,6 +64,8 @@ export function useUISettings() {
         if (saved.showActiveIndicators) setShowActiveIndicators(saved.showActiveIndicators === 'true');
         if (saved.audioPingEnabled) setAudioPingEnabled(saved.audioPingEnabled === 'true');
         if (saved.isPanelPinned) setIsPanelPinned(saved.isPanelPinned === 'true');
+        if (saved.sidebarIconSize) setSidebarIconSize(Number(saved.sidebarIconSize));
+        if (saved.resetIconStyle) setResetIconStyle(saved.resetIconStyle as ResetIconStyle);
     }, []);
 
     // Effects for cursor
@@ -63,8 +74,18 @@ export function useUISettings() {
         const size = Math.round(baseSize * cursorSize);
 
         let color = cursorColor || '#000000';
-        let stroke = 'none';
-        let strokeWidth = '0';
+        // Helper to determine best stroke color
+        const getContrastingStroke = (c: string) => {
+            if (!c) return '#ffffff';
+            // Simple check for white/light colors - if it's white or very light, use black stroke
+            if (c.toLowerCase() === '#ffffff' || c.toLowerCase() === '#fff' || c.toLowerCase().includes('255, 255, 255')) {
+                return '#000000';
+            }
+            return '#ffffff';
+        };
+
+        let stroke = getContrastingStroke(color);
+        let strokeWidth = '1.5';
 
         if (cursorStyle === 'white') {
             stroke = '#000000';
@@ -80,73 +101,125 @@ export function useUISettings() {
         const isDefault = cursorSize === 1 && cursorStyle === 'white' && (cursorColor === '#000000' || !cursorColor);
 
         if (!isDefault || cursorSize > 1 || !['white', 'black', 'inverted'].includes(cursorStyle)) {
-            let svgContent = '';
-            let hotspot = Math.round(3 * (size / 24));
+            let svgCursor = '';
+            let hotspotX = Math.round(3 * (size / 24));
+            let hotspotY = Math.round(3 * (size / 24));
 
-            if (cursorStyle === 'circle') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" fill="none" stroke="${color !== '#000000' ? color : '#ffffff'}" stroke-width="2" />
-                    <circle cx="12" cy="12" r="2" fill="${color !== '#000000' ? color : '#ffffff'}" />
-                </svg>`;
-                hotspot = Math.round(size / 2);
+            if (['circle-img', 'cursor-2', 'cursor-3', 'hang', 'option'].includes(cursorStyle)) {
+                const getSrc = (img: any) => typeof img === 'string' ? img : img?.src || img;
+                let imgSrc = '';
+                let hX = 0;
+                let hY = 0;
 
-            } else if (cursorStyle === 'person') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <circle cx="12" cy="6" r="3" fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}"/>
-                    <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M12 10c-3.3 0-6 2.2-6 5v3c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-3c0-2.8-2.7-5-6-5z"/>
+                if (cursorStyle === 'circle-img') {
+                    imgSrc = getSrc(circleImg);
+                    hX = Math.round(size / 2);
+                    hY = Math.round(size / 2);
+                }
+                else if (cursorStyle === 'cursor-2') {
+                    imgSrc = getSrc(cursor2Img);
+                    hX = 0;
+                    hY = 0;
+                }
+                else if (cursorStyle === 'cursor-3') {
+                    imgSrc = getSrc(cursor3Img);
+                    hX = 0;
+                    hY = 0;
+                }
+                else if (cursorStyle === 'hang') {
+                    imgSrc = getSrc(hangImg);
+                    hX = Math.round(size / 2);
+                    hY = Math.round(size / 2);
+                }
+                else if (cursorStyle === 'option') {
+                    imgSrc = getSrc(optionImg);
+                    hX = 0;
+                    hY = 0;
+                }
+
+                // Wrap image in SVG to force scaling to 'size'
+                const svgWrapper = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+                    <image href="${imgSrc}" width="${size}" height="${size}" />
                 </svg>`;
-                hotspot = Math.round(12 * (size / 24));
-            } else if (cursorStyle === 'crosshair') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <path fill="none" stroke="${color}" stroke-width="2" d="M12 2v20M2 12h20"/>
-                    <circle cx="12" cy="12" r="3" fill="none" stroke="${color}" stroke-width="1.5"/>
-                </svg>`;
-                hotspot = Math.round(size / 2);
-            } else if (cursorStyle === 'help') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-                    <text x="14" y="22" font-family="Arial" font-weight="bold" font-size="12" fill="${color}" stroke="${stroke}" stroke-width="0.5">?</text>
-                </svg>`;
-                hotspot = Math.round(3 * (size / 24));
-            } else if (cursorStyle === 'pointer') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M12 2l4.5 9-4.5 9-4.5-9L12 2z"/>
-                </svg>`;
-                hotspot = Math.round(12 * (size / 24));
-            } else if (cursorStyle === 'highlight') {
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="11.5" fill="${color}" />
-                </svg>`;
-                hotspot = Math.round(12 * (size / 24));
+                const base64Svg = typeof btoa !== 'undefined' ? btoa(svgWrapper) : Buffer.from(svgWrapper).toString('base64');
+                svgCursor = `data:image/svg+xml;base64,${base64Svg}`;
+                hotspotX = hX;
+                hotspotY = hY;
+
             } else {
-                // Default arrow for white, black, inverted, custom
-                svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                    <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-                </svg>`;
-                hotspot = Math.round(3 * (size / 24));
-            }
+                let svgContent = '';
+                if (cursorStyle === 'circle') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="${stroke}" stroke-width="2" />
+                        <circle cx="12" cy="12" r="2" fill="${stroke}" />
+                    </svg>`;
+                    hotspotX = Math.round(size / 2);
+                    hotspotY = Math.round(size / 2);
 
-            const base64Svg = typeof btoa !== 'undefined' ? btoa(svgContent) : Buffer.from(svgContent).toString('base64');
-            const svgCursor = `data:image/svg+xml;base64,${base64Svg}`;
+                } else if (cursorStyle === 'person') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <circle cx="12" cy="6" r="3" fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}"/>
+                        <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M12 10c-3.3 0-6 2.2-6 5v3c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-3c0-2.8-2.7-5-6-5z"/>
+                    </svg>`;
+                    hotspotX = Math.round(12 * (size / 24));
+                    hotspotY = Math.round(12 * (size / 24));
+                } else if (cursorStyle === 'crosshair') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <path fill="none" stroke="${color}" stroke-width="2" d="M12 2v20M2 12h20"/>
+                        <circle cx="12" cy="12" r="3" fill="none" stroke="${color}" stroke-width="2"/>
+                    </svg>`;
+                    hotspotX = Math.round(size / 2);
+                    hotspotY = Math.round(size / 2);
+                } else if (cursorStyle === 'help') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                        <text x="14" y="22" font-family="Arial" font-weight="bold" font-size="12" fill="${color}" stroke="${stroke}" stroke-width="0.5">?</text>
+                    </svg>`;
+                    hotspotX = Math.round(3 * (size / 24));
+                    hotspotY = Math.round(3 * (size / 24));
+                } else if (cursorStyle === 'pointer') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M12 2l4.5 9-4.5 9-4.5-9L12 2z"/>
+                    </svg>`;
+                    hotspotX = Math.round(12 * (size / 24));
+                    hotspotY = Math.round(12 * (size / 24));
+                } else if (cursorStyle === 'highlight') {
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="11.5" fill="${color}" stroke="${stroke}" stroke-width="1" />
+                    </svg>`;
+                    hotspotX = Math.round(12 * (size / 24));
+                    hotspotY = Math.round(12 * (size / 24));
+                } else {
+                    // Default arrow for white, black, inverted, custom
+                    svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+                        <path fill="${color}" stroke="${stroke}" stroke-width="${strokeWidth}" d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
+                    </svg>`;
+                    hotspotX = Math.round(3 * (size / 24));
+                    hotspotY = Math.round(3 * (size / 24));
+                }
+
+                const base64Svg = typeof btoa !== 'undefined' ? btoa(svgContent) : Buffer.from(svgContent).toString('base64');
+                svgCursor = `data:image/svg+xml;base64,${base64Svg}`;
+            }
 
             const styleContent = `
                 html.large-cursor,
                 html.large-cursor body,
                 html.large-cursor *:not(#a11y-embed-host-react):not(#a11y-embed-host-react *):not(.accessibility-bar):not(.accessibility-bar *) {
-                    cursor: url("${svgCursor}") ${hotspot} ${hotspot}, auto !important;
+                    cursor: url("${svgCursor}") ${hotspotX} ${hotspotY}, auto !important;
                 }
                 /* Ensure it still applies inside our elements as well */
                 html.large-cursor .accessibility-bar,
                 html.large-cursor .accessibility-bar *,
                 html.large-cursor .a11y-embed-host,
                 html.large-cursor .a11y-embed-host * {
-                    cursor: url("${svgCursor}") ${hotspot} ${hotspot}, auto !important;
+                    cursor: url("${svgCursor}") ${hotspotX} ${hotspotY}, auto !important;
                 }
             `;
 
             const shadowStyleContent = `
                 :host, :host *, *, button, a, input, select, textarea, [role="button"] {
-                    cursor: url("${svgCursor}") ${hotspot} ${hotspot}, auto !important;
+                    cursor: url("${svgCursor}") ${hotspotX} ${hotspotY}, auto !important;
                 }
             `;
 
@@ -199,6 +272,8 @@ export function useUISettings() {
     useEffect(() => localStorage.setItem('accessibility-showActiveIndicators', showActiveIndicators.toString()), [showActiveIndicators]);
     useEffect(() => localStorage.setItem('accessibility-audioPingEnabled', audioPingEnabled.toString()), [audioPingEnabled]);
     useEffect(() => localStorage.setItem('accessibility-isPanelPinned', isPanelPinned.toString()), [isPanelPinned]);
+    useEffect(() => localStorage.setItem('accessibility-sidebarIconSize', sidebarIconSize.toString()), [sidebarIconSize]);
+    useEffect(() => localStorage.setItem('accessibility-resetIconStyle', resetIconStyle), [resetIconStyle]);
 
     const togglePanelPin = () => setIsPanelPinned(prev => !prev);
 
@@ -214,5 +289,7 @@ export function useUISettings() {
         audioPingEnabled, setAudioPingEnabled,
         isMobile,
         isPanelPinned, setIsPanelPinned, togglePanelPin,
+        sidebarIconSize, setSidebarIconSize,
+        resetIconStyle, setResetIconStyle,
     };
 }

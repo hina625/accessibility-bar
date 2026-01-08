@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { playAudioPing } from '@/utils/audioPingUtils';
@@ -9,11 +9,12 @@ interface FeatureItem {
     label: string;
     action?: () => void;
     category?: string;
+    highlightId?: string;
     isActive?: boolean;
 }
 
 interface AZFeatureListProps {
-    onNavigate: (category: string) => void;
+    onNavigate: (category: string, featureId?: string) => void;
     onCloseBar: () => void;
     onOpenFeedback: () => void;
     onOpenPosition: () => void;
@@ -90,78 +91,90 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         stopVideos,
         speechToText,
         audioPingEnabled,
+        toggleAudioPing
     } = context;
 
     const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const [searchQuery, setSearchQuery] = useState('');
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollToSection = (letter: string) => {
+        if (scrollContainerRef.current) {
+            const element = scrollContainerRef.current.querySelector(`#section-${letter}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
 
     const features: FeatureItem[] = useMemo(() => [
-        { label: 'Accessibility Button (Website Position)', category: 'position' },
-        { label: 'Alignment (Text- Left, Right, Centre, Justify)', category: 'textSpacing' },
-        { label: 'Animations (Pause or Stop)', action: togglePauseAnimations, isActive: pauseAnimations },
-        { label: 'Background Page Colours (Dark or Light Options)', category: 'contrast' },
-        { label: 'Colour Blind Tools/Options', category: 'contrast' },
-        { label: 'Colour Theme (for Sidebar)', category: 'position' },
-        { label: 'Contrast Controls (Menu Icon)', action: toggleHighContrast, isActive: highContrast },
-        { label: 'Cursor Colours', category: 'cursor' },
+        { label: 'Accessibility Button (Website Position)', category: 'position', highlightId: 'position-controls' },
+        { label: 'Alignment (Text- Left, Right, Centre, Justify)', category: 'textSpacing', highlightId: 'text-align' },
+        { label: 'Animations (Pause or Stop)', category: 'images', highlightId: 'pause-animations', isActive: pauseAnimations },
+        { label: 'Audio Ping (Switch On/Off)', category: 'position', isActive: audioPingEnabled, highlightId: 'audio-ping' },
+        { label: 'Background Page Colours (Dark or Light Options)', category: 'contrast', highlightId: 'page-background' },
+        { label: 'Colour Blind Tools/Options', category: 'contrast', highlightId: 'color-blind' },
+        { label: 'Colour Theme (for Sidebar)', category: 'position', highlightId: 'theme-selector' },
+        { label: 'Contrast Controls (Menu Icon)', category: 'contrast', highlightId: 'contrast-toggle', isActive: highContrast },
+        { label: 'Cursor Colours', category: 'cursor', highlightId: 'cursor-color' },
         { label: 'Cursor Options (Menu Icon)', category: 'cursor' },
-        { label: 'Cursor (Reduce Motion)', category: 'cursor' },
-        { label: 'Cursor Size', category: 'cursor' },
-        { label: 'Cursor Type/Shape', category: 'cursor' },
-        { label: 'Dark Mode', action: toggleDarkMode, isActive: darkMode },
-        { label: 'Dictionary', action: toggleOnPageDictionary, isActive: onPageDictionary },
-        { label: 'Dyslexia Friendly Fonts', category: 'font' },
-        { label: 'Feature Indicators (Red Line Markers)', action: toggleShowActiveIndicators, isActive: showActiveIndicators },
+        { label: 'Cursor (Reduce Motion)', category: 'cursor', highlightId: 'reduce-motion' },
+        { label: 'Cursor Size', category: 'cursor', highlightId: 'cursor-size' },
+        { label: 'Cursor Type/Shape', category: 'cursor', highlightId: 'cursor-style' },
+        { label: 'Dark Mode', category: 'contrast', highlightId: 'dark-mode', isActive: darkMode },
+        { label: 'Dictionary', category: 'language', highlightId: 'dictionary', isActive: onPageDictionary },
+        { label: 'Dyslexia Friendly Fonts', category: 'font', highlightId: 'font-style' },
+        { label: 'Feature Indicators (Red Dots Markers)', action: toggleShowActiveIndicators, isActive: showActiveIndicators },
         { label: 'Feedback Options (Menu Icon)', action: onOpenFeedback },
-        { label: 'Font Size', category: 'font', isActive: fontSize !== 16 },
-        { label: 'Font Increase', action: increaseFontSize },
-        { label: 'Font Decrease', action: decreaseFontSize },
-        { label: 'Font Styles', category: 'font', isActive: fontStyle !== 'default' },
+        { label: 'Font Size', category: 'font', highlightId: 'font-size', isActive: fontSize !== 16 },
+        { label: 'Font Increase', category: 'font', highlightId: 'font-size' },
+        { label: 'Font Decrease', category: 'font', highlightId: 'font-size' },
+        { label: 'Font Styles', category: 'font', highlightId: 'font-style', isActive: fontStyle !== 'default' },
         { label: 'Font Tools (Menu Icon)', category: 'font' },
-        { label: 'Grey Scale', action: toggleGrayscale, isActive: grayscale },
+        { label: 'Grey Scale', category: 'contrast', highlightId: 'grayscale', isActive: grayscale },
         { label: 'Help Options', action: () => onNavigate('info') },
-        { label: 'Highlight Headings', action: toggleHighlightHeadings, isActive: highlightHeadings },
-        { label: 'High Contrast', action: toggleHighContrast, isActive: highContrast },
-        { label: 'Hide Images', action: toggleHideImages, isActive: hideImages },
-        { label: 'Highlight Links', action: toggleHighlightLinks, isActive: highlightLinks },
+        { label: 'Highlight Headings', category: 'layout', highlightId: 'highlight-headings', isActive: highlightHeadings },
+        { label: 'High Contrast', category: 'contrast', highlightId: 'high-contrast', isActive: highContrast },
+        { label: 'Hide Images', category: 'images', highlightId: 'hide-images', isActive: hideImages },
+        { label: 'Highlight Links', category: 'layout', highlightId: 'highlight-links', isActive: highlightLinks },
         { label: 'Images and Animation (Menu Icon)', category: 'images' },
-        { label: 'Image Descriptions', action: toggleShowImageDescriptions, isActive: showImageDescriptions },
+        { label: 'Image Descriptions', category: 'images', highlightId: 'image-descriptions', isActive: showImageDescriptions },
         { label: 'Information (Icon)', action: () => onNavigate('info') },
-        { label: 'Invert Colours', action: toggleInvertColors, isActive: invertColors },
+        { label: 'Invert Colours', category: 'contrast', highlightId: 'invert-colors', isActive: invertColors },
         { label: 'Keyboard Shortcuts (Menu Icon)', category: 'navigation' },
-        { label: 'Large buttons', action: toggleLargeButtons, isActive: largeButtons },
-        { label: 'Language Selection', category: 'language' },
-        { label: 'Letter Spacing (Tracking)', category: 'letterSpacing' },
-        { label: 'Line Height', category: 'lineHeight' },
-        { label: 'Magnifier', action: toggleMagnifier, isActive: magnifier },
-        { label: 'Menu Icon Colours (Customise)', category: 'position' },
+        { label: 'Large buttons', category: 'reading', highlightId: 'large-buttons', isActive: largeButtons },
+        { label: 'Language Selection', category: 'language', highlightId: 'language-selector' },
+        { label: 'Letter Spacing (Tracking)', category: 'letterSpacing', highlightId: 'letter-spacing' },
+        { label: 'Line Height', category: 'lineHeight', isActive: context.lineHeight !== 1 },
+        { label: 'Magnifier', category: 'reading', highlightId: 'magnifier', isActive: magnifier },
+        { label: 'Menu Icon Colours (Customise)', category: 'position', highlightId: 'theme-selector' },
         { label: 'More Help', action: () => onNavigate('info') },
-        { label: 'Open Dyslexic Font', action: () => setFontStyle('dyslexic'), isActive: fontStyle === 'dyslexic' },
+        { label: 'Open Dyslexic Font', category: 'font', highlightId: 'font-style', isActive: fontStyle === 'dyslexic' },
         { label: 'Page Layout (Menu Icon)', category: 'layout' },
-        { label: 'Page Simplify', action: toggleSimplifiedLayout, isActive: simplifiedLayout },
-        { label: 'Page Summary', action: togglePageSummary, isActive: pageSummary },
-        { label: 'Page Structure', action: togglePageStructure, isActive: pageStructure },
-        { label: 'Page Background Colour', category: 'contrast' },
-        { label: 'Panel Position (Sidebar)', category: 'position' },
-        { label: 'Plain Text View', action: togglePlainTextMode, isActive: plainTextMode },
-        { label: 'Pointer Size (Cursor)', category: 'cursor' },
-        { label: 'Pronunciation Guide', action: togglePronunciationGuide, isActive: pronunciationGuide },
-        { label: 'Reading Lines', action: toggleReadingGuide, isActive: readingGuide },
-        { label: 'Reading Mask', action: toggleReadingMask, isActive: readingMask },
-        { label: 'Reading Spotlight', action: toggleReadingSpotlight, isActive: readingSpotlight },
+        { label: 'Page Simplify', category: 'layout', highlightId: 'simplify-layout', isActive: simplifiedLayout },
+        { label: 'Page Summary', category: 'ai', highlightId: 'page-summary', isActive: pageSummary },
+        { label: 'Page Structure', category: 'layout', highlightId: 'page-structure', isActive: pageStructure },
+        { label: 'Page Background Colour', category: 'contrast', highlightId: 'page-background' },
+        { label: 'Panel Position (Sidebar)', category: 'position', highlightId: 'position-controls' },
+        { label: 'Plain Text View', category: 'layout', highlightId: 'plain-text', isActive: plainTextMode },
+        { label: 'Pointer Size (Cursor)', category: 'cursor', highlightId: 'cursor-size' },
+        { label: 'Pronunciation Guide', category: 'language', highlightId: 'pronunciation-guide', isActive: pronunciationGuide },
+        { label: 'Reading Lines', category: 'reading', highlightId: 'reading-guide', isActive: readingGuide },
+        { label: 'Reading Mask', category: 'reading', highlightId: 'reading-mask', isActive: readingMask },
+        { label: 'Reading Spotlight', category: 'reading', highlightId: 'reading-spotlight', isActive: readingSpotlight },
         { label: 'Reading Tools (Menu Icon)', category: 'reading' },
         { label: 'Reset Button (Menu Icon)', action: resetAll },
-        { label: 'Ruler', action: toggleReadingRuler, isActive: readingRuler },
-        { label: 'Smart Suggestions', action: toggleSmartSuggestions, isActive: smartSuggestions },
+        { label: 'Ruler', category: 'reading', highlightId: 'reading-ruler', isActive: readingRuler },
+        { label: 'Smart Suggestions', category: 'language', highlightId: 'smart-suggestions', isActive: smartSuggestions },
         { label: 'Subtitles (for Videos)', category: 'images' },
-        { label: 'Scrolling Progress Bar', action: toggleReadingProgressBar, isActive: readingProgressBar },
-        { label: 'Translation', category: 'language' },
-        { label: 'Translate Website', category: 'language' },
+        { label: 'Scrolling Progress Bar', category: 'reading', highlightId: 'reading-progress', isActive: readingProgressBar },
+        { label: 'Translation', category: 'language', highlightId: 'real-time-translation' },
+        { label: 'Translate Website', category: 'language', highlightId: 'real-time-translation' },
         { label: 'Text Alignment', category: 'textSpacing' },
-        { label: 'Text to Speech (TTS)', action: toggleTextToSpeech, isActive: textToSpeech },
-        { label: 'Video Controls (Pause or Stop)', action: toggleStopVideos, isActive: stopVideos },
-        { label: 'Voice Control', action: toggleSpeechToText, isActive: speechToText },
-        { label: 'Word Spacing (Kerning)', category: 'letterSpacing' },
+        { label: 'Text to Speech (TTS)', category: 'speech', highlightId: 'text-to-speech', isActive: textToSpeech },
+        { label: 'Video Controls (Pause or Stop)', category: 'images', highlightId: 'stop-videos', isActive: stopVideos },
+        { label: 'Voice Control', category: 'speech', highlightId: 'voice-navigation', isActive: speechToText },
+        { label: 'Word Spacing (Kerning)', category: 'letterSpacing', highlightId: 'word-spacing' },
         { label: 'Zoom In/ Zoom Out', category: 'quick_zoom' },
     ], [
         togglePauseAnimations, pauseAnimations,
@@ -224,11 +237,11 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                         placeholder="Search features A-Z"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-5 py-4 pl-12 rounded-2xl text-[15px] font-medium transition-all duration-300 border-4 focus:outline-none"
+                        className="w-full px-4 sm:px-5 py-3 sm:py-4 pl-10 sm:pl-12 rounded-2xl text-[14px] sm:text-[15px] font-medium transition-all duration-300 border-4 focus:outline-none"
                         style={{
-                            backgroundColor: `${currentTheme.background}80`,
+                            backgroundColor: `${currentTheme.text}08`,
                             color: currentTheme.text,
-                            borderColor: `${currentTheme.text}20`,
+                            borderColor: currentTheme.border,
                             backdropFilter: 'blur(10px)',
                         }}
                     />
@@ -244,7 +257,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     {searchQuery && (
                         <button
                             onClick={() => {
-                                if (audioPingEnabled) playAudioPing();
+                                if (audioPingEnabled) playAudioPing('menu'); // Clear search
                                 setSearchQuery('');
                             }}
                             className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
@@ -265,11 +278,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                         <button
                             key={letter}
                             onClick={() => {
-                                if (audioPingEnabled) playAudioPing();
-                                const element = document.getElementById(`section-${letter}`);
-                                if (element) {
-                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
+                                if (audioPingEnabled) playAudioPing('menu');
+                                scrollToSection(letter);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
                             style={{
@@ -289,11 +299,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                         <button
                             key={letter}
                             onClick={() => {
-                                if (audioPingEnabled) playAudioPing();
-                                const element = document.getElementById(`section-${letter}`);
-                                if (element) {
-                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
+                                if (audioPingEnabled) playAudioPing('menu');
+                                scrollToSection(letter);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
                             style={{
@@ -313,11 +320,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                         <button
                             key={letter}
                             onClick={() => {
-                                if (audioPingEnabled) playAudioPing();
-                                const element = document.getElementById(`section-${letter}`);
-                                if (element) {
-                                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
+                                if (audioPingEnabled) playAudioPing('menu');
+                                scrollToSection(letter);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
                             style={{
@@ -334,7 +338,10 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
             </div>
 
             {/* Feature Grid */}
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 pb-8 scroll-smooth">
+            <div
+                ref={scrollContainerRef}
+                className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 pb-8 scroll-smooth"
+            >
                 {Object.keys(groupedFeatures).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
                         <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white/5 border-4 border-white/10">
@@ -364,16 +371,22 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                         <button
                                             key={`${letter}-${idx}`}
                                             onClick={() => {
-                                                if (audioPingEnabled) playAudioPing();
+                                                if (audioPingEnabled) {
+                                                    if (item.action) {
+                                                        playAudioPing(item.isActive ? 'deselect' : 'select');
+                                                    } else {
+                                                        playAudioPing('menu');
+                                                    }
+                                                }
                                                 if (item.action) {
                                                     item.action();
                                                 } else if (item.category) {
-                                                    onNavigate(item.category);
+                                                    onNavigate(item.category, item.highlightId);
                                                 }
                                             }}
-                                            className="relative group flex items-center justify-between p-4 px-1 rounded-xl transition-all duration-300 text-left"
+                                            className="relative group flex items-center justify-between p-3 sm:p-4 px-1 rounded-xl transition-all duration-300 text-left"
                                             style={{
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: item.isActive ? `${currentTheme.active}25` : 'transparent',
                                             }}
                                         >
                                             <div className="flex flex-col w-full gap-1">
@@ -384,8 +397,11 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                                         style={{ backgroundColor: item.isActive ? currentTheme.active : `${currentTheme.text}40` }}
                                                     />
                                                     <span
-                                                        className="text-[15px] font-black leading-tight transition-all duration-300 uppercase tracking-tight underline decoration-2 decoration-white/50 underline-offset-[6px] group-hover:decoration-white/80"
-                                                        style={{ color: currentTheme.text }}
+                                                        className="text-[14px] sm:text-[16px] font-black leading-tight transition-all duration-300 underline decoration-2 underline-offset-[6px]"
+                                                        style={{
+                                                            color: currentTheme.text,
+                                                            textDecorationColor: `${currentTheme.text}80`
+                                                        }}
                                                     >
                                                         {name}
                                                     </span>
@@ -395,7 +411,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                                 {properties && (
                                                     <div className="pl-5">
                                                         <span
-                                                            className="text-[14px] font-bold transition-colors"
+                                                            className="text-[12px] sm:text-[13px] font-bold transition-colors"
                                                             style={{ color: currentTheme.text, opacity: 1 }}
                                                         >
                                                             {properties}
@@ -439,7 +455,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     background: ${currentTheme.active};
                 }
             `}</style>
-        </div>
+        </div >
     );
 };
 

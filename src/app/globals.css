@@ -67,12 +67,14 @@ body {
   color-scheme: dark;
 }
 
-.dark-mode #accessible-content {
+.dark-mode body,
+.dark-mode body *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
+  border-color: #ffffff !important;
 }
 
-.dark-mode #accessible-content :is(h1, h2, h3, h4, h5, h6, p, span, div, li, td, th) {
+.dark-mode body :is(h1, h2, h3, h4, h5, h6, p, span, div, li, td, th):not(.accessibility-bar *):not(.a11y-embed-host *) {
   color: #ffffff !important;
 }
 
@@ -82,62 +84,75 @@ body {
   letter-spacing: 0.5px !important;
 }
 
-[data-font-style="dyslexic"] #accessible-content {
-  font-family: 'Comic Sans MS', 'Comic Sans', 'OpenDyslexic', sans-serif !important;
+[data-font-style="dyslexic"] #accessible-content,
+body[data-font-style="dyslexic"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', 'Comic Sans', sans-serif !important;
   line-height: 1.6 !important;
   letter-spacing: 1px !important;
   word-spacing: 2px !important;
 }
 
-[data-font-style="dyslexic"] *:not(.accessibility-bar):not(.accessibility-bar *) {
+[data-font-style="dyslexic"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: inherit !important;
 }
 
-[data-font-style="sans"] #accessible-content {
+[data-font-style="sans"] #accessible-content,
+body[data-font-style="sans"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: Arial, Helvetica, sans-serif !important;
 }
 
-[data-font-style="mono"] #accessible-content {
+[data-font-style="mono"] #accessible-content,
+body[data-font-style="mono"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Courier New', Courier, monospace !important;
 }
 
-[data-font-style="tahoma"] #accessible-content {
+[data-font-style="tahoma"] #accessible-content,
+body[data-font-style="tahoma"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: Tahoma, Verdana, Segoe, sans-serif !important;
 }
 
-[data-font-style="serif"] #accessible-content {
+[data-font-style="serif"] #accessible-content,
+body[data-font-style="serif"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Times New Roman', Times, serif !important;
 }
 
-[data-font-style="trebuchet"] #accessible-content {
+[data-font-style="trebuchet"] #accessible-content,
+body[data-font-style="trebuchet"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
 }
 
-[data-font-style="verdana"] #accessible-content {
+[data-font-style="verdana"] #accessible-content,
+body[data-font-style="verdana"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: Verdana, Geneva, Tahoma, sans-serif !important;
 }
 
-[data-font-style="arial"] #accessible-content {
+[data-font-style="arial"] #accessible-content,
+body[data-font-style="arial"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: Arial, Helvetica, sans-serif !important;
 }
 
-[data-font-style="calibri"] #accessible-content {
+[data-font-style="calibri"] #accessible-content,
+body[data-font-style="calibri"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: Calibri, 'Gill Sans', 'Gill Sans MT', 'Myriad Pro', Myriad, 'DejaVu Sans Condensed', 'Liberation Sans', 'Nimbus Sans L', Tahoma, Geneva, 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
 
-[data-font-style="century-gothic"] #accessible-content {
+[data-font-style="century-gothic"] #accessible-content,
+body[data-font-style="century-gothic"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif !important;
 }
 
-[data-font-style="comic-sans"] #accessible-content {
+[data-font-style="comic-sans"] #accessible-content,
+body[data-font-style="comic-sans"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Comic Sans MS', 'Comic Sans', cursive !important;
 }
 
-[data-font-style="andika"] #accessible-content {
+[data-font-style="andika"] #accessible-content,
+body[data-font-style="andika"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'Andika', sans-serif !important;
 }
 
-[data-font-style="fs-me"] #accessible-content {
+[data-font-style="fs-me"] #accessible-content,
+body[data-font-style="fs-me"] *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
   font-family: 'FS Me', sans-serif !important;
 }
 
@@ -235,6 +250,7 @@ body:has([style*="--heading-color"]) :is(h1, h2, h3, h4, h5, h6):not(.accessibil
   cursor: default !important;
   text-align: left !important;
   zoom: 1 !important;
+  font-size: 16px !important;
   transform: none !important;
 }
 
@@ -298,11 +314,11 @@ body *,
   filter: url(#tritanopia-filter);
 }
 
-.large-buttons button,
-.large-buttons a[role="button"],
-.large-buttons input[type="button"],
-.large-buttons input[type="submit"],
-.large-buttons .button {
+.large-buttons button:not(.accessibility-bar *):not(.a11y-embed-host *),
+.large-buttons a[role="button"]:not(.accessibility-bar *):not(.a11y-embed-host *),
+.large-buttons input[type="button"]:not(.accessibility-bar *):not(.a11y-embed-host *),
+.large-buttons input[type="submit"]:not(.accessibility-bar *):not(.a11y-embed-host *),
+.large-buttons .button:not(.accessibility-bar *):not(.a11y-embed-host *) {
   min-height: 48px !important;
   min-width: 48px !important;
   padding: 12px 24px !important;
