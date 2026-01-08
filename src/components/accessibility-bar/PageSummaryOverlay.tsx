@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
 
 export default function PageSummaryOverlay() {
@@ -18,7 +18,7 @@ export default function PageSummaryOverlay() {
         isMobile
     } = useAccessibility();
 
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     const [acronyms, setAcronyms] = useState<Record<string, string>>({});
     const [originalSummary, setOriginalSummary] = useState<string>('');

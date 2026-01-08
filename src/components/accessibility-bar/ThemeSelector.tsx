@@ -8,7 +8,7 @@ const THEME_OPTIONS: { id: BarTheme; label: string }[] = [
     { id: 'grayscale', label: 'Grey Scale' },
     { id: 'black', label: 'Black' },
     { id: 'oceanBlue', label: 'Ocean Blue' },
-    { id: 'blue', label: 'Blue' },
+    { id: 'Turquoise', label: 'Turquoise' },
     { id: 'navy', label: 'Navy' },
     { id: 'yellow', label: 'Yellow' },
     { id: 'purple', label: 'Purple' },
@@ -16,7 +16,8 @@ const THEME_OPTIONS: { id: BarTheme; label: string }[] = [
 
 export default function ThemeSelector() {
     const { barTheme, setBarTheme } = useAccessibility();
-    const currentTheme = BAR_THEMES[barTheme];
+    // Ensure we always have a valid theme, fallback to 'purple' if undefined
+    const currentTheme = BAR_THEMES[barTheme] || BAR_THEMES.purple;
 
     return (
         <div className="space-y-6">
@@ -25,7 +26,7 @@ export default function ThemeSelector() {
             </h3>
             <div className="grid grid-cols-3 gap-4">
                 {THEME_OPTIONS.map((themeOption) => {
-                    const optionTheme = BAR_THEMES[themeOption.id];
+                    const optionTheme = BAR_THEMES[themeOption.id] || BAR_THEMES.purple;
                     const isSelected = barTheme === themeOption.id;
                     return (
                         <button

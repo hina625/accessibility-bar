@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface FontFeaturesInfoProps {
     onClose: () => void;
@@ -9,7 +9,7 @@ interface FontFeaturesInfoProps {
 
 export default function FontFeaturesInfo({ onClose }: FontFeaturesInfoProps) {
     const { barTheme } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     const fontInfo = [
         { font: 'Open Dyslexic', features: 'Weighted bottoms, unique letter shapes' },

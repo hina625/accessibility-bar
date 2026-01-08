@@ -2,14 +2,14 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import Image from 'next/image';
 import lineIcon from '@/assets/icons/line.png?inline';
 
 export default function LineHeightControl() {
     const { lineHeight, setLineHeight, language, barTheme } = useAccessibility();
     const t = translations[language] || translations['en'];
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     const control = {
         value: lineHeight,

@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function FontStyleSelector() {
   const { fontStyle, setFontStyle, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
-  const theme = BAR_THEMES[barTheme];
+  const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
   const [allFontsOpen, setAllFontsOpen] = useState(false);
   const [dyslexiaFontsOpen, setDyslexiaFontsOpen] = useState(false);

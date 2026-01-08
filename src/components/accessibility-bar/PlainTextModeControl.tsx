@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function PlainTextModeControl() {
     const {
@@ -9,7 +9,7 @@ export default function PlainTextModeControl() {
         plainTextSize, setPlainTextSize,
         barTheme
     } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     return (
         <div className="space-y-4">

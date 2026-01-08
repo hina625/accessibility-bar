@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function ReadingProgressBar() {
     const { readingProgressBar, readingProgressBarColor, barTheme } = useAccessibility();
     const [progress, setProgress] = useState(0);
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     useEffect(() => {
         if (!readingProgressBar) return;

@@ -1,12 +1,12 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { playAudioPing } from '@/utils/audioPingUtils';
 
 export default function ReadingGuideToggle() {
   const { readingGuide, toggleReadingGuide, readingGuideColor, setReadingGuideColor, readingGuideThickness, setReadingGuideThickness, barTheme, audioPingEnabled } = useAccessibility();
-  const theme = BAR_THEMES[barTheme];
+  const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
   const handleToggle = () => {
     if (audioPingEnabled) playAudioPing(readingGuide ? 'deselect' : 'select');

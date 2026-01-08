@@ -2,7 +2,7 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface BackgroundColor {
   color: string;
@@ -52,7 +52,7 @@ const getContrastColor = (bgColor: string): string => {
 export default function PageBackgroundColor() {
   const { backgroundColor, setBackgroundColor, setTextColor, setHeadingColor, colorBlindFilter, setColorBlindFilter, language, barTheme } = useAccessibility();
   const t = translations[language] || translations['en'];
-  const currentTheme = BAR_THEMES[barTheme];
+  const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
   const handleBackgroundColorChange = (bgColor: BackgroundColor) => {
     if (colorBlindFilter !== 'none') {

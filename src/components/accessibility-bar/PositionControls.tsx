@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAccessibility, ButtonPosition, PanelPosition, ResetIconStyle } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import ToggleCheckbox from './ToggleCheckbox';
 import LanguageSelector from './LanguageSelector';
 import InfoPopupButton from './InfoPopupButton';
@@ -38,7 +38,7 @@ export default function PositionControls({
         resetIconStyle, setResetIconStyle
     } = useAccessibility();
     const t = translations[language] || translations['en'];
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const [page, setPage] = useState(0);
 
     const buttonPositions: { id: ButtonPosition; label: string }[] = [

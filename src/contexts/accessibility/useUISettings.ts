@@ -60,7 +60,23 @@ export function useUISettings() {
         if (saved.primaryButton) setPrimaryButton(saved.primaryButton as 'left' | 'right');
         if (saved.buttonPosition) setButtonPosition(saved.buttonPosition as ButtonPosition);
         if (saved.panelPosition) setPanelPosition(saved.panelPosition as PanelPosition);
-        if (saved.barTheme) setBarTheme(saved.barTheme as BarTheme);
+        if (saved.barTheme) {
+            // Validate and migrate old theme values
+            const validThemes: BarTheme[] = ['white', 'grayscale', 'black', 'oceanBlue', 'Turquoise', 'navy', 'yellow', 'purple'];
+            // Check for old 'blue' value before casting to BarTheme
+            let themeValue = saved.barTheme as string;
+            // Migrate 'blue' to 'Turquoise' if found
+            if (themeValue === 'blue') {
+                themeValue = 'Turquoise';
+                localStorage.setItem('accessibility-barTheme', 'Turquoise');
+            }
+            // Cast to BarTheme and validate
+            let theme = themeValue as BarTheme;
+            // Only set if it's a valid theme
+            if (validThemes.includes(theme)) {
+                setBarTheme(theme);
+            }
+        }
         if (saved.showActiveIndicators) setShowActiveIndicators(saved.showActiveIndicators === 'true');
         if (saved.audioPingEnabled) setAudioPingEnabled(saved.audioPingEnabled === 'true');
         if (saved.isPanelPinned) setIsPanelPinned(saved.isPanelPinned === 'true');

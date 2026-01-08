@@ -1,12 +1,12 @@
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { translations } from '@/contexts/accessibility/translations';
 import { playAudioPing } from '@/utils/audioPingUtils';
 import InfoPopupButton from './InfoPopupButton';
 
 export default function MagnifierToggle() {
     const { magnifier, toggleMagnifier, barTheme, language, audioPingEnabled } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
 
     return (

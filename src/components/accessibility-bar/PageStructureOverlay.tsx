@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface HeadingItem {
     level: number;
@@ -22,7 +22,7 @@ interface LinkItem {
 
 export default function PageStructureOverlay() {
     const { panelPosition, barTheme, pageStructure, togglePageStructure } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     const [activeTab, setActiveTab] = useState<'headings' | 'landmarks' | 'links'>('headings');
     const [headings, setHeadings] = useState<HeadingItem[]>([]);

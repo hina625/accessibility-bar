@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import sidebarLeftImg from '@/assets/icons/sidebar_left.png';
 import sidebarRightImg from '@/assets/icons/sidebar_right.png';
 
@@ -13,7 +13,7 @@ interface SidebarTutorialProps {
 
 export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps) {
     const { barTheme, panelPosition } = useAccessibility();
-    const currentTheme = BAR_THEMES[barTheme];
+    const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     let displayIcon = icon;
     if (panelPosition === 'left') displayIcon = sidebarLeftImg;

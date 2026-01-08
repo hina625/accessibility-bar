@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 // Helper to track usage
 const trackFeatureUsage = (feature: string) => {
@@ -31,7 +31,7 @@ const SUGGESTIONS: Suggestion[] = [
 
 export default function SmartSuggestions() {
     const { smartSuggestions, highContrast, fontSize, barTheme } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const [toast, setToast] = useState<{ message: string, shortcut: string } | null>(null);
 
     // Watch High Contrast

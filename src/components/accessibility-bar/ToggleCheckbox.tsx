@@ -1,7 +1,7 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface ToggleCheckboxProps {
     id: string;
@@ -14,7 +14,7 @@ interface ToggleCheckboxProps {
 
 export default function ToggleCheckbox({ id, label, checked, onChange, description, labelClassName }: ToggleCheckboxProps) {
     const { barTheme } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     return (
         <div

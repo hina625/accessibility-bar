@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
 
 const LANGUAGES = [
@@ -22,7 +22,7 @@ const LANGUAGES = [
 
 export default function SelectionTranslator() {
     const { realTimeTranslation, barTheme, selectionLanguage } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const [selectedText, setSelectedText] = useState<string>('');
     const [translatedText, setTranslatedText] = useState<string>('');
     const [position, setPosition] = useState({ x: 0, y: 0 });

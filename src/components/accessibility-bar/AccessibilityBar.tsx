@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import Image from 'next/image';
+import { safeStorage } from '@/utils/safeStorage';
 import { speak } from '@/utils/speechUtils';
 import { playAudioPing } from '@/utils/audioPingUtils';
 import FontSizeControls from './FontSizeControls';
@@ -114,7 +115,12 @@ export default function AccessibilityBar() {
   const [selectedOffset, setSelectedOffset] = useState<number>(0);
   const [selectedCategoryRect, setSelectedCategoryRect] = useState<DOMRect | null>(null);
   const [showSidebarTutorial, setShowSidebarTutorial] = useState(false);
-  const [hasSeenSidebarTutorial, setHasSeenSidebarTutorial] = useState(false);
+  const [hasSeenSidebarTutorial, setHasSeenSidebarTutorial] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return safeStorage.getItem('accessibility-seen-sidebar-tutorial') === 'true';
+    }
+    return false;
+  });
   const [tutorialIcon, setTutorialIcon] = useState<any>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -127,6 +133,7 @@ export default function AccessibilityBar() {
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [settingsView, setSettingsView] = useState<'main' | 'size' | 'profiles'>('main');
   const [activeProfile, setActiveProfile] = useState<string | null>(null);
+  const lastOpenTimeRef = useRef<number>(0);
 
   const context = useAccessibility();
   const {
@@ -243,7 +250,7 @@ export default function AccessibilityBar() {
       case 'dyslexia':
         setFontStyle?.('dyslexic');
         setLineHeight?.(1.5);
-        setTextSpacing?.(true);
+        setCharacterSpacing?.(0.1);
         setWordSpacing?.(0.16);
         increaseFontSize();
         increaseFontSize();
@@ -330,12 +337,14 @@ export default function AccessibilityBar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+
   useEffect(() => {
     if (onPageDictionary || pageSummary || pageStructure) {
       setIsOpen(false);
       setSelectedCategory(null);
     }
   }, [onPageDictionary, pageSummary, pageStructure]);
+
 
   const handleResetSelected = () => {
     setShowActiveFeaturesList(true);
@@ -439,6 +448,19 @@ export default function AccessibilityBar() {
       // Check if click is outside trigger button (if it exists)
       const isOutsideTrigger = !triggerRef.current || !triggerRef.current.contains(target);
 
+      // CRITICAL FIX FOR EMBED MODE:
+      // In embed mode (Shadow DOM), the event target might look like the host element to the outside document.
+      // We need to check if the click path includes our specific embed host ID or class.
+      const isEmbedHost = path.some(el =>
+        (el as Element)?.id === 'a11y-embed-host-react' ||
+        (el as Element)?.classList?.contains?.('a11y-embed-host')
+      );
+
+      // If it IS the embed host, we consider it "inside" for this check, 
+      // because the internal click handling (inside the shadow root) will handle the specific button clicks.
+      // If we don't return here, this "outside" listener will fire and close the panel immediately.
+      if (isEmbedHost) return;
+
       if (isOutsidePanel && isOutsideTrigger) {
         // Only close the expanded panel (category), do not close the main bar
         if (selectedCategory) {
@@ -450,13 +472,16 @@ export default function AccessibilityBar() {
     };
 
     if (isOpen) {
-      // Use mousedown to capture the start of the click, responsive UI
+      lastOpenTimeRef.current = Date.now();
+      // Use short delay to prevent the opening click from being caught
+      const timer = setTimeout(() => {
       document.addEventListener('mousedown', handleClickOutside);
-    }
-
+      }, 100);
     return () => {
+        clearTimeout(timer);
       document.removeEventListener('mousedown', handleClickOutside);
     };
+    }
   }, [isOpen, isPanelPinned, selectedCategory]);
 
   useEffect(() => {
@@ -572,6 +597,8 @@ export default function AccessibilityBar() {
       }
 
       if (e.key === 'Escape' && isOpen) {
+        // Prevent immediate close on Escape if just opened
+        if (Date.now() - lastOpenTimeRef.current < 300) return;
         e.preventDefault();
         setIsOpen(false);
         setSelectedCategory(null);
@@ -1206,13 +1233,16 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
     <>
       {!isOpen && (
         <button
+          type="button"
           ref={triggerRef}
+          onMouseDown={(e) => e.stopPropagation()}
+          onMouseUp={(e) => e.stopPropagation()}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             setIsOpen(true);
           }}
-          className={`accessibility-bar a11y-embed-host group fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
+          className={`accessibility-bar a11y-embed-host fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
           style={{
             background: `linear-gradient(135deg, ${currentTheme.background}CC, ${currentTheme.background}B3)`,
             backdropFilter: 'blur(20px) saturate(190%)',
@@ -1244,6 +1274,8 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
 
           <div
             ref={panelRef}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
             className={`accessibility-bar a11y-embed-host fixed z-[2147483647] ${panelBorderStyle} transition-all duration-300 ease-out overflow-visible pointer-events-auto ${getPanelPositionClasses()} ${isVertical ? 'top-0 bottom-0' : 'left-0 right-0'}`}
             style={{
               width: isVertical
@@ -1590,7 +1622,12 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                 {/* Logo removed as per user request */}
 
                 <button
-                  onClick={() => {
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    // Prevent immediate close if just opened (race condition)
+                    if (Date.now() - lastOpenTimeRef.current < 300) return;
                     if (audioPingEnabled) playAudioPing('menu'); // Using menu sound
                     setIsOpen(false);
                     setSelectedCategory(null);
@@ -1601,9 +1638,10 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
 
                     // Forcing popup to show "abi kelye" (for now) as requested, ignoring previous state
                     // if (!localStorage.getItem(feedbackGivenKey)) {
-                    const currentCount = parseInt(localStorage.getItem(countKey) || '0');
+                    const usage = JSON.parse(safeStorage.getItem('accessibility-usage') || '{}');
+                    const currentCount = parseInt(safeStorage.getItem(countKey) || '0');
                     const newCount = currentCount + 1;
-                    localStorage.setItem(countKey, newCount.toString());
+                    safeStorage.setItem(countKey, newCount.toString());
 
                     // Show popup on close if feedback not given (matches "whenever cross is clicked")
                     setShowFeedbackPopup(true);
@@ -1770,8 +1808,11 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                               {resetCategory && (
                                 <div key="reset-constant" className="relative group/category">
                                   <button
+                                    type="button"
                                     data-category-btn
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
                                       if (audioPingEnabled) playAudioPing('menu');
                                       setShowResetConfirm(true);
                                     }}
@@ -1816,9 +1857,11 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                         {visibleCategories.map((category, index) => (
                           <div key={category.id} className="relative group/category">
                             <button
+                              type="button"
                               data-category-btn
                               onKeyDown={(e) => handleCategoryKeyDown(e, shouldPaginate ? index + 1 : index)}
                               onClick={(e) => {
+                                e.stopPropagation();
                                 if (audioPingEnabled) playAudioPing('menu');
                                 if (category.id === 'reset') {
                                   setShowResetConfirm(true);
@@ -1829,7 +1872,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                     setTutorialIcon(category.icon);
                                     setShowSidebarTutorial(true);
                                     setHasSeenSidebarTutorial(true);
-                                    localStorage.setItem('accessibility-seen-sidebar-tutorial', 'true');
+                                    safeStorage.setItem('accessibility-seen-sidebar-tutorial', 'true');
                                     return;
                                   }
                                   const positions = ['left', 'right', 'top', 'bottom'];
@@ -2003,7 +2046,10 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                 </span>
                               )}
                               <button
-                                onClick={() => {
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
                                   if (audioPingEnabled) playAudioPing('menu');
                                   if (currentPage < 4) {
                                     setCurrentPage(p => p + 1);
@@ -2467,7 +2513,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
 
             }}
             onSubmit={() => {
-              localStorage.setItem('accessibility_feedback_given', 'true');
+              safeStorage.setItem('accessibility_feedback_given', 'true');
               setShowFeedbackPopup(false);
             }}
           />

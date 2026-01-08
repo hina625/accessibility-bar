@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface Language {
   code: string;
@@ -29,7 +29,7 @@ const languages: Language[] = [
 export default function LanguageSelector() {
   const { language, setLanguage, barTheme, isMobile, panelPosition, realTimeTranslation, toggleRealTimeTranslation } = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
-  const theme = BAR_THEMES[barTheme];
+  const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
   useEffect(() => {
     if (!isOpen) return;

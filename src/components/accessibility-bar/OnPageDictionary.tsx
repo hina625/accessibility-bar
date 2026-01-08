@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import ToggleCheckbox from './ToggleCheckbox';
 
 export default function OnPageDictionary() {
   const { onPageDictionary, toggleOnPageDictionary, barTheme } = useAccessibility();
-  const theme = BAR_THEMES[barTheme];
+  const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
   const [selectedWord, setSelectedWord] = useState<string>('');
   const [definition, setDefinition] = useState<string>('');
   const [position, setPosition] = useState({ x: 0, y: 0 });

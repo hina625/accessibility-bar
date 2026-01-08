@@ -64,9 +64,7 @@ export default function RootLayout({
           </defs>
         </svg>
         <AccessibilityProvider>
-          <div id="accessible-content">
-            {children}
-          </div>
+          {children}
           <AccessibilityBar />
         </AccessibilityProvider>
       </body >

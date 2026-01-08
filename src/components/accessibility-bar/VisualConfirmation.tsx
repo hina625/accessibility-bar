@@ -1,12 +1,12 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 
 export default function VisualConfirmation() {
     const { notification, barTheme } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     if (!notification.visible || !notification.message) return null;
 
     const style: React.CSSProperties = {

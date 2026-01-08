@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { translations } from '@/contexts/accessibility/translations';
 import { API_ENDPOINTS } from '@/config/api';
 import ToggleCheckbox from './ToggleCheckbox';
@@ -24,7 +24,7 @@ const LANGUAGES = [
 
 export default function RealTimeTranslation() {
     const { barTheme, realTimeTranslation, toggleRealTimeTranslation, language, selectionLanguage, setSelectionLanguage } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations.en;
     // const [targetLanguage, setTargetLanguage] = useState(language || 'es'); // Removed local state preference
     const [inputText, setInputText] = useState('');

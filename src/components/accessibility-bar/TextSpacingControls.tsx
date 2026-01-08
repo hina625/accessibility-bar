@@ -2,7 +2,7 @@
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { translations } from '@/contexts/accessibility/translations';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function TextSpacingControls() {
     const {
@@ -13,7 +13,7 @@ export default function TextSpacingControls() {
     } = useAccessibility();
 
     const t = translations[language] || translations['en'];
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     const controls = [
         {

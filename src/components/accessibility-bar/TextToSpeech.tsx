@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { BAR_THEMES } from '@/contexts/accessibility/theme';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { speak } from '@/utils/speechUtils';
 import { translations } from '@/contexts/accessibility/translations';
 import InfoPopupButton from './InfoPopupButton';
@@ -19,7 +19,7 @@ export default function TextToSpeech() {
         barTheme,
         language
     } = useAccessibility();
-    const theme = BAR_THEMES[barTheme];
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
 
     return (
