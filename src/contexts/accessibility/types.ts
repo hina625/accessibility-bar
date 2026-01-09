@@ -83,7 +83,7 @@ export interface AccessibilityState {
     notification: NotificationState;
 }
 
-export type ResetIconStyle = 'red-black' | 'white-black' | 'black-white' | 'yellow-black';
+export type ResetIconStyle = 'red-black' | 'white-black' | 'black-white' | 'yellow-black' | 'turquoise-black';
 
 export interface AccessibilityState {
     barTheme: BarTheme;

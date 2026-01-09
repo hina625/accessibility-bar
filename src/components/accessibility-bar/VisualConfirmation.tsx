@@ -9,6 +9,8 @@ export default function VisualConfirmation() {
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     if (!notification.visible || !notification.message) return null;
 
+    const textColor = theme.active === '#FFFFFF' ? '#000000' : '#FFFFFF';
+
     const style: React.CSSProperties = {
         position: 'fixed',
         bottom: '20px',
@@ -24,7 +26,7 @@ export default function VisualConfirmation() {
             style={{
                 ...style,
                 backgroundColor: theme.active, // Use active theme color
-                color: theme.active === '#FFFFFF' ? '#000000' : '#FFFFFF', // Contrast text
+                color: textColor, // Contrast text
                 border: `2px solid ${theme.border || 'white'}`,
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3)'
             }}

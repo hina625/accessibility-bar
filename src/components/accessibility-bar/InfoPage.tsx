@@ -85,19 +85,19 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
             </div>
 
 
-            <div className="w-full h-[1px] bg-white/20 mx-auto w-[96%]"></div>
+            <div className="w-full h-[1px] mx-auto w-[96%]" style={{ backgroundColor: `${guideTheme.text}33` }}></div>
 
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-12 space-y-12 sm:space-y-20">
 
 
-                <div className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div id="contact-form-section" className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
                     <div className="w-full md:w-1/3 flex flex-col pt-4">
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight mb-4 leading-none drop-shadow-sm" style={{ color: guideTheme.text }}>Contact Us</h2>
-                        <div className="w-40 h-2 bg-yellow-400 rounded-full mb-8 shadow-sm"></div>
+                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 leading-none drop-shadow-sm" style={{ color: guideTheme.text }}>Contact Us</h2>
+                        <div className="w-full h-2 rounded-full mb-8 shadow-sm" style={{ backgroundColor: guideTheme.accentYellow }}></div>
 
-                        <p className="text-xl sm:text-2xl md:text-[32px] mb-8 sm:mb-12 font-medium leading-relaxed" style={{ color: guideTheme.text }}>
-                            Interested in our Accessibility Bar? Have questions or need a demo? We'd love to hear from you.
+                        <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-12 font-medium leading-relaxed" style={{ color: guideTheme.text }}>
+                        Interested in getting our accessibility toolbar for your website? Have questions or want to book a FREE demo? We'd love to hear from you, complete the form and we'll be in touch.
                         </p>
                     </div>
 
@@ -106,7 +106,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                     </div>
                 </div>
 
-                <div className="w-full h-[1px] bg-white/20 mx-auto w-[96%]"></div>
+                <div className="w-full h-[1px] mx-auto w-[96%]" style={{ backgroundColor: `${guideTheme.text}33` }}></div>
 
 
                 {Object.entries(t.info || {}).map(([key, data]: [string, any], sectionIndex) => {
@@ -163,7 +163,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                         </div>
                                         <div className="flex flex-col items-start pt-1">
                                             <h2 className="text-2xl font-black uppercase tracking-widest drop-shadow-md leading-[1.1]" style={{ color: guideTheme.text }}>{displayName}</h2>
-                                            <div className="h-2 bg-yellow-400 rounded-full shadow-lg mt-3 w-full opacity-100 transition-all duration-300"></div>
+                                            <div className="h-2 rounded-full shadow-lg mt-3 w-full opacity-100 transition-all duration-300" style={{ backgroundColor: guideTheme.accentYellow }}></div>
                                         </div>
                                     </div>
                                 </div>
@@ -188,14 +188,26 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                             </p>
 
                                             <div className="absolute bottom-7 left-8 flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.8)]"></div>
-                                                <span className="text-[10px] font-black tracking-[0.2em] opacity-60 uppercase text-yellow-300">READY TO USE</span>
+                                                <div 
+                                                    className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.8)]"
+                                                    style={{ 
+                                                        backgroundColor: isYellowTheme ? '#000000' : '#facc15' 
+                                                    }}
+                                                ></div>
+                                                <span 
+                                                    className="text-[10px] font-black tracking-[0.2em] opacity-60 uppercase"
+                                                    style={{ 
+                                                        color: isYellowTheme ? '#000000' : '#fde047' 
+                                                    }}
+                                                >
+                                                    READY TO USE
+                                                </span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <div className="w-full h-[1px] bg-white/10 mt-20 mb-20 last:hidden" />
+                            <div className="w-full h-[1px] mt-20 mb-20 last:hidden" style={{ backgroundColor: `${guideTheme.cardBorder}66` }} />
                         </div>
                     );
                 })}
@@ -216,6 +228,13 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                             </p>
                         </div>
                         <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                const contactSection = document.getElementById('contact-form-section');
+                                if (contactSection) {
+                                    contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                            }}
                             className="px-8 py-4 rounded-xl font-black uppercase tracking-[0.15em] text-sm transition-all shadow-lg whitespace-nowrap group-hover:scale-105"
                             style={{ backgroundColor: guideTheme.accentYellow, color: accentTextColor }}
                         >
@@ -373,7 +392,7 @@ Website: ${formData.website || 'N/A'}
             </div>
 
             <div className="md:col-span-2 pt-4 flex items-center justify-between">
-                <p className="text-base font-bold tracking-widest uppercase text-white">* Required fields</p>
+                <p className="text-base font-bold tracking-widest text-white"><span className="text-red-500">*</span> Required Fields</p>
                 <button
                     type="submit"
                     disabled={status === 'submitting' || status === 'success'}

@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { speak } from '@/utils/speechUtils';
 import { translations } from '@/contexts/accessibility/translations';
 import InfoPopupButton from './InfoPopupButton';
 
-export default function TextToSpeech() {
+interface TextToSpeechProps {
+    onClosePanel?: () => void;
+}
+
+export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onClosePanel: undefined }) {
     const {
         textToSpeech, toggleTextToSpeech,
         ttsAutoPlay, toggleTtsAutoPlay,
@@ -16,11 +20,31 @@ export default function TextToSpeech() {
         ttsVoiceGender, setTtsVoiceGender,
         ttsReadingSpeed, setTtsReadingSpeed,
         ttsHoverToSpeak, toggleTtsHoverToSpeak,
+        stopTts,
         barTheme,
         language
     } = useAccessibility();
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
+
+    // When "Read whole page" is turned off, stop TTS
+    useEffect(() => {
+        if (!ttsReadWholePage && textToSpeech) {
+            stopTts();
+        }
+    }, [ttsReadWholePage, textToSpeech, stopTts]);
+
+    const handleToggleReadWholePage = () => {
+        const wasEnabled = ttsReadWholePage;
+        toggleTtsReadWholePage();
+        // If turning off, stop TTS immediately and close panel
+        if (wasEnabled) {
+            stopTts();
+            if (onClosePanel) {
+                setTimeout(() => onClosePanel(), 100);
+            }
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -146,7 +170,7 @@ export default function TextToSpeech() {
                         style={{ backgroundColor: theme.hover }}
                         onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
-                        onClick={toggleTtsReadWholePage}
+                        onClick={handleToggleReadWholePage}
                     >
                         <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.readPageContent}</span>
                         <div

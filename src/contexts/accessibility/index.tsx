@@ -137,6 +137,7 @@ export interface AccessibilityContextType extends AccessibilityState {
     setSmartSuggestions: (enabled: boolean) => void;
     setRealTimeTranslation: (enabled: boolean) => void;
     showNotification: (message: string, position?: { top: number, left: number }) => void;
+    hideNotification: () => void;
     notification: NotificationState;
 }
 
@@ -169,6 +170,11 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         notificationTimeoutRef.current = setTimeout(() => {
             setNotification(prev => ({ ...prev, visible: false }));
         }, 3000);
+    };
+
+    const hideNotification = () => {
+        if (notificationTimeoutRef.current) clearTimeout(notificationTimeoutRef.current);
+        setNotification(prev => ({ ...prev, visible: false }));
     };
 
     const withAudioPing = (fn: any) => {
@@ -356,6 +362,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         resetIconStyle: ui.resetIconStyle,
         notification,
         showNotification,
+        hideNotification,
 
 
         increaseFontSize: withAudioPing(text.increaseFontSize),
@@ -544,7 +551,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         toggleMuteAudio: withAudioPing(() => {
             const next = !content.muteAudio;
             content.setMuteAudio(next);
-            showNotification(next ? `${t.controls.muteAudio || "Mute Audio"} Enabled` : `${t.controls.muteAudio || "Mute Audio"} Disabled`);
+            showNotification(next ? `${t.controls.muteAudio || "Pause Audio"} Enabled` : `${t.controls.muteAudio || "Pause Audio"} Disabled`);
         }),
         toggleStopVideos: withAudioPing(() => {
             const next = !content.stopVideos;
@@ -696,7 +703,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (content.hideImages) list.push(ct.hideImages || "Hide Images");
                     if (content.showImageDescriptions) list.push(ct.descriptions || "Image Desc");
                     if (content.pauseAnimations) list.push(ct.motion || "Reduce Motion");
-                    if (content.muteAudio) list.push(ct.muteAudio || "Muted Audio");
+                    if (content.muteAudio) list.push(ct.muteAudio || "Pause Audio");
                     if (content.stopVideos) list.push(ct.stopVideos || "Stop Videos");
                     break;
                 case 'speech':
@@ -770,7 +777,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (content.hideImages) list.push({ label: ct.hideImages || "Hide Images", onRemove: withAudioPing(() => content.setHideImages(false)) });
                     if (content.showImageDescriptions) list.push({ label: ct.descriptions || "Image Desc", onRemove: withAudioPing(() => content.setShowImageDescriptions(false)) });
                     if (content.pauseAnimations) list.push({ label: ct.motion || "Reduce Motion", onRemove: withAudioPing(() => content.setPauseAnimations(false)) });
-                    if (content.muteAudio) list.push({ label: ct.muteAudio || "Muted Audio", onRemove: withAudioPing(() => content.setMuteAudio(false)) });
+                    if (content.muteAudio) list.push({ label: ct.muteAudio || "Pause Audio", onRemove: withAudioPing(() => content.setMuteAudio(false)) });
                     if (content.stopVideos) list.push({ label: ct.stopVideos || "Stop Videos", onRemove: withAudioPing(() => content.setStopVideos(false)) });
                     break;
                 case 'speech':

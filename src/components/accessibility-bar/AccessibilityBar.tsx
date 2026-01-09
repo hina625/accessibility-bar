@@ -115,9 +115,9 @@ export default function AccessibilityBar() {
   const [selectedOffset, setSelectedOffset] = useState<number>(0);
   const [selectedCategoryRect, setSelectedCategoryRect] = useState<DOMRect | null>(null);
   const [showSidebarTutorial, setShowSidebarTutorial] = useState(false);
-  const [hasSeenSidebarTutorial, setHasSeenSidebarTutorial] = useState(() => {
+  const [hasSeenSidebarTutorialThisSession, setHasSeenSidebarTutorialThisSession] = useState(() => {
     if (typeof window !== 'undefined') {
-      return safeStorage.getItem('accessibility-seen-sidebar-tutorial') === 'true';
+      return sessionStorage.getItem('accessibility-seen-sidebar-tutorial-session') === 'true';
     }
     return false;
   });
@@ -220,7 +220,10 @@ export default function AccessibilityBar() {
     setSmartSuggestions,
     setRealTimeTranslation,
     softReset, // Import softReset
-    resetIconStyle
+    resetIconStyle,
+    ttsVoiceGender,
+    ttsReadWholePage,
+    stopTts
   } = context;
 
   const applyProfile = (profileId: string) => {
@@ -736,7 +739,7 @@ export default function AccessibilityBar() {
   };
 
   const categories = [
-    { id: 'az', name: `A-Z LIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
+    { id: 'az', name: `A-Z\nLIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'reset', name: `RESET`, icon: resetIcon, colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
     { id: 'move_ui', name: `SIDEBAR\nPOSITION`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'position', name: `CUSTOMISE\nTOOLBAR`, icon: profileIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
@@ -937,7 +940,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
         return (
           <div className="space-y-6">
             <FeatureWrapper featureId="text-to-speech" highlightedFeature={highlightedFeature}>
-              <TextToSpeech />
+              <TextToSpeech onClosePanel={() => setIsOpen(false)} />
             </FeatureWrapper>
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: `${currentTheme.border}`, borderBottomWidth: '3px', boxShadow: 'none' }} />
             <FeatureWrapper featureId="voice-navigation" highlightedFeature={highlightedFeature}>
@@ -1237,6 +1240,11 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
           ref={triggerRef}
           onMouseDown={(e) => e.stopPropagation()}
           onMouseUp={(e) => e.stopPropagation()}
+          onMouseEnter={() => {
+            if (textToSpeech) {
+              speak('Accessibility Options', ttsVoiceGender);
+            }
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -1485,12 +1493,13 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                     border: `1.5px solid ${sidebarIconSize === opt.multiplier ? 'transparent' : currentTheme.text + '22'}`
                                   }}
                                 >
-                                  <div
-                                    className="rounded-[2px]"
+                                  <Image
+                                    src="/scalability.png"
+                                    alt="Menu Icon"
+                                    width={opt.icon - 4}
+                                    height={opt.icon - 4}
+                                    className="object-contain"
                                     style={{
-                                      width: `${opt.icon - 4}px`,
-                                      height: `${opt.icon - 4}px`,
-                                      backgroundColor: sidebarIconSize === opt.multiplier ? '#000000' : currentTheme.text,
                                       opacity: sidebarIconSize === opt.multiplier ? 1 : 0.8
                                     }}
                                   />
@@ -1584,9 +1593,6 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                         style={{ background: `${currentTheme.active}11`, borderColor: 'rgba(255, 255, 255, 0.8)' }}
                         onClick={() => setShowSettingsDropdown(false)}
                       >
-                        <span className="text-[13px] font-black uppercase tracking-[0.2em] opacity-50" style={{ color: '#FFFFFF' }}>
-                          Close Settings
-                        </span>
                       </div>
                     )}
                   </div>
@@ -1649,24 +1655,22 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                   }}
                   className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100]`}
                   style={{
-                    background: barTheme === 'white'
-                      ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-                      : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))',
+                    background: '#FFFFFF',
                     backdropFilter: 'blur(10px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                    border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
+                    border: '2px solid rgba(0,0,0,0.2)',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     width: isVertical ? '55px' : '58px',
                     height: isVertical ? '55px' : '58px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    boxShadow: 'none'
+                    justifyContent: 'center'
                   }}
                   aria-label="Close"
                 >
                   <svg
                     className="h-5 w-5"
-                    style={{ color: currentTheme.text }}
+                    style={{ color: '#000000' }}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -1680,64 +1684,6 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                   </svg>
                 </button>
 
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      if (audioPingEnabled) playAudioPing('menu');
-                      togglePanelPin();
-                    }}
-                    className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:scale-110 active:scale-95 z-10 flex items-center justify-center shadow-md`}
-                    style={{
-                      background: isPanelPinned ? '#FFD700' : (barTheme === 'white'
-                        ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-                        : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))'),
-                      backdropFilter: 'blur(10px) saturate(180%)',
-                      WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
-                      width: isVertical ? '55px' : '58px',
-                      height: isVertical ? '55px' : '58px',
-                      boxShadow: 'none'
-                    }}
-                    title={isPanelPinned ? "Unpin Panel" : "Pin Panel"}
-                    aria-label={isPanelPinned ? "Unpin Toolbar" : "Pin Toolbar"}
-                  >
-                    <Image
-                      src={pinIcon}
-                      alt="Pin Toolbar"
-                      width={20}
-                      height={20}
-                      className={`transition-transform duration-300 ${isPanelPinned ? 'scale-110' : ''}`}
-                      style={{ opacity: isPanelPinned ? 1 : 0.6 }}
-                    />
-                  </button>
-
-                  {/* Red 'X' Dismiss Button */}
-                  {isPanelPinned && (
-                    <button
-                      onClick={() => {
-                        togglePanelPin();
-                        setIsOpen(false);
-                      }}
-                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center shadow-md hover:bg-red-600 transition-colors z-50"
-                      title="Close Toolbar"
-                      aria-label="Close Toolbar"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="w-4 h-4 text-white"
-                      >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
-                      </svg>
-                    </button>
-                  )}
-                </div>
 
 
 
@@ -1774,32 +1720,35 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                       setSelectedCategory('az');
                                       setIsOpen(true);
                                     }}
+                                    onMouseEnter={() => {
+                                      if (textToSpeech) {
+                                        speak(azCategory.name, ttsVoiceGender);
+                                      }
+                                    }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
                                     className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
                                     style={{
-                                      background: barTheme === 'white'
-                                        ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-                                        : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))',
+                                      background: '#FFFFFF',
                                       backdropFilter: 'blur(10px) saturate(180%)',
                                       WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
+                                      border: '2px solid rgba(0,0,0,0.2)',
                                       width: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
                                       height: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
-                                      boxShadow: 'none'
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                     }}
                                     aria-label={azCategory.name}
                                     title={azCategory.name}
                                   >
                                     <div
-                                      className={`flex flex-col items-center justify-center font-black leading-none transition-all duration-300 ${isVertical ? '' : 'translate-y-[2px]'}`}
+                                      className="flex flex-col items-center justify-center font-black leading-none"
                                       style={{
                                         width: 32 * sidebarIconSize,
                                         height: 32 * sidebarIconSize,
-                                        color: currentTheme.text,
+                                        color: '#000000',
                                       }}
                                     >
-                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px` }}>A-Z</span>
-                                      <span style={{ fontSize: `${(isVertical ? 10 : 12) * sidebarIconSize}px`, marginTop: isVertical ? '-2px' : '4px' }}>List</span>
+                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
+                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
                                     </div>
                                   </button>
                                 </div>
@@ -1817,16 +1766,18 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                       setShowResetConfirm(true);
                                     }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
-                                    onMouseEnter={() => textToSpeech && speak(resetCategory.name)}
+                                    onMouseEnter={() => textToSpeech && speak(resetCategory.name, ttsVoiceGender)}
                                     className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
                                     style={{
                                       background: resetIconStyle === 'red-black'
                                         ? 'linear-gradient(135deg, #FF0000, #CC0000)'
                                         : resetIconStyle === 'yellow-black'
                                           ? '#FFD700'
-                                          : resetIconStyle === 'white-black'
-                                            ? '#FFFFFF'
-                                            : '#000000',
+                                          : resetIconStyle === 'turquoise-black'
+                                            ? '#17D1C6'
+                                            : resetIconStyle === 'white-black'
+                                              ? '#FFFFFF'
+                                              : '#000000',
                                       backdropFilter: 'blur(5px) saturate(180%)',
                                       WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                       border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
@@ -1868,13 +1819,17 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                   return;
                                 }
                                 if (category.id === 'move_ui') {
-                                  if (!hasSeenSidebarTutorial) {
+                                  // Show tutorial popup once per session (after refresh, it will show again)
+                                  if (!hasSeenSidebarTutorialThisSession) {
                                     setTutorialIcon(category.icon);
                                     setShowSidebarTutorial(true);
-                                    setHasSeenSidebarTutorial(true);
-                                    safeStorage.setItem('accessibility-seen-sidebar-tutorial', 'true');
+                                    setHasSeenSidebarTutorialThisSession(true);
+                                    if (typeof window !== 'undefined') {
+                                      sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
+                                    }
                                     return;
                                   }
+                                  // After showing once in this session, cycle through positions
                                   const positions = ['left', 'right', 'top', 'bottom'];
                                   const currentIndex = positions.indexOf(panelPosition || 'left');
                                   const nextIndex = (currentIndex + 1) % positions.length;
@@ -1890,7 +1845,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                               }}
                               onMouseEnter={() => {
                                 if (textToSpeech) {
-                                  speak(category.name);
+                                  speak(category.name, ttsVoiceGender);
                                 }
                               }}
                               className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden ${selectedCategory === category.id
@@ -1904,9 +1859,11 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                       ? 'linear-gradient(135deg, #FF0000, #CC0000)'
                                       : resetIconStyle === 'yellow-black'
                                         ? '#FFD700'
-                                        : resetIconStyle === 'white-black'
-                                          ? '#FFFFFF'
-                                          : '#000000',
+                                        : resetIconStyle === 'turquoise-black'
+                                          ? '#17D1C6'
+                                          : resetIconStyle === 'white-black'
+                                            ? '#FFFFFF'
+                                            : '#000000',
                                     backdropFilter: 'blur(5px) saturate(180%)',
                                     WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                     border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
@@ -1952,18 +1909,18 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                             >
                               {category.id === 'az' ? (
                                 <div
-                                  className={`flex flex-col items-center justify-center font-black leading-none transition-all duration-300 ${!isVertical ? 'translate-y-[-3px]' : ''} ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
+                                  className={`flex flex-col items-center justify-center font-black leading-none transition-all duration-300 ${selectedCategory === category.id
                                     ? ''
                                     : 'opacity-70 group-hover:opacity-100'
                                     }`}
                                   style={{
                                     width: 32 * sidebarIconSize,
                                     height: 32 * sidebarIconSize,
-                                    color: selectedCategory === category.id ? '#000000' : currentTheme.text,
+                                    color: '#000000',
                                   }}
                                 >
-                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px` }}>A-Z</span>
-                                  <span style={{ fontSize: `${(isVertical ? 9 : 7) * sidebarIconSize}px`, marginTop: '0px' }}>List</span>
+                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
+                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
                                 </div>
                               ) : (
                                 <Image
@@ -2036,12 +1993,18 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                             {/* Directional Arrow */}
                             <div className="flex flex-col items-center">
                               {currentPage < 4 && (
-                                <span className="text-[15px] font-black uppercase text-white mb-0.5 opacity-90">
+                                <span 
+                                  className="text-[15px] font-black uppercase mb-0.5 opacity-90"
+                                  style={{ color: currentTheme.text }}
+                                >
                                   Next
                                 </span>
                               )}
                               {currentPage === 4 && (
-                                <span className="text-[15px] font-black uppercase text-white mb-0.5 opacity-90">
+                                <span 
+                                  className="text-[15px] font-black uppercase mb-0.5 opacity-90"
+                                  style={{ color: currentTheme.text }}
+                                >
                                   Previous
                                 </span>
                               )}
@@ -2159,9 +2122,9 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                           }}
                         >
                           {selectedCategory === 'az' ? (
-                            <div className="flex flex-col items-center justify-center font-black leading-none -translate-y-0.5" style={{ color: '#000000' }}>
-                              <span style={{ fontSize: '18px' }}>A-Z</span>
-                              <span style={{ fontSize: '10px', marginTop: '-2px' }}>List</span>
+                            <div className="flex flex-col items-center justify-center font-black leading-none" style={{ color: '#000000' }}>
+                              <span style={{ fontSize: '18px', display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
+                              <span style={{ fontSize: '18px', marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
                             </div>
                           ) : (
                             <Image
@@ -2341,12 +2304,13 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                   style={{
                     background: resetIconStyle === 'red-black' ? '#FF0000' :
                       resetIconStyle === 'yellow-black' ? '#FFD700' :
-                        resetIconStyle === 'white-black' ? '#FFFFFF' :
-                          resetIconStyle === 'black-white' ? '#000000' :
-                            currentTheme.background,
+                        resetIconStyle === 'turquoise-black' ? '#17D1C6' :
+                          resetIconStyle === 'white-black' ? '#FFFFFF' :
+                            resetIconStyle === 'black-white' ? '#000000' :
+                              currentTheme.background,
                     backdropFilter: 'blur(10px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                    color: (resetIconStyle === 'white-black' || resetIconStyle === 'yellow-black') ? '#000000' : '#FFFFFF',
+                    color: (resetIconStyle === 'white-black' || resetIconStyle === 'yellow-black' || resetIconStyle === 'turquoise-black') ? '#000000' : '#FFFFFF',
                     border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.3)' : '4px solid rgba(255,255,255,0.3)',
                     boxShadow: 'none'
                   }}
@@ -2356,7 +2320,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                     alt=""
                     width={isMobile ? 32 : 40}
                     height={isMobile ? 32 : 40}
-                    className={`transition-transform ${(resetIconStyle === 'white-black' || resetIconStyle === 'yellow-black') ? 'brightness(0)' : 'brightness(0) invert'}`}
+                    className={`transition-transform ${(resetIconStyle === 'white-black' || resetIconStyle === 'yellow-black' || resetIconStyle === 'turquoise-black') ? 'brightness(0)' : 'brightness(0) invert'}`}
                   />
                 </div>
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-relaxed mb-4 text-center">

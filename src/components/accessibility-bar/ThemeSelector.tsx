@@ -8,7 +8,7 @@ const THEME_OPTIONS: { id: BarTheme; label: string }[] = [
     { id: 'grayscale', label: 'Grey Scale' },
     { id: 'black', label: 'Black' },
     { id: 'oceanBlue', label: 'Ocean Blue' },
-    { id: 'Turquoise', label: 'Turquoise' },
+    { id: 'Turquoise', label: 'Sky' },
     { id: 'navy', label: 'Navy' },
     { id: 'yellow', label: 'Yellow' },
     { id: 'purple', label: 'Purple' },
@@ -36,8 +36,8 @@ export default function ThemeSelector() {
                                 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}
                             `}
                             style={{
-                                borderColor: isSelected ? currentTheme.active : currentTheme.border,
-                                backgroundColor: isSelected ? `${currentTheme.active}22` : `${currentTheme.text}08`,
+                                borderColor: isSelected ? optionTheme.active : currentTheme.border,
+                                backgroundColor: isSelected ? `${optionTheme.active}30` : `${currentTheme.text}08`,
                             }}
                             title={themeOption.label}
                         >
@@ -62,7 +62,7 @@ export default function ThemeSelector() {
                                 )}
                             </div>
 
-                            <span className="text-[16px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                            <span className="text-[14px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
                                 {themeOption.label}
                             </span>
                         </button>

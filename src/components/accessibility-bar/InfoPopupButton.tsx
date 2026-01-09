@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 // import Image from 'next/image';
-import infoIcon from '@/assets/icons/info.png';
+import infoIcon from '@/assets/icons/info.png?inline';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
@@ -75,7 +75,7 @@ export default function InfoPopupButton({ title, description }: InfoPopupButtonP
                 aria-label={`More info about ${title}`}
             >
                 <img
-                    src={infoIcon.src}
+                    src={typeof infoIcon === 'string' ? infoIcon : (infoIcon as any).src || infoIcon}
                     alt="Info"
                     width={16}
                     height={16}
@@ -111,7 +111,7 @@ export default function InfoPopupButton({ title, description }: InfoPopupButtonP
 
                     <div className="mb-3 p-2 rounded-full bg-blue-100/50 inline-flex items-center justify-center">
                         <img
-                            src={infoIcon.src}
+                            src={typeof infoIcon === 'string' ? infoIcon : (infoIcon as any).src || infoIcon}
                             alt=""
                             width={24}
                             height={24}

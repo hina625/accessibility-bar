@@ -17,7 +17,8 @@ export default function VoiceNavigation() {
         grayscale, invertColors, readingGuide, readingRuler, readingMask,
         readingSpotlight, highlightLinks, highlightHeadings, largeButtons,
         hideImages, pauseAnimations, textToSpeech, magnifier,
-        barTheme, language
+        barTheme, language,
+        ttsVoiceGender, setTtsVoiceGender
     } = useAccessibility();
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
@@ -102,8 +103,7 @@ export default function VoiceNavigation() {
 
         // Handle legacy string actions (backward compatibility)
         if (typeof actionData === 'string') {
-            // ... (keep legacy switch case if needed, or map to new format)
-            // For now, we wrap legacy strings into an object for the big switch
+        
             actionData = { action: actionData };
         }
 
@@ -196,55 +196,213 @@ export default function VoiceNavigation() {
         hideImages, pauseAnimations, textToSpeech, magnifier
     ]);
 
-    // Parse voice command using AI
+    // Local fuzzy command matching (fallback when AI fails)
+    const matchCommandLocally = useCallback((text: string): string | null => {
+        const normalized = text.toLowerCase().trim();
+        
+        // Extract keywords
+        const keywords = normalized.split(/\s+/);
+        
+        // Command patterns with fuzzy matching
+        const patterns: { keywords: string[]; action: string; priority: number }[] = [
+            // Font/Size commands
+            { keywords: ['increase', 'font', 'size', 'bigger', 'larger', 'zoom', 'in'], action: 'increase_font', priority: 10 },
+            { keywords: ['decrease', 'font', 'size', 'smaller', 'zoom', 'out'], action: 'decrease_font', priority: 10 },
+            { keywords: ['reset', 'font', 'normal', 'default'], action: 'reset_font', priority: 8 },
+            
+            // Mode commands
+            { keywords: ['dark', 'mode', 'night'], action: 'dark_mode', priority: 9 },
+            { keywords: ['light', 'mode', 'day'], action: 'light_mode', priority: 9 },
+            { keywords: ['contrast', 'high'], action: 'high_contrast', priority: 8 },
+            { keywords: ['grayscale', 'grey', 'gray'], action: 'grayscale', priority: 7 },
+            { keywords: ['invert', 'inverse', 'reverse'], action: 'invert', priority: 7 },
+            
+            // Reading tools
+            { keywords: ['ruler', 'reading', 'ruler'], action: 'toggle_ruler', priority: 8 },
+            { keywords: ['guide', 'reading', 'guide'], action: 'toggle_guide', priority: 8 },
+            { keywords: ['mask', 'reading', 'mask'], action: 'toggle_mask', priority: 7 },
+            { keywords: ['spotlight', 'reading', 'spotlight'], action: 'toggle_spotlight', priority: 7 },
+            { keywords: ['magnifier', 'magnify', 'zoom'], action: 'toggle_magnifier', priority: 7 },
+            
+            // Highlight commands
+            { keywords: ['link', 'links', 'highlight'], action: 'toggle_links', priority: 6 },
+            { keywords: ['heading', 'headings', 'highlight'], action: 'toggle_headings', priority: 6 },
+            
+            // UI commands
+            { keywords: ['button', 'buttons', 'large', 'big'], action: 'toggle_buttons', priority: 6 },
+            { keywords: ['image', 'images', 'hide', 'show'], action: 'toggle_images', priority: 5 },
+            { keywords: ['animation', 'animations', 'pause', 'stop'], action: 'toggle_animations', priority: 5 },
+            
+            // Speech
+            { keywords: ['speech', 'text', 'to', 'speech', 'read'], action: 'toggle_tts', priority: 6 },
+            
+            // Navigation
+            { keywords: ['scroll', 'down'], action: 'scroll_down', priority: 8 },
+            { keywords: ['scroll', 'up'], action: 'scroll_up', priority: 8 },
+            { keywords: ['top', 'go', 'to', 'top'], action: 'go_top', priority: 7 },
+            { keywords: ['bottom', 'go', 'to', 'bottom'], action: 'go_bottom', priority: 7 },
+            { keywords: ['back', 'go', 'back'], action: 'go_back', priority: 6 },
+            { keywords: ['forward', 'go', 'forward'], action: 'go_forward', priority: 6 },
+            { keywords: ['refresh', 'reload'], action: 'refresh', priority: 5 },
+            
+            // Reset
+            { keywords: ['reset', 'all', 'everything', 'clear'], action: 'reset_all', priority: 9 },
+        ];
+        
+        // Score each pattern based on keyword matches
+        let bestMatch: { action: string; score: number } | null = null;
+        
+        for (const pattern of patterns) {
+            let score = 0;
+            let matchedKeywords = 0;
+            
+            for (const keyword of pattern.keywords) {
+                if (normalized.includes(keyword)) {
+                    score += pattern.priority;
+                    matchedKeywords++;
+                }
+            }
+            
+            // Bonus for matching multiple keywords
+            if (matchedKeywords >= 2) {
+                score *= 1.5;
+            }
+            
+            if (score > 0 && (!bestMatch || score > bestMatch.score)) {
+                bestMatch = { action: pattern.action, score };
+            }
+        }
+        
+        // If we have a reasonable match (score > 5), return it
+        if (bestMatch && bestMatch.score >= 5) {
+            return bestMatch.action;
+        }
+        
+        // Fallback: if text contains common action words, try to infer
+        if (normalized.includes('increase') || normalized.includes('more') || normalized.includes('bigger')) {
+            return 'increase_font';
+        }
+        if (normalized.includes('decrease') || normalized.includes('less') || normalized.includes('smaller')) {
+            return 'decrease_font';
+        }
+        if (normalized.includes('dark')) {
+            return 'dark_mode';
+        }
+        if (normalized.includes('contrast')) {
+            return 'high_contrast';
+        }
+        
+        return null;
+    }, []);
+
+    // Parse voice command using AI with local fallback
     const parseCommand = useCallback(async (text: string) => {
         setLastHeard(text);
         setIsThinking(true);
-        setFeedback('🧠 AI Understanding...');
+        setFeedback('🧠 Understanding...');
 
-        const context = getPageContext(); // Get context for the AI
+        const context = getPageContext();
 
         try {
             const response = await fetch(API_ENDPOINTS.VOICE_COMMAND, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, context }) // Send context
+                body: JSON.stringify({ text, context })
             });
 
             if (response.ok) {
                 const data = await response.json();
                 console.log('AI parsed action:', data.action);
 
-                // data.action can now be an object or string
                 if (data.action && data.action !== 'none') {
                     executeAction(data.action);
                 } else {
-                    setFeedback('❌ Sorry, didn\'t catch that');
-                    setTimeout(() => setFeedback('🎤 Listening...'), 2000);
+                    // AI didn't understand, try local fuzzy matching
+                    const localMatch = matchCommandLocally(text);
+                    if (localMatch) {
+                        setFeedback('💡 Understood! Executing...');
+                        executeAction(localMatch);
+                    } else {
+                        setFeedback('❌ Sorry, didn\'t catch that. Try: "increase font", "dark mode", "show links"');
+                        setTimeout(() => setFeedback('🎤 Listening...'), 3000);
+                    }
+                }
+            } else {
+                // API error, try local matching
+                const localMatch = matchCommandLocally(text);
+                if (localMatch) {
+                    setFeedback('💡 Understood! Executing...');
+                    executeAction(localMatch);
+                } else {
+                    setFeedback('❌ Connection error. Try: "increase font", "dark mode"');
+                    setTimeout(() => setFeedback('🎤 Listening...'), 3000);
                 }
             }
         } catch (error) {
             console.error('Voice command parse error:', error);
-            setFeedback('❌ Connection error');
-            setTimeout(() => setFeedback('🎤 Listening...'), 2000);
+            // Network error, use local matching
+            const localMatch = matchCommandLocally(text);
+            if (localMatch) {
+                setFeedback('💡 Understood! Executing...');
+                executeAction(localMatch);
+            } else {
+                setFeedback('❌ Connection error. Try: "increase font", "dark mode"');
+                setTimeout(() => setFeedback('🎤 Listening...'), 3000);
+            }
         } finally {
             setIsThinking(false);
         }
-    }, [executeAction, getPageContext]);
+    }, [executeAction, getPageContext, matchCommandLocally]);
 
-    // Initialize speech recognition
+    // Initialize speech recognition - but don't auto-start
+    // Only initialize when enabled, but let user manually start via button
     useEffect(() => {
         if (!isEnabled) {
             if (recognition.current) {
+                try {
                 recognition.current.stop();
+                } catch (e) {
+                    // Ignore stop errors
+                }
             }
             setIsListening(false);
             isListeningRef.current = false;
             return;
         }
 
+        // Don't auto-start - user must click "Start Listening" button
+        // This prevents permission errors on page load
+        return () => {
+            if (recognition.current) {
+                try {
+                    recognition.current.stop();
+                } catch (e) {
+                    // Ignore stop errors
+                }
+            }
+        };
+    }, [isEnabled, voiceLang]);
+
+    const startListening = () => {
+        if (!isSupported) {
+            setError('Voice control is not supported in this browser. Please use Chrome, Edge, or Safari.');
+            return;
+        }
+
+        // Always create a new recognition instance to ensure clean state
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+            
+            // Stop and cleanup existing recognition
+            if (recognition.current) {
+                try {
+                    recognition.current.stop();
+                } catch (e) {
+                    // Ignore errors when stopping
+                }
+            }
+
+            // Create new recognition instance
             recognition.current = new SpeechRecognition();
             recognition.current.continuous = true;
             recognition.current.interimResults = false;
@@ -254,78 +412,91 @@ export default function VoiceNavigation() {
                 setIsListening(true);
                 setError(null);
                 setFeedback('🎤 Listening...');
+                console.log('Speech recognition started');
             };
 
             recognition.current.onresult = (event: any) => {
-                const transcript = event.results[event.results.length - 1][0].transcript;
+                if (event.results && event.results.length > 0) {
+                    const result = event.results[event.results.length - 1];
+                    if (result && result[0]) {
+                        const transcript = result[0].transcript;
                 console.log('Heard:', transcript);
+                        setLastHeard(transcript);
                 parseCommand(transcript);
+                    }
+                }
             };
 
             recognition.current.onerror = (event: any) => {
                 const err = event.error;
                 console.error('Speech recognition error:', err);
 
-                if (err === 'not-allowed') {
-                    setError('Microphone access denied. Please allow/unblock microphone permissions.');
+                if (err === 'not-allowed' || err === 'service-not-allowed') {
                     setIsListening(false);
                     isListeningRef.current = false;
+                    setError(null);
+                    setFeedback('🎤 Microphone permission required. Please allow access when prompted.');
+                    // Don't retry automatically - user needs to grant permission first
                     return;
                 }
 
                 if (err === 'no-speech') {
-                    // Just silence, don't show error, will retry via onend
                     return;
                 }
 
                 if (err === 'network') {
-                    setError('Network error. accurate speech recognition requires internet.');
+                    setError('Network error. Accurate speech recognition requires internet.');
+                } else if (err === 'aborted') {
+                    return;
                 }
             };
 
             recognition.current.onend = () => {
+                console.log('Speech recognition ended. isListeningRef:', isListeningRef.current, 'isEnabled:', isEnabled);
                 setIsListening(false);
-                if (isEnabled && isListeningRef.current && !error) { // Don't restart if critical error
+                // Only auto-restart if manually started (isListeningRef is true) and no error
+                if (isListeningRef.current && !error) {
                     setTimeout(() => {
                         try {
-                            recognition.current?.start();
-                        } catch (e) { }
+                            if (isListeningRef.current && recognition.current) {
+                                console.log('Auto-restarting recognition...');
+                                recognition.current.start();
+                            }
+                        } catch (e) {
+                            console.error('Auto-restart error:', e);
+                            setIsListening(false);
+                            isListeningRef.current = false;
+                        }
                     }, 100);
+                } else {
+                    // If not auto-restarting, clear the ref
+                    isListeningRef.current = false;
                 }
             };
 
-            try {
-                recognition.current.start();
-                setIsListening(true);
-                isListeningRef.current = true;
-                setFeedback('🎤 Listening...');
-            } catch (e) { }
-        }
-
-        return () => {
-            if (recognition.current) {
-                recognition.current.onresult = null;
-                recognition.current.onerror = null;
-                recognition.current.onend = null;
-                try { recognition.current.stop(); } catch (e) { }
-            }
-        };
-    }, [isEnabled, voiceLang, parseCommand]);
-
-    const startListening = () => {
-        if (!isSupported) {
-            setError('Voice control is not supported in this browser. Please use Chrome, Edge, or Safari.');
-            return;
-        }
-        if (recognition.current) {
+            // Start listening immediately
             try {
                 setError(null);
+                setFeedback('🎤 Starting...');
                 isListeningRef.current = true;
+                console.log('Attempting to start recognition...');
                 recognition.current.start();
-                // State updates will handle in onstart
-            } catch (e) {
+                console.log('Recognition start() called successfully');
+                // Don't set listening state here - let onstart handle it
+            } catch (e: any) {
                 console.error('Start listening error:', e);
+                setIsListening(false);
+                isListeningRef.current = false;
+                if (e.message && e.message.includes('already started')) {
+                    setIsListening(true);
+                    setFeedback('🎤 Listening...');
+                } else {
+                    setError('Failed to start listening. Please try again.');
+                    setFeedback('');
+                }
             }
+        } else {
+            setError('Speech recognition is not supported in this browser.');
         }
     };
 
@@ -414,6 +585,56 @@ export default function VoiceNavigation() {
                         </div>
                     </div>
 
+                    {/* Voice Gender Selection */}
+                    <div>
+                        <label className="text-[16px] font-medium mb-1 block" style={{ color: theme.text }}>
+                            {t.controls.voice || 'Voice'}
+                        </label>
+                        <div className="space-y-2">
+                            <div
+                                className="flex items-center justify-between cursor-pointer group px-3 py-2 rounded-lg transition-all"
+                                style={{ backgroundColor: ttsVoiceGender === 'male' ? theme.active : theme.hover }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ttsVoiceGender === 'male' ? theme.active : theme.hover}
+                                onClick={() => setTtsVoiceGender('male')}
+                            >
+                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.male || 'Male'}</span>
+                                <div
+                                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                                    style={{
+                                        borderColor: ttsVoiceGender === 'male' ? theme.text : `${theme.text}44`,
+                                        backgroundColor: ttsVoiceGender === 'male' ? theme.text : 'transparent'
+                                    }}
+                                >
+                                    {ttsVoiceGender === 'male' && (
+                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.active }} />
+                                    )}
+                                </div>
+                            </div>
+
+                            <div
+                                className="flex items-center justify-between cursor-pointer group px-3 py-2 rounded-lg transition-all"
+                                style={{ backgroundColor: ttsVoiceGender === 'female' ? theme.active : theme.hover }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ttsVoiceGender === 'female' ? theme.active : theme.hover}
+                                onClick={() => setTtsVoiceGender('female')}
+                            >
+                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.female || 'Female'}</span>
+                                <div
+                                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                                    style={{
+                                        borderColor: ttsVoiceGender === 'female' ? theme.text : `${theme.text}44`,
+                                        backgroundColor: ttsVoiceGender === 'female' ? theme.text : 'transparent'
+                                    }}
+                                >
+                                    {ttsVoiceGender === 'female' && (
+                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.active }} />
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Start/Stop Listening Button */}
                     <button
                         onClick={isListening ? stopListening : startListening}
@@ -437,8 +658,8 @@ export default function VoiceNavigation() {
 
                     {/* Feedback Display */}
                     {(feedback || error) && (
-                        <div className={`rounded-lg p-3 text-center ${error ? 'bg-red-500/20 border border-red-500/50' : ''}`} style={{ backgroundColor: error ? undefined : theme.active }}>
-                            <p className="text-[16px] font-medium" style={{ color: error ? '#ff4d4d' : theme.text }}>
+                        <div className={`rounded-lg p-3 text-center ${error && !error.includes('Click') ? 'bg-red-500/20 border border-red-500/50' : ''}`} style={{ backgroundColor: (error && !error.includes('Click')) ? undefined : theme.active }}>
+                            <p className="text-[16px] font-medium" style={{ color: (error && !error.includes('Click')) ? '#ff4d4d' : theme.text }}>
                                 {error || feedback}
                             </p>
                         </div>

@@ -8,7 +8,7 @@ import LanguageSelector from './LanguageSelector';
 import InfoPopupButton from './InfoPopupButton';
 import { translations } from '@/contexts/accessibility/translations';
 // import Image from 'next/image';
-import accessibilityIcon from '../../assets/icons/first_icon_accessibility.png';
+import accessibilityIcon from '../../assets/icons/first_icon_accessibility.png?inline';
 import { playAudioPing } from '@/utils/audioPingUtils';
 
 interface PositionControlsProps {
@@ -72,9 +72,9 @@ export default function PositionControls({
                 <>
                     <section className="pb-6 border-b border-gray-200/20">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>1. Accessibility Position Button</h3>
+                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>1. Accessibility  Position Button</h3>
                             <img
-                                src={accessibilityIcon.src}
+                                src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
                                 alt=""
                                 width={48}
                                 height={48}
@@ -179,9 +179,10 @@ export default function PositionControls({
                     <div className="flex gap-4">
                         {[
                             { id: 'red-black', color: '#FF0000', label: 'Red' },
+                            { id: 'yellow-black', color: '#FFD700', label: 'Yellow' },
+                            { id: 'turquoise-black', color: '#17D1C6', label: 'Turquoise' },
                             { id: 'white-black', color: '#FFFFFF', label: 'White' },
-                            { id: 'black-white', color: '#000000', label: 'Black' },
-                            { id: 'turquoise-black', color: '#17D1C6', label: 'Turquoise' }
+                            { id: 'black-white', color: '#000000', label: 'Black' }
                         ].map((style) => (
                             <button
                                 key={style.id}
@@ -202,7 +203,7 @@ export default function PositionControls({
                             >
                                 {resetIconStyle === style.id && (
                                     <span className="absolute inset-0 flex items-center justify-center">
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' ? '#000000' : '#FFFFFF'} strokeWidth={3}>
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={3}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </span>
