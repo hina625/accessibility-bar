@@ -208,18 +208,28 @@ export default function CursorSizeControl({ highlightedFeature }: CursorSizeCont
                   else if (style.id === 'black') setCursorColor('#000000');
                   else if (style.id === 'inverted') setCursorColor('#000000');
                 }}
-                className="flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-lg border-2 transition-all hover:bg-white/5 h-full min-h-[75px]"
+                className="flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-lg border-2 transition-all h-full min-h-[75px] group"
                 style={{
                   borderColor: cursorStyle === style.id ? currentTheme.active : currentTheme.border,
                   backgroundColor: cursorStyle === style.id ? `${currentTheme.active}22` : `${currentTheme.text}08`
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.1)';
+                  e.currentTarget.style.backgroundColor = cursorStyle === style.id ? `${currentTheme.active}33` : `${currentTheme.active}22`;
+                  e.currentTarget.style.borderColor = currentTheme.active;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.backgroundColor = cursorStyle === style.id ? `${currentTheme.active}22` : `${currentTheme.text}08`;
+                  e.currentTarget.style.borderColor = cursorStyle === style.id ? currentTheme.active : currentTheme.border;
+                }}
               >
-                <div className="w-7 h-7 flex items-center justify-center shrink-0">
-                  <div className="scale-75 origin-center">
+                <div className="w-7 h-7 flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
+                  <div className="scale-75 origin-center group-hover:scale-90">
                     {style.icon(32, cursorColor)}
                   </div>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-bold leading-tight w-full text-center px-0.5 whitespace-nowrap overflow-hidden text-ellipsis"
+                <span className="text-[10px] sm:text-[11px] font-bold leading-tight w-full text-center px-0.5 whitespace-nowrap overflow-hidden text-ellipsis transition-all"
                   style={{ color: currentTheme.text }}>
                   {style.label}
                 </span>

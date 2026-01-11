@@ -15,27 +15,8 @@ export function useContentSettings() {
 
 
     useEffect(() => {
-        const saved = {
-            hideImages: localStorage.getItem('accessibility-hideImages'),
-            showImageDescriptions: localStorage.getItem('accessibility-showImageDescriptions'),
-            plainTextMode: localStorage.getItem('accessibility-plainTextMode'),
-            plainTextSize: localStorage.getItem('accessibility-plainTextSize'),
-            pauseAnimations: localStorage.getItem('accessibility-pauseAnimations'),
-            muteAudio: localStorage.getItem('accessibility-muteAudio'),
-            stopVideos: localStorage.getItem('accessibility-stopVideos'),
-            reduceMotion: localStorage.getItem('accessibility-reduceMotion'),
-            pageStructure: localStorage.getItem('accessibility-pageStructure'),
-        };
-
-        if (saved.hideImages === 'true') setHideImages(true);
-        if (saved.showImageDescriptions === 'true') setShowImageDescriptions(true);
-        if (saved.plainTextMode === 'true') setPlainTextMode(true);
-        if (saved.plainTextSize) setPlainTextSize(saved.plainTextSize as any);
-        if (saved.pauseAnimations === 'true') setPauseAnimations(true);
-        if (saved.muteAudio === 'true') setMuteAudio(true);
-        if (saved.stopVideos === 'true') setStopVideos(true);
-        if (saved.reduceMotion === 'true') setReduceMotion(true);
-        if (saved.pageStructure === 'true') setPageStructure(true);
+        // Don't load from localStorage on initial mount - start with defaults
+        // Styles will only be applied when user explicitly selects options
     }, []);
 
 
@@ -80,13 +61,13 @@ export function useContentSettings() {
     }, [pauseAnimations]);
 
     useEffect(() => {
-        // Mute all audio/video elements
+       
         const mediaElements = document.querySelectorAll('audio, video');
         mediaElements.forEach((el) => {
             (el as HTMLMediaElement).muted = muteAudio;
         });
 
-        // Also handle potential iframe embeds via CSS classes if possible, or leave for future expansion
+     
         if (muteAudio) document.documentElement.classList.add('mute-audio');
         else document.documentElement.classList.remove('mute-audio');
 

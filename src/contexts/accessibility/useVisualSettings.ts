@@ -21,29 +21,8 @@ export function useVisualSettings() {
     const [magnifierScale, setMagnifierScale] = useState<number>(2);
 
     useEffect(() => {
-        const saved = {
-            highContrast: localStorage.getItem('accessibility-highContrast'),
-            grayscale: localStorage.getItem('accessibility-grayscale'),
-            invertColors: localStorage.getItem('accessibility-invertColors'),
-            darkMode: localStorage.getItem('accessibility-darkMode'),
-            colorBlindFilter: localStorage.getItem('accessibility-colorBlindFilter'),
-            pageZoom: localStorage.getItem('accessibility-pageZoom'),
-            backgroundColor: localStorage.getItem('accessibility-backgroundColor'),
-            textColor: localStorage.getItem('accessibility-textColor'),
-            headingColor: localStorage.getItem('accessibility-headingColor'),
-        };
-
-        if (saved.highContrast === 'true') setHighContrast(true);
-        if (saved.grayscale === 'true') setGrayscale(true);
-        if (saved.invertColors === 'true') setInvertColors(true);
-        if (saved.darkMode === 'true') setDarkMode(true);
-        if (saved.colorBlindFilter) setColorBlindFilter(saved.colorBlindFilter as ColorBlindFilter);
-        if (saved.pageZoom) setPageZoom(Number(saved.pageZoom));
-        if (saved.backgroundColor) setBackgroundColor(saved.backgroundColor);
-        if (saved.textColor) setTextColor(saved.textColor);
-        if (saved.headingColor) setHeadingColor(saved.headingColor);
-        if (localStorage.getItem('accessibility-magnifier') === 'true') setMagnifier(true);
-        if (localStorage.getItem('accessibility-magnifierScale')) setMagnifierScale(Number(localStorage.getItem('accessibility-magnifierScale')));
+        // Don't load from localStorage on initial mount - start with defaults
+        // Styles will only be applied when user explicitly selects options
     }, []);
 
     useEffect(() => {
@@ -51,8 +30,6 @@ export function useVisualSettings() {
         localStorage.setItem('accessibility-magnifierScale', magnifierScale.toString());
     }, [magnifier, magnifierScale]);
 
-
-    // Unified effect for class-based filters
     useEffect(() => {
         const syncStates = () => {
             const host = document.getElementById('a11y-embed-host-react');
@@ -60,26 +37,25 @@ export function useVisualSettings() {
             if (host) roots.push(host);
 
             roots.forEach(root => {
-                // High Contrast
+                
                 if (highContrast) root.classList.add('high-contrast');
                 else root.classList.remove('high-contrast');
 
-                // Grayscale
+              
                 if (grayscale) root.classList.add('grayscale-mode');
                 else root.classList.remove('grayscale-mode');
 
-                // Invert Colors
                 if (invertColors) root.classList.add('invert-colors');
                 else root.classList.remove('invert-colors');
 
-                // Dark Mode
+              
                 if (darkMode) root.classList.add('dark-mode');
                 else root.classList.remove('dark-mode');
 
-                // Color Blind
+                
                 root.setAttribute('data-color-blind', colorBlindFilter);
 
-                // Custom Colors
+             
                 if (backgroundColor) {
                     root.style.setProperty('--page-bg-color', backgroundColor, 'important');
                     if (root === document.documentElement) document.body.style.setProperty('background-color', backgroundColor, 'important');
@@ -106,8 +82,13 @@ export function useVisualSettings() {
 
     useEffect(() => {
         const content = document.getElementById('accessible-content') || document.body;
-        if (content) {
+        const savedPageZoom = localStorage.getItem('accessibility-pageZoom');
+        // Only apply zoom if it's not 100% (default) or if user has explicitly set it
+        if (content && (pageZoom !== DEFAULT_PAGE_ZOOM || (savedPageZoom && Number(savedPageZoom) !== DEFAULT_PAGE_ZOOM))) {
             content.style.zoom = `${pageZoom}%`;
+        } else if (content && pageZoom === DEFAULT_PAGE_ZOOM && (!savedPageZoom || Number(savedPageZoom) === DEFAULT_PAGE_ZOOM)) {
+            // Remove zoom if at default
+            content.style.zoom = '';
         }
         localStorage.setItem('accessibility-pageZoom', pageZoom.toString());
     }, [pageZoom]);

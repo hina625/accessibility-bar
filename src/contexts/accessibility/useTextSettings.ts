@@ -15,50 +15,62 @@ export function useTextSettings() {
     const [lineHeight, setLineHeightState] = useState<number>(1);
     const [characterSpacing, setCharacterSpacingState] = useState<number>(0);
     const [wordSpacing, setWordSpacingState] = useState<number>(0);
+    const [isInitialized, setIsInitialized] = useState<boolean>(false);
+    const [userHasModified, setUserHasModified] = useState<boolean>(false);
 
-    // Initial load from localStorage
+
     useEffect(() => {
-        const savedFontSize = localStorage.getItem('accessibility-fontSize');
-        const savedFontStyle = localStorage.getItem('accessibility-fontStyle');
-        const savedTextAlign = localStorage.getItem('accessibility-textAlign');
+        // Don't load from localStorage on initial mount - start with defaults
+        // Styles will only be applied when user explicitly selects options
         const savedLanguage = localStorage.getItem('accessibility-language');
-        const savedLineHeight = localStorage.getItem('accessibility-lineHeight');
-        const savedCharacterSpacing = localStorage.getItem('accessibility-characterSpacing');
-        const savedWordSpacing = localStorage.getItem('accessibility-wordSpacing');
-
-        if (savedFontSize) setFontSizeState(Number(savedFontSize));
-        if (savedFontStyle) setFontStyleState(savedFontStyle as FontStyle);
-        if (savedTextAlign) setTextAlignState(savedTextAlign as any);
-        if (savedLanguage) setLanguageState(savedLanguage);
-        if (savedLineHeight) setLineHeightState(Number(savedLineHeight));
-        if (savedCharacterSpacing) setCharacterSpacingState(Number(savedCharacterSpacing));
-        if (savedWordSpacing) setWordSpacingState(Number(savedWordSpacing));
+        if (savedLanguage) {
+            setLanguageState(savedLanguage);
+        }
+        setIsInitialized(true);
     }, []);
 
-    // Apply effects via CSS variables on document root
+    
     useEffect(() => {
-        // Set CSS variables on document root for the host page
-        document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
-        document.documentElement.style.setProperty('--line-height', `${lineHeight}`);
-        document.documentElement.style.setProperty('--letter-spacing', `${characterSpacing}em`);
-        document.documentElement.style.setProperty('--word-spacing', `${wordSpacing}em`);
-        document.documentElement.style.setProperty('--text-align', textAlign);
+        if (!isInitialized) return;
+        
+        // Check if any value differs from default
+        const hasNonDefaultValues = fontSize !== DEFAULT_FONT_SIZE || 
+                                   fontStyle !== 'default' || 
+                                   textAlign !== 'left' || 
+                                   lineHeight !== 1 || 
+                                   characterSpacing !== 0 || 
+                                   wordSpacing !== 0;
+        
+        // Only apply styles if user has explicitly modified settings or values are non-default
+        if (userHasModified && hasNonDefaultValues) {
+            document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+            document.documentElement.style.setProperty('--line-height', `${lineHeight}`);
+            document.documentElement.style.setProperty('--letter-spacing', `${characterSpacing}em`);
+            document.documentElement.style.setProperty('--word-spacing', `${wordSpacing}em`);
+            document.documentElement.style.setProperty('--text-align', textAlign);
 
-        // Apply font style via data attribute
-        if (fontStyle === 'default') {
-            document.documentElement.removeAttribute('data-font-style');
+            if (fontStyle === 'default') {
+                document.documentElement.removeAttribute('data-font-style');
+            } else {
+                document.documentElement.setAttribute('data-font-style', fontStyle);
+            }
         } else {
-            document.documentElement.setAttribute('data-font-style', fontStyle);
+            // Remove all styles if at defaults or not modified
+            document.documentElement.style.removeProperty('--font-size');
+            document.documentElement.style.removeProperty('--line-height');
+            document.documentElement.style.removeProperty('--letter-spacing');
+            document.documentElement.style.removeProperty('--word-spacing');
+            document.documentElement.style.removeProperty('--text-align');
+            document.documentElement.removeAttribute('data-font-style');
         }
 
-        // Save to localStorage
         localStorage.setItem('accessibility-fontSize', fontSize.toString());
         localStorage.setItem('accessibility-fontStyle', fontStyle);
         localStorage.setItem('accessibility-textAlign', textAlign);
         localStorage.setItem('accessibility-lineHeight', lineHeight.toString());
         localStorage.setItem('accessibility-characterSpacing', characterSpacing.toString());
         localStorage.setItem('accessibility-wordSpacing', wordSpacing.toString());
-    }, [fontSize, fontStyle, textAlign, lineHeight, characterSpacing, wordSpacing]);
+    }, [fontSize, fontStyle, textAlign, lineHeight, characterSpacing, wordSpacing, isInitialized, userHasModified]);
 
     return {
         fontSize,
@@ -68,15 +80,48 @@ export function useTextSettings() {
         lineHeight,
         characterSpacing,
         wordSpacing,
-        setFontSize: setFontSizeState,
-        setFontStyle: setFontStyleState,
-        setTextAlign: setTextAlignState,
+        setFontSize: (val: number) => {
+            setFontSizeState(val);
+            setUserHasModified(true);
+        },
+        setFontStyle: (val: FontStyle) => {
+            setFontStyleState(val);
+            setUserHasModified(true);
+        },
+        setTextAlign: (val: 'left' | 'center' | 'right' | 'justify') => {
+            setTextAlignState(val);
+            setUserHasModified(true);
+        },
         setLanguage: setLanguageState,
-        setLineHeight: setLineHeightState,
-        setCharacterSpacing: setCharacterSpacingState,
-        setWordSpacing: setWordSpacingState,
-        increaseFontSize: () => setFontSizeState((prev) => Math.min(prev + 2, MAX_FONT_SIZE)),
-        decreaseFontSize: () => setFontSizeState((prev) => Math.max(prev - 2, MIN_FONT_SIZE)),
-        resetFontSize: () => setFontSizeState(DEFAULT_FONT_SIZE),
+        setLineHeight: (val: number) => {
+            setLineHeightState(val);
+            setUserHasModified(true);
+        },
+        setCharacterSpacing: (val: number) => {
+            setCharacterSpacingState(val);
+            setUserHasModified(true);
+        },
+        setWordSpacing: (val: number) => {
+            setWordSpacingState(val);
+            setUserHasModified(true);
+        },
+        increaseFontSize: () => {
+            setFontSizeState((prev) => {
+                const newVal = Math.min(prev + 2, MAX_FONT_SIZE);
+                if (newVal !== prev) setUserHasModified(true);
+                return newVal;
+            });
+        },
+        decreaseFontSize: () => {
+            setFontSizeState((prev) => {
+                const newVal = Math.max(prev - 2, MIN_FONT_SIZE);
+                if (newVal !== prev) setUserHasModified(true);
+                return newVal;
+            });
+        },
+        resetFontSize: () => {
+            setFontSizeState(DEFAULT_FONT_SIZE);
+            setUserHasModified(false);
+        },
     };
 }

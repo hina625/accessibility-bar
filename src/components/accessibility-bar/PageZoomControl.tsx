@@ -13,7 +13,11 @@ export default function PageZoomControl() {
     <div className="space-y-2">
 
       <p className="text-[15px] font-normal opacity-90 leading-relaxed mb-6" style={{ color: theme.text }}>
-        Tap the screen (Mobile or Tablet users) or Click your mouse 3 times in quick succession to Increase  Or Decrease the website font size. <br /> <br />Or use the -/+ buttons below
+        Tap the screen (Mobile or Tablet users) or Click your mouse 3 times in quick succession to Increase  Or Decrease the website font size.
+      </p>
+      {/* <br /> <br /> */}
+      <p className="text-[18px] font-normal opacity-90 leading-relaxed mb-6" style={{ color: theme.text }}>
+        Or use the -/+ buttons below.
       </p>
       <div className="flex items-center gap-3">
         <button

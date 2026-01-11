@@ -194,6 +194,26 @@ body[data-font-style="fs-me"] *:not(.accessibility-bar):not(.accessibility-bar *
 }
 
 
+/* TTS Highlighting - Only apply to accessible content, not accessibility bar */
+#accessible-content .tts-highlight,
+body .tts-highlight:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  background-color: rgba(255, 255, 0, 0.5) !important;
+  outline: 2px solid #FFD700 !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+  transition: all 0.2s ease !important;
+}
+
+#accessible-content .tts-highlight-current,
+body .tts-highlight-current:not(.accessibility-bar *):not(.a11y-embed-host *) {
+  background-color: rgba(255, 215, 0, 0.7) !important;
+  outline: 3px solid #FFA500 !important;
+  outline-offset: 2px !important;
+  border-radius: 3px !important;
+  font-weight: bold !important;
+  transition: all 0.2s ease !important;
+}
+
 #accessible-content :is(p,
   h1,
   h2,

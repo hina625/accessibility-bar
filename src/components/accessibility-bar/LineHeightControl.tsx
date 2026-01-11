@@ -29,7 +29,7 @@ export default function LineHeightControl() {
     return (
         <div className="flex flex-col gap-2 w-full">
             <p className="text-[16px] font-normal leading-relaxed mb-4" style={{ color: theme.text }}>
-                Click or tap the minus or plus button signs below to increase the line height of the website page.<br />
+                Click or tap the minus (-) or plus (+) button signs below to increase the line height of the website page.<br />
                 <br /> Click the reset button to clear your selection or to start over again.
             </p>
 

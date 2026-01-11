@@ -98,14 +98,6 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
     const [searchQuery, setSearchQuery] = useState('');
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const scrollToSection = (letter: string) => {
-        if (scrollContainerRef.current) {
-            const element = scrollContainerRef.current.querySelector(`#section-${letter}`);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-    };
 
     const features: FeatureItem[] = useMemo(() => [
         { label: 'Accessibility Button (Website Position)', category: 'position', highlightId: 'position-controls' },
@@ -227,141 +219,127 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         return groups;
     }, [filteredFeatures]);
 
+    const [currentLetter, setCurrentLetter] = useState('A');
+
+    const scrollToSection = (letter: string) => {
+        setCurrentLetter(letter);
+        if (scrollContainerRef.current) {
+            const element = scrollContainerRef.current.querySelector(`#section-${letter}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
+
     return (
-        <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-4 duration-300">
-            {/* Search Bar */}
-            <div className="mb-6">
-                <div className="relative group">
-                    <input
-                        type="text"
-                        placeholder="Search features A-Z"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full px-4 sm:px-5 py-3 sm:py-4 pl-10 sm:pl-12 rounded-2xl text-[14px] sm:text-[15px] font-medium transition-all duration-300 border-4 focus:outline-none"
-                        style={{
-                            backgroundColor: `${currentTheme.text}08`,
-                            color: currentTheme.text,
-                            borderColor: currentTheme.border,
-                            backdropFilter: 'blur(10px)',
-                        }}
-                    />
-                    <svg
-                        className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-50 group-focus-within:opacity-100 transition-opacity"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        style={{ color: currentTheme.text }}
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    {searchQuery && (
-                        <button
-                            onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu'); // Clear search
-                                setSearchQuery('');
+        <div className="flex flex-col sm:flex-row h-full animate-in fade-in slide-in-from-bottom-4 duration-300 overflow-hidden">
+            {/* Panel 1: Search & Alphabets (50% Width) */}
+            <div
+                className="w-full sm:w-1/2 flex flex-col p-6 border-b sm:border-b-0 sm:border-r"
+                style={{
+                    borderColor: `${currentTheme.border}4D`,
+                    background: `${currentTheme.background}0D`
+                }}
+            >
+                {/* Search Bar */}
+                <div className="mb-8">
+                    <div className="relative group">
+                        <input
+                            type="text"
+                            placeholder="Search features A-Z"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-4 py-3 pl-11 rounded-2xl text-[14px] font-bold transition-all duration-300 border-4 focus:outline-none"
+                            style={{
+                                backgroundColor: `${currentTheme.text}08`,
+                                color: currentTheme.text,
+                                borderColor: currentTheme.border,
+                                backdropFilter: 'blur(10px)',
                             }}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                        />
+                        <svg
+                            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 opacity-60 group-focus-within:opacity-100 transition-opacity"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            style={{ color: currentTheme.text }}
                         >
-                            <svg className="w-5 h-5" style={{ color: currentTheme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    )}
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                </div>
+
+                {/* Alphabet Navigation Grid */}
+                <div className="mb-8">
+                    <div className="grid grid-cols-9 sm:grid-cols-6 lg:grid-cols-8 gap-y-4 gap-x-2">
+                        {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(letter => (
+                            <button
+                                key={letter}
+                                onClick={() => {
+                                    if (audioPingEnabled) playAudioPing('menu');
+                                    scrollToSection(letter);
+                                }}
+                                className="w-full flex items-center justify-center text-[15px] font-black hover:scale-125 transition-all"
+                                style={{
+                                    color: currentTheme.text,
+                                    cursor: groupedFeatures[letter] ? 'pointer' : 'default',
+                                    opacity: groupedFeatures[letter] ? (currentLetter === letter ? 1 : 0.6) : 0.2,
+                                    transform: currentLetter === letter ? 'scale(1.3)' : 'scale(1)'
+                                }}
+                                disabled={!groupedFeatures[letter]}
+                            >
+                                {letter}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            {/* Alphabet Navigation */}
-            <div className="mb-6 flex flex-col gap-2">
-                {/* Row 1: A-I */}
-                <div className="flex justify-between px-1">
-                    {"ABCDEFGHI".split('').map(letter => (
-                        <button
-                            key={letter}
-                            onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                scrollToSection(letter);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
-                            style={{
-                                color: currentTheme.text,
-                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
-                                opacity: 1
-                            }}
-                            disabled={!groupedFeatures[letter]}
-                        >
-                            {letter}
-                        </button>
-                    ))}
-                </div>
-                {/* Row 2: J-R */}
-                <div className="flex justify-between px-1">
-                    {"JKLMNOPQR".split('').map(letter => (
-                        <button
-                            key={letter}
-                            onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                scrollToSection(letter);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
-                            style={{
-                                color: currentTheme.text,
-                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
-                                opacity: 1
-                            }}
-                            disabled={!groupedFeatures[letter]}
-                        >
-                            {letter}
-                        </button>
-                    ))}
-                </div>
-                {/* Row 3: S-Z */}
-                <div className="flex justify-between px-1">
-                    {"STUVWXYZ".split('').map(letter => (
-                        <button
-                            key={letter}
-                            onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                scrollToSection(letter);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-[14px] font-bold hover:bg-white/10 transition-all"
-                            style={{
-                                color: currentTheme.text,
-                                cursor: groupedFeatures[letter] ? 'pointer' : 'default',
-                                opacity: 1
-                            }}
-                            disabled={!groupedFeatures[letter]}
-                        >
-                            {letter}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Feature Grid */}
+            {/* Panel 2: Feature List (50% Width) */}
             <div
                 ref={scrollContainerRef}
-                className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-8 pb-8 scroll-smooth"
+                className="w-full sm:w-1/2 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
+                onScroll={(e) => {
+                    const container = e.currentTarget;
+                    const sections = container.querySelectorAll('[id^="section-"]');
+                    for (const section of Array.from(sections)) {
+                        const rect = section.getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        if (rect.top >= containerRect.top - 20 && rect.top <= containerRect.top + 150) {
+                            setCurrentLetter(section.id.split('-')[1]);
+                            break;
+                        }
+                    }
+                }}
             >
                 {Object.keys(groupedFeatures).length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                        <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white/5 border-4 border-white/10">
-                            <svg className="w-10 h-10 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border-2 border-white/10">
+                            <svg className="w-8 h-8 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <p className="text-[16px] font-semibold text-white/40">No features found for "{searchQuery}"</p>
+                        <p className="text-[16px] font-semibold text-white/40">No features found</p>
                     </div>
                 ) : (
                     Object.entries(groupedFeatures).map(([letter, items]) => (
-                        <div key={letter} id={`section-${letter}`} className="space-y-4 scroll-mt-24">
+                        <div key={letter} id={`section-${letter}`} className="space-y-8 scroll-mt-6">
+                            {/* Letter Block Header (Matching Image) */}
                             <div className="flex items-center gap-4">
-                                <span className="text-[28px] font-black px-5 py-2 rounded-2xl border-2 shadow-lg" style={{ backgroundColor: currentTheme.active, borderColor: 'rgba(255,255,255,0.3)', color: currentTheme.text }}>
+                                <div
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] font-black border-4 shadow-sm"
+                                    style={{
+                                        backgroundColor: currentTheme.active,
+                                        borderColor: `${currentTheme.active}66`,
+                                        color: currentTheme.background,
+                                    }}
+                                >
                                     {letter}
-                                </span>
-                                <div className="h-[2px] flex-1 bg-white/20 rounded-full" />
+                                </div>
+                                <div className="flex-1 border-t-2 opacity-20" style={{ borderColor: currentTheme.text }} />
                             </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-4 pl-2">
                                 {items.map((item, idx) => {
                                     const match = item.label.match(/^([^(]+)(\(.*\))$/);
                                     const name = match ? match[1].trim() : item.label;
@@ -384,49 +362,36 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                                     onNavigate(item.category, item.highlightId);
                                                 }
                                             }}
-                                            className="relative group flex items-center justify-between p-3 sm:p-4 px-1 rounded-xl transition-all duration-300 text-left"
-                                            style={{
-                                                backgroundColor: item.isActive ? `${currentTheme.active}25` : 'transparent',
-                                            }}
+                                            className="group flex items-start gap-4 text-left transition-all duration-300"
                                         >
-                                            <div className="flex flex-col w-full gap-1">
-                                                {/* Top Section: Name */}
-                                                <div className="flex items-center gap-3">
-                                                    <div
-                                                        className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-300"
-                                                        style={{ backgroundColor: item.isActive ? currentTheme.active : `${currentTheme.text}40` }}
-                                                    />
-                                                    <span
-                                                        className="text-[14px] sm:text-[16px] font-black leading-tight transition-all duration-300 underline decoration-2 underline-offset-[6px]"
-                                                        style={{
-                                                            color: currentTheme.text,
-                                                            textDecorationColor: `${currentTheme.text}80`
-                                                        }}
-                                                    >
-                                                        {name}
-                                                    </span>
-                                                </div>
+                                            {/* Dot Indicator */}
+                                            <div
+                                                className="w-2.5 h-2.5 rounded-full mt-2 transition-all duration-300 shadow-sm flex-shrink-0"
+                                                style={{
+                                                    backgroundColor: item.isActive ? currentTheme.active : `${currentTheme.text}40`,
+                                                    boxShadow: item.isActive ? `0 0 10px ${currentTheme.active}` : 'none'
+                                                }}
+                                            />
 
-                                                {/* Second Line: Properties */}
+                                            <div className="flex flex-col">
+                                                <span
+                                                    className="text-[16px] sm:text-[18px] font-black leading-tight transition-colors"
+                                                    style={{
+                                                        color: currentTheme.text,
+                                                        opacity: item.isActive ? 1 : 0.85
+                                                    }}
+                                                >
+                                                    {name}
+                                                </span>
                                                 {properties && (
-                                                    <div className="pl-5">
-                                                        <span
-                                                            className="text-[12px] sm:text-[13px] font-bold transition-colors"
-                                                            style={{ color: currentTheme.text, opacity: 1 }}
-                                                        >
-                                                            {properties}
-                                                        </span>
-                                                    </div>
+                                                    <span
+                                                        className="text-[13px] sm:text-[14px] font-bold opacity-60"
+                                                        style={{ color: currentTheme.text }}
+                                                    >
+                                                        {properties}
+                                                    </span>
                                                 )}
                                             </div>
-
-                                            {/* Status Indicator Glow */}
-                                            {item.isActive && (
-                                                <div
-                                                    className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 rounded-r-full"
-                                                    style={{ backgroundColor: currentTheme.active, boxShadow: `0 0 10px ${currentTheme.active}` }}
-                                                />
-                                            )}
                                         </button>
                                     );
                                 })}
@@ -440,16 +405,12 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 .custom-scrollbar::-webkit-scrollbar {
                     width: 6px;
                 }
-                .custom-scrollbar::-webkit-scrollbar {
-                    width: 5px;
-                }
                 .custom-scrollbar::-webkit-scrollbar-track {
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: ${currentTheme.active}cc;
+                    background: ${currentTheme.active}66;
                     border-radius: 10px;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
                     background: ${currentTheme.active};

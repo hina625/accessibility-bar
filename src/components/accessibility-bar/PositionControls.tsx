@@ -63,7 +63,7 @@ export default function PositionControls({
         <div className="space-y-6">
             {!hideLanguage && (
                 <section className="pb-6 border-b border-gray-200/20">
-                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>Language</h3>
+                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>1. Language</h3>
                     <LanguageSelector />
                 </section>
             )}
@@ -72,7 +72,7 @@ export default function PositionControls({
                 <>
                     <section className="pb-6 border-b border-gray-200/20">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>1. Accessibility  Position Button</h3>
+                            <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>2. Accessibility  Position Button</h3>
                             <img
                                 src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
                                 alt=""
@@ -131,7 +131,7 @@ export default function PositionControls({
 
             {!hideProgressBar && (
                 <section className="pb-6 border-b border-gray-200/20">
-                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>2. Scrolling Progress Bar</h3>
+                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>3. Scrolling Progress Bar</h3>
                     <ToggleCheckbox
                         id="reading-progress-bar"
                         label="Active on Scrolling"
@@ -170,7 +170,7 @@ export default function PositionControls({
             {!hidePositioning && (
                 <section className="pb-6 border-b border-gray-200/20">
                     <div className="flex items-center mb-4">
-                        <h3 className="text-[20px] font-bold" style={{ color: theme.text }}>3. Reset Icon (Button)</h3>
+                        <h3 className="text-[20px] font-bold" style={{ color: theme.text }}>4. Reset Icon (Button)</h3>
                         <InfoPopupButton
                             title="Reset Icon (Button)"
                             description="Customize the appearance of the Reset button."
@@ -217,7 +217,7 @@ export default function PositionControls({
             {!hideIndicators && (
                 <section className="pb-6 border-b border-gray-200/20">
                     <div className="flex items-center mb-4">
-                        <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>4. Feature Indicators</h3>
+                        <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>5. Feature Indicators</h3>
                         <InfoPopupButton
                             title="Feature Indicators"
                             description={t.info?.position?.features?.["Feature Indicators"] || "Displays small red circles (dots) on category icons to show which features are currently active."}
@@ -275,7 +275,7 @@ export default function PositionControls({
 
             <section className="pb-6 border-b border-gray-200/20">
                 <div className="flex items-center mb-4">
-                    <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>5. Audio Ping</h3>
+                    <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>6. Audio Ping</h3>
                     <InfoPopupButton
                         title="Audio Ping"
                         description="Play a short confirmation sound when you toggle accessibility features. Helps you know when a feature has been activated or deactivated."

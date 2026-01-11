@@ -110,7 +110,7 @@ export default function PageBackgroundColor() {
           <div className="grid grid-cols-5 gap-3">
             {darkColors.map((bgColor, index) => {
               const isActive = backgroundColor === bgColor.color;
-              
+
               return (
                 <button
                   key={index}
@@ -119,12 +119,10 @@ export default function PageBackgroundColor() {
                     ? 'ring-4 ring-offset-2'
                     : 'hover:shadow-lg'
                     }`}
-                  style={{ 
+                  style={{
                     backgroundColor: bgColor.color,
                     borderColor: isActive ? currentTheme.active : currentTheme.border,
-                    borderWidth: '3px',
-                    ringColor: isActive ? currentTheme.active : 'transparent',
-                    ringOffsetColor: currentTheme.background
+                    borderWidth: '3px'
                   }}
                   title={bgColor.name}
                   aria-label={`${t.common.dark} ${bgColor.name}`}
@@ -137,9 +135,9 @@ export default function PageBackgroundColor() {
                       Aa
                     </span>
                   </div>
-                  
+
                   {isActive && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-xl border-2" style={{ 
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-xl border-2" style={{
                       backgroundColor: currentTheme.active,
                       borderColor: currentTheme.text
                     }}>
@@ -170,7 +168,7 @@ export default function PageBackgroundColor() {
           <div className="grid grid-cols-5 gap-3">
             {lightColors.map((bgColor, index) => {
               const isActive = backgroundColor === bgColor.color;
-              
+
               return (
                 <button
                   key={index}
@@ -179,12 +177,10 @@ export default function PageBackgroundColor() {
                     ? 'ring-4 ring-offset-2'
                     : 'hover:shadow-lg'
                     }`}
-                  style={{ 
+                  style={{
                     backgroundColor: bgColor.color,
                     borderColor: isActive ? currentTheme.active : currentTheme.border,
-                    borderWidth: '3px',
-                    ringColor: isActive ? currentTheme.active : 'transparent',
-                    ringOffsetColor: currentTheme.background
+                    borderWidth: '3px'
                   }}
                   title={bgColor.name}
                   aria-label={`${t.common.light} ${bgColor.name}`}
@@ -197,9 +193,9 @@ export default function PageBackgroundColor() {
                       Aa
                     </span>
                   </div>
-                  
+
                   {isActive && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-xl border-2" style={{ 
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-xl border-2" style={{
                       backgroundColor: currentTheme.active,
                       borderColor: currentTheme.text
                     }}>
@@ -267,8 +263,7 @@ export default function PageBackgroundColor() {
               style={{
                 background: currentTheme.background,
                 color: currentTheme.text,
-                borderColor: currentTheme.border,
-                focusRingColor: currentTheme.active
+                borderColor: currentTheme.border
               }}
             />
             <button
@@ -294,12 +289,12 @@ export default function PageBackgroundColor() {
               {t.common.reset}
             </button>
           </div>
-          
+
           {/* Live Contrast Preview */}
           {backgroundColor && (
-            <div className="p-3 rounded-lg border-2" style={{ 
+            <div className="p-3 rounded-lg border-2" style={{
               backgroundColor: backgroundColor,
-              borderColor: currentTheme.border 
+              borderColor: currentTheme.border
             }}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[12px] font-semibold uppercase" style={{ color: getContrastColor(backgroundColor) }}>
@@ -316,4 +311,3 @@ export default function PageBackgroundColor() {
     </div>
   );
 }
-

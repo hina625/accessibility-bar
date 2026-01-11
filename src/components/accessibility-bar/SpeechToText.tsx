@@ -4,13 +4,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { translations } from '@/contexts/accessibility/translations';
+import { speak } from '@/utils/speechUtils';
 
 export default function SpeechToText() {
-  const { speechToText, toggleSpeechToText, barTheme, language } = useAccessibility();
+  const { speechToText, toggleSpeechToText, barTheme, language, ttsVoiceGender } = useAccessibility();
   const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
+  const ttsVoiceGenderRef = useRef<'male' | 'female'>(ttsVoiceGender || 'female');
+  
+  // Keep the ref updated with the latest value
+  useEffect(() => {
+    ttsVoiceGenderRef.current = ttsVoiceGender || 'female';
+  }, [ttsVoiceGender]);
 
   useEffect(() => {
     if (!speechToText) {
@@ -36,6 +43,15 @@ export default function SpeechToText() {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
+            
+            // Check if "x" is detected in the final transcript
+            // Match "x" as a word or standalone letter (case-insensitive)
+            const transcriptLower = transcript.toLowerCase().trim();
+            // Match "x" exactly or as a standalone word with word boundaries
+            if (transcriptLower === 'x' || /\bx\b/i.test(transcript)) {
+              // Trigger text-to-speech to say "close"
+              speak('close', ttsVoiceGenderRef.current);
+            }
           } else {
             interimTranscript += transcript;
           }

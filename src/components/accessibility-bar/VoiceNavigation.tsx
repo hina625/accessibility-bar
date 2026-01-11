@@ -17,8 +17,7 @@ export default function VoiceNavigation() {
         grayscale, invertColors, readingGuide, readingRuler, readingMask,
         readingSpotlight, highlightLinks, highlightHeadings, largeButtons,
         hideImages, pauseAnimations, textToSpeech, magnifier,
-        barTheme, language,
-        ttsVoiceGender, setTtsVoiceGender
+        barTheme, language
     } = useAccessibility();
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
@@ -581,56 +580,6 @@ export default function VoiceNavigation() {
                                 >
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Voice Gender Selection */}
-                    <div>
-                        <label className="text-[16px] font-medium mb-1 block" style={{ color: theme.text }}>
-                            {t.controls.voice || 'Voice'}
-                        </label>
-                        <div className="space-y-2">
-                            <div
-                                className="flex items-center justify-between cursor-pointer group px-3 py-2 rounded-lg transition-all"
-                                style={{ backgroundColor: ttsVoiceGender === 'male' ? theme.active : theme.hover }}
-                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ttsVoiceGender === 'male' ? theme.active : theme.hover}
-                                onClick={() => setTtsVoiceGender('male')}
-                            >
-                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.male || 'Male'}</span>
-                                <div
-                                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    style={{
-                                        borderColor: ttsVoiceGender === 'male' ? theme.text : `${theme.text}44`,
-                                        backgroundColor: ttsVoiceGender === 'male' ? theme.text : 'transparent'
-                                    }}
-                                >
-                                    {ttsVoiceGender === 'male' && (
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.active }} />
-                                    )}
-                                </div>
-                            </div>
-
-                            <div
-                                className="flex items-center justify-between cursor-pointer group px-3 py-2 rounded-lg transition-all"
-                                style={{ backgroundColor: ttsVoiceGender === 'female' ? theme.active : theme.hover }}
-                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ttsVoiceGender === 'female' ? theme.active : theme.hover}
-                                onClick={() => setTtsVoiceGender('female')}
-                            >
-                                <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.female || 'Female'}</span>
-                                <div
-                                    className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
-                                    style={{
-                                        borderColor: ttsVoiceGender === 'female' ? theme.text : `${theme.text}44`,
-                                        backgroundColor: ttsVoiceGender === 'female' ? theme.text : 'transparent'
-                                    }}
-                                >
-                                    {ttsVoiceGender === 'female' && (
-                                        <div className="w-2 h-2 rounded-full" style={{ backgroundColor: theme.active }} />
-                                    )}
-                                </div>
                             </div>
                         </div>
                     </div>

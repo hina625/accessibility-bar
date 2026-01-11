@@ -72,6 +72,7 @@ import TextAlignControl from './TextAlignControl';
 import LanguageSelector from './LanguageSelector';
 import PageBackgroundColor from './PageBackgroundColor';
 import PositionControls from './PositionControls';
+import accessibilityIcon from '@/assets/icons/first_icon_accessibility.png?inline';
 
 import ContentFiltering from './ContentFiltering';
 import PlainTextModeControl from './PlainTextModeControl';
@@ -96,6 +97,8 @@ import TtsPlayer from './TtsPlayer';
 import FeedbackControl from './FeedbackControl';
 
 import ThemeSelector from './ThemeSelector';
+import InfoPopupButton from './InfoPopupButton';
+import ToggleCheckbox from './ToggleCheckbox';
 import SelectionTranslator from './SelectionTranslator';
 import InfoPage from './InfoPage';
 import SidebarTutorial from './SidebarTutorial';
@@ -105,7 +108,8 @@ import FeedbackPopup from './FeedbackPopup';
 import AZFeatureList from './AZFeatureList';
 import { translations } from '@/contexts/accessibility/translations';
 
-import { THEME, BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
+import { THEME, BAR_THEMES } from '@/contexts/accessibility/theme';
+import type { BarTheme } from '@/contexts/accessibility/theme';
 
 export default function AccessibilityBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -132,8 +136,10 @@ export default function AccessibilityBar() {
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [settingsView, setSettingsView] = useState<'main' | 'size' | 'profiles'>('main');
+  const [positionPage, setPositionPage] = useState(0);
   const [activeProfile, setActiveProfile] = useState<string | null>(null);
   const lastOpenTimeRef = useRef<number>(0);
+  const [showFirstTimeTtsPopup, setShowFirstTimeTtsPopup] = useState(false);
 
   const context = useAccessibility();
   const {
@@ -191,6 +197,8 @@ export default function AccessibilityBar() {
     setReadingRulerWidth,
     setReadingMaskSize,
     setReadingProgressBarColor,
+    readingProgressBarColor,
+    readingProgressBar,
     setPlainTextSize,
     setLargeButtons,
     setKeyboardNavigation,
@@ -221,6 +229,16 @@ export default function AccessibilityBar() {
     setRealTimeTranslation,
     softReset, // Import softReset
     resetIconStyle,
+    setResetIconStyle,
+    barTheme,
+    setBarTheme,
+    buttonPosition,
+    setButtonPosition,
+    panelPosition,
+    setPanelPosition,
+    toggleReadingProgressBar,
+    toggleAudioPing,
+    toggleShowActiveIndicators,
     ttsVoiceGender,
     ttsReadWholePage,
     stopTts
@@ -321,9 +339,6 @@ export default function AccessibilityBar() {
 
     if (audioPingEnabled) playAudioPing();
   };
-  const barTheme = (context as any).barTheme as BarTheme | undefined;
-  const buttonPosition = (context as any).buttonPosition as string | undefined || 'bottom-right';
-  const panelPosition = (context as any).panelPosition as string | undefined || 'left';
 
   const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
@@ -339,6 +354,27 @@ export default function AccessibilityBar() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Add padding-top to body when accessibility bar panel is open AND positioned at top
+  // This pushes content down instead of overlaying it
+  // Only apply padding when panel is open, not just when button is at top
+  useEffect(() => {
+    const isTopPosition = buttonPosition === 'top' || buttonPosition === 'top-left' || buttonPosition === 'top-right';
+
+    // Only add padding when panel is open AND positioned at top
+    if (isOpen && isTopPosition) {
+      const paddingTop = isMobile ? '88px' : '96px'; // Button height (80px) + margin (16px mobile, 24px desktop)
+      document.body.style.paddingTop = paddingTop;
+    } else {
+      // Remove padding when panel is closed or position is not at top
+      document.body.style.paddingTop = '';
+    }
+
+    return () => {
+      // Cleanup: remove padding when component unmounts
+      document.body.style.paddingTop = '';
+    };
+  }, [isOpen, buttonPosition, isMobile]);
 
 
   useEffect(() => {
@@ -478,12 +514,12 @@ export default function AccessibilityBar() {
       lastOpenTimeRef.current = Date.now();
       // Use short delay to prevent the opening click from being caught
       const timer = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('mousedown', handleClickOutside);
       }, 100);
-    return () => {
+      return () => {
         clearTimeout(timer);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
     }
   }, [isOpen, isPanelPinned, selectedCategory]);
 
@@ -744,28 +780,26 @@ export default function AccessibilityBar() {
     { id: 'move_ui', name: `SIDEBAR\nPOSITION`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'position', name: `CUSTOMISE\nTOOLBAR`, icon: profileIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'font', name: `FONT TOOLS`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
-    { id: 'textSpacing', name: `TEXT\nALIGNMENT`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
-    { id: 'lineHeight', name: `LINE HEIGHT`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
+    { id: 'textSpacing', name: `Text\nAlignment`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
+    { id: 'lineHeight', name: `Line Height`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
     { id: 'letterSpacing', name: `Letter/Word\nSpacing`, icon: letterSpacingIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
-    { id: 'contrast', name: `CONTRAST`, icon: contrastIcon, colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
-    { id: 'reading', name: `READING TOOLS`, icon: bookIcon, colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
-    { id: 'cursor', name: `CURSOR OPTIONS`, icon: cursorIcon, colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
-    { id: 'navigation', name: `KEYBOARD\nSHORTCUTS`, icon: navigationIcon, colorClass: 'from-violet-500 to-violet-600', indicatorClass: 'bg-violet-500' },
-    { id: 'layout', name: `PAGE LAYOUT`, icon: layoutIcon, colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
+    { id: 'contrast', name: `Contrast`, icon: contrastIcon, colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
+    { id: 'reading', name: `Reading Tools`, icon: bookIcon, colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
+    { id: 'cursor', name: `Cursor Options`, icon: cursorIcon, colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
+    { id: 'navigation', name: `Keyboard\nShortcuts`, icon: navigationIcon, colorClass: 'from-violet-500 to-violet-600', indicatorClass: 'bg-violet-500' },
+    { id: 'layout', name: `Page Layout`, icon: layoutIcon, colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
     {
-      id: 'quick_zoom', name: `QUICK PAGE
-ZOOM`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
+      id: 'quick_zoom', name: `Quick Page\nZoom`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
     },
     {
-      id: 'images', name: `IMAGES AND
-ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
+      id: 'images', name: `Images And\nAnimation`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
     },
-    { id: 'speech', name: `TEXT TO\nSPEECH`, icon: speakIcon, colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
-    { id: 'language', name: `LANGUAGE\nTOOLS`, icon: translateIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
-    { id: 'ai', name: `AI SUPPORT`, icon: generativeIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
-    { id: 'feedback', name: `FEEDBACK`, icon: feedbackIcon, colorClass: 'from-pink-500 to-rose-500', indicatorClass: 'bg-pink-500' },
+    { id: 'speech', name: `Text To\nSpeech`, icon: speakIcon, colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
+    { id: 'language', name: `Language\nTools`, icon: translateIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
+    { id: 'ai', name: `AI Support`, icon: generativeIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
+    { id: 'feedback', name: `Feedback`, icon: feedbackIcon, colorClass: 'from-pink-500 to-rose-500', indicatorClass: 'bg-pink-500' },
 
-    { id: 'info', name: `INFO`, icon: infoIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
+    { id: 'info', name: `Info`, icon: infoIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
 
   ];
 
@@ -1148,12 +1182,12 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                           <Image
                             src={categories.find(c => c.id === key)?.icon || infoIcon}
                             alt=""
-                            width={24}
-                            height={24}
+                            width={28}
+                            height={28}
                             style={{ filter: 'brightness(0)' }}
                           />
                         </div>
-                        <div className="font-extrabold text-lg uppercase" style={{ color: currentTheme.text }}>{categoryName}</div>
+                        <div className="font-extrabold text-lg" style={{ color: currentTheme.text }}>{categoryName}</div>
                       </div>
                       <svg
                         className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}
@@ -1248,6 +1282,12 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
+
+            // Enable text to speech by default and show popup every time
+            setTextToSpeech?.(true);
+            // Show popup
+            setShowFirstTimeTtsPopup(true);
+
             setIsOpen(true);
           }}
           className={`accessibility-bar a11y-embed-host fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
@@ -1279,6 +1319,395 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
 
       {isOpen && (
         <>
+          {/* Plus Button - Truly Outside Positioning */}
+          <div
+            className="fixed z-[2147483650]"
+            style={{
+              ...(isVertical
+                ? {
+                  [panelPosition === 'right' ? 'right' : 'left']: (isMobile ? 'clamp(70px, 15vw, 90px)' : `${120 * sidebarIconSize}px`),
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px'
+                }
+                : {
+                  [panelPosition === 'bottom' ? 'bottom' : 'top']: (isMobile ? 'clamp(70px, 15vw, 90px)' : `${80 * sidebarIconSize}px`),
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px'
+                })
+            }}
+          >
+            <button
+              onClick={() => {
+                if (audioPingEnabled) playAudioPing();
+                setShowSettingsDropdown(!showSettingsDropdown);
+              }}
+              className={`relative flex items-center justify-center ${isVertical ? 'w-6 h-[220px]' : 'w-[220px] h-6'} rounded-none transition-all duration-300 hover:brightness-110 active:scale-95 shadow-xl`}
+              style={{
+                zoom: '1', // Isolate from zoom
+                fontSize: '16px', // Isolate from font size
+                background: showSettingsDropdown
+                  ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
+                  : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                border: 'none',
+                boxShadow: `0 8px 32px ${currentTheme.border}4D`
+              }}
+              aria-label="Settings Menu"
+              title="Settings"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-transform duration-300"
+                style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+
+            {/* Large Grid Settings Modal */}
+            {showSettingsDropdown && (
+              <div
+                className="absolute z-[2147483651] overflow-hidden rounded-none shadow-2xl border-2"
+                style={{
+                  bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '100%' : 'auto'),
+                  top: isVertical ? '50%' : (panelPosition === 'top' ? '100%' : 'auto'),
+                  left: isVertical ? (panelPosition === 'left' ? '100%' : 'auto') : '50%',
+                  right: isVertical ? (panelPosition === 'right' ? '100%' : 'auto') : 'auto',
+                  transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
+                  [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '20px',
+                  [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: isVertical ? '20px' : '0',
+                  backgroundColor: currentTheme.background,
+                  borderColor: currentTheme.border,
+                  width: 'calc(100vw - 40px)',
+                  maxWidth: '1350px',
+                }}
+              >
+                <div className="flex flex-col h-full">
+                  {/* Compact Header */}
+                  <div className="px-8 py-4 border-b flex items-center justify-between" style={{ borderColor: `${currentTheme.border}4D` }}>
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={logoIcon}
+                        alt=""
+                        className="w-10 h-10 object-contain"
+                        style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
+                      />
+                      <h2 className="text-[20px] font-black tracking-tight" style={{ color: currentTheme.text }}>
+                        Accessibility Setting
+                      </h2>
+                    </div>
+                    <button
+                      onClick={() => setShowSettingsDropdown(false)}
+                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/10 active:scale-95"
+                      style={{ color: currentTheme.text }}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Unified 2x5 Grid */}
+                  <div className="grid grid-cols-5 grid-rows-2 gap-0 overflow-y-auto custom-scrollbar" style={{ flex: 1 }}>
+
+                    {/* Row 1, Cell 1: Language */}
+                    <section className="p-6 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[18px] font-bold mb-4" style={{ color: currentTheme.text }}>Language</h3>
+                      <LanguageSelector />
+                    </section>
+
+                    {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
+                    <section className="p-6 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-[18px] font-bold" style={{ color: currentTheme.text }}>Accessibility Position Button</h3>
+                        {accessibilityIcon && (
+                          <img
+                            src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
+                            alt=""
+                            width={40}
+                            height={40}
+                            className="object-contain"
+                            style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
+                          />
+                        )}
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { id: 'top-left', label: 'Top Left' }, { id: 'top-right', label: 'Top Right' },
+                          { id: 'bottom-left', label: 'Bottom Left' }, { id: 'bottom-right', label: 'Bottom Right' },
+                          { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' },
+                          { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }
+                        ].slice(positionPage * 4, (positionPage + 1) * 4).map((pos) => (
+                          <button
+                            key={pos.id}
+                            onClick={() => setButtonPosition(pos.id as any)}
+                            className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
+                            style={{
+                              borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
+                              backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                              color: currentTheme.text,
+                              fontSize: '14px',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            {pos.label}
+                          </button>
+                        ))}
+                        <button
+                          onClick={() => {
+                            if (audioPingEnabled) playAudioPing('menu');
+                            setPositionPage(p => p === 0 ? 1 : 0);
+                          }}
+                          className="col-span-2 p-1.5 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95 min-h-[36px]"
+                          style={{
+                            borderColor: `${currentTheme.border}4D`,
+                            backgroundColor: `${currentTheme.text}08`,
+                            color: currentTheme.text
+                          }}
+                          aria-label={positionPage === 0 ? "Show more" : "Show less"}
+                        >
+                          {positionPage === 0 ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                              <line x1="12" y1="5" x2="12" y2="19"></line>
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                          ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                              <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </section>
+
+                    <section className="p-4 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <h3 className="text-[16px] font-bold" style={{ color: currentTheme.text }}>Feature Indicators</h3>
+                        <InfoPopupButton
+                          title="Feature Indicators"
+                          description="Displays red circles on icons to show which features are active."
+                        />
+                      </div>
+                      <ToggleCheckbox
+                        id="show-active-indicators"
+                        label="Active Circle (Red Dots)"
+                        checked={showActiveIndicators}
+                        onChange={toggleShowActiveIndicators}
+                      />
+                    </section>
+
+                    {/* Row 1, Cell 4: Icon Size */}
+                    <section className="p-4 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Sidebar Icon Size</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { id: 'standard', name: 'Standard', multiplier: 1 },
+                          { id: 'medium', name: 'Medium', multiplier: 1.15 },
+                          { id: 'large', name: 'Large', multiplier: 1.3 },
+                          { id: 'xl', name: 'XL', multiplier: 1.5 }
+                        ].map((opt) => (
+                          <button
+                            key={opt.id}
+                            onClick={() => setSidebarIconSize(opt.multiplier)}
+                            className={`py-1.5 rounded-md border text-[11px] font-black transition-all ${sidebarIconSize === opt.multiplier ? 'shadow-inner' : 'opacity-60 hover:opacity-100'}`}
+                            style={{
+                              borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : `${currentTheme.border}4D`,
+                              backgroundColor: sidebarIconSize === opt.multiplier ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                              color: currentTheme.text
+                            }}
+                          >
+                            {opt.name}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Themes: Row Span 2 (Cell 5 in both rows) */}
+                    <section className="row-span-2 p-6 border-l" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[18px] font-bold mb-6" style={{ color: currentTheme.text }}>6. Colour</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.entries(BAR_THEMES).map(([key, theme]) => (
+                          <button
+                            key={key}
+                            onClick={() => {
+                              if (audioPingEnabled) playAudioPing('menu');
+                              setBarTheme(key as BarTheme);
+                            }}
+                            className={`flex flex-col items-center justify-between p-2 rounded-[16px] border-2 transition-all duration-300 ${barTheme === key ? 'scale-105' : 'opacity-80 hover:opacity-100 hover:scale-[1.02]'} active:scale-95 min-h-[100px]`}
+                            style={{
+                              borderColor: barTheme === key ? currentTheme.text : `${currentTheme.border}33`,
+                              backgroundColor: `${currentTheme.text}08`,
+                            }}
+                          >
+                            {/* Swatch Circle */}
+                            <div
+                              className="w-11 h-11 rounded-full border-2 shadow-sm flex items-center justify-center relative mb-1.5"
+                              style={{
+                                backgroundColor: theme.background,
+                                borderColor: barTheme === key ? theme.text : 'rgba(255,255,255,0.2)'
+                              }}
+                            >
+                              <span
+                                className="text-[16px] font-black"
+                                style={{ color: theme.text }}
+                              >
+                                A
+                              </span>
+
+                              {barTheme === key && (
+                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-black/10">
+                                  <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Label */}
+                            <span
+                              className={`text-[10px] font-black uppercase tracking-wider text-center px-0.5`}
+                              style={{ color: currentTheme.text }}
+                            >
+                              {key === 'grayscale' ? 'GREY SCALE' : key === 'Turquoise' ? 'SKY' : key === 'oceanBlue' ? 'OCEAN BLUE' : key}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Row 2, Cell 1: Scrolling Progress Bar */}
+                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Scrolling Progress Bar</h3>
+                      <ToggleCheckbox
+                        id="reading-progress-bar"
+                        label="Active on Scrolling"
+                        checked={readingProgressBar}
+                        onChange={toggleReadingProgressBar}
+                      />
+                      {readingProgressBar && (
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          {['#000000', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#17D1C6'].map(color => (
+                            <button
+                              key={color}
+                              onClick={() => {
+                                if (audioPingEnabled) playAudioPing('menu');
+                                setReadingProgressBarColor(color);
+                              }}
+                              className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
+                              style={{
+                                backgroundColor: color,
+                                border: color === '#FFFFFF' ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                                boxShadow: readingProgressBarColor === color
+                                  ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
+                                  : 'none'
+                              }}
+                              aria-label={`Color ${color}`}
+                            >
+                              {readingProgressBarColor === color && (
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke={['#FFFF00', '#00FF00', '#FFFFFF', '#17D1C6'].includes(color) ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+
+                    {/* Row 2, Cell 2: Reset Icon */}
+                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Reset Icon (Button)</h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { id: 'red-black', color: '#FF0000' },
+                          { id: 'yellow-black', color: '#FFD700' },
+                          { id: 'turquoise-black', color: '#17D1C6' },
+                          { id: 'white-black', color: '#FFFFFF' },
+                          { id: 'black-white', color: '#000000' }
+                        ].map((style) => (
+                          <button
+                            key={style.id}
+                            onClick={() => {
+                              if (audioPingEnabled) playAudioPing('menu');
+                              setResetIconStyle(style.id as any);
+                            }}
+                            className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
+                            style={{
+                              backgroundColor: style.color,
+                              border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                              boxShadow: resetIconStyle === style.id
+                                ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
+                                : 'none'
+                            }}
+                            aria-label={`Reset Style ${style.id}`}
+                          >
+                            {resetIconStyle === style.id && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                    {/* Row 2, Cell 3: Audio Ping */}
+                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Audio Ping</h3>
+                      <ToggleCheckbox
+                        id="audio-ping-enabled"
+                        label="Audio ping on select"
+                        checked={audioPingEnabled}
+                        onChange={toggleAudioPing}
+                      />
+                    </section>
+
+                    {/* Row 2, Cell 4: Pick a Profile */}
+                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
+                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Pick a Profile</h3>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        {[
+                          { id: 'lowvision', name: 'Low Vision' },
+                          { id: 'colorblind', name: 'Blind' },
+                          { id: 'motor', name: 'Motor' },
+                          { id: 'adhd', name: 'ADHD' }
+                        ].map((profile) => (
+                          <button
+                            key={profile.id}
+                            onClick={() => applyProfile(profile.id)}
+                            className={`py-1.5 rounded-md border text-[10px] font-black transition-all ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-60 hover:opacity-100'}`}
+                            style={{
+                              borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
+                              backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                              color: currentTheme.text
+                            }}
+                          >
+                            {profile.name}
+                          </button>
+                        ))}
+                      </div>
+                    </section>
+
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           <div
             ref={panelRef}
@@ -1288,7 +1717,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
             style={{
               width: isVertical
                 ? (selectedCategory
-                  ? (isMobile ? '100vw' : `min(calc(280px + ${120 * sidebarIconSize}px), 95vw)`)
+                  ? (isMobile ? '100vw' : (selectedCategory === 'az' ? `min(calc(600px + ${120 * sidebarIconSize}px), 95vw)` : `min(calc(280px + ${120 * sidebarIconSize}px), 95vw)`))
                   : (isMobile ? 'clamp(70px, 15vw, 90px)' : `${120 * sidebarIconSize}px`))
                 : '100vw',
               height: isVertical ? '100%' : `${80 * sidebarIconSize}px`,
@@ -1299,6 +1728,10 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
               background: currentTheme.background,
               backdropFilter: 'none',
               WebkitBackdropFilter: 'none',
+              ...(panelPosition === 'top' ? { top: '0', left: '0', right: '0' } : {}),
+              ...(panelPosition === 'bottom' ? { bottom: '0', left: '0', right: '0' } : {}),
+              ...(panelPosition === 'left' ? { left: '0', top: '0', bottom: '0' } : {}),
+              ...(panelPosition === 'right' ? { right: '0', top: '0', bottom: '0' } : {}),
               borderTopWidth: !isVertical && panelPosition === 'bottom' ? '4px' : '0px',
               borderBottomWidth: !isVertical && panelPosition === 'top' ? '4px' : '0px',
               borderLeftWidth: isVertical && panelPosition === 'right' ? '4px' : '0px',
@@ -1308,304 +1741,15 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
               boxShadow: 'none',
               WebkitBoxShadow: 'none'
             }}
-            role="dialog"
-            aria-modal="true"
             aria-label="Accessibility options"
           >
-            {/* Plus Button - Truly Outside Positioning */}
-            <div
-              className="absolute z-[2147483650]"
-              style={{
-                ...(isVertical
-                  ? {
-                    [panelPosition === 'right' ? 'right' : 'left']: '100%',
-                    top: '38%',
-                    transform: 'translateY(-50%)',
-                    [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px'
-                  }
-                  : {
-                    [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px'
-                  })
-              }}
-            >
-              <button
-                onClick={() => {
-                  if (audioPingEnabled) playAudioPing();
-                  setShowSettingsDropdown(!showSettingsDropdown);
-                }}
-                className={`relative flex items-center justify-center ${isVertical ? 'w-6 h-[220px]' : 'w-[220px] h-6'} rounded-none transition-all duration-300 hover:brightness-110 active:scale-95 shadow-xl`}
-                style={{
-                  zoom: '1', // Isolate from zoom
-                  fontSize: '16px', // Isolate from font size
-                  background: showSettingsDropdown
-                    ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
-                    : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
-                  border: 'none',
-                  boxShadow: `0 8px 32px ${currentTheme.border}4D`
-                }}
-                aria-label="Settings Menu"
-                title="Settings"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#FFFFFF"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform duration-300"
-                  style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
-                >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button>
-
-              {/* Dropdown Menu */}
-              {showSettingsDropdown && (
-                <div
-                  className="absolute z-[2147483651] overflow-hidden rounded-[24px] shadow-2xl"
-                  style={{
-                    ...(isVertical
-                      ? {
-                        [panelPosition === 'right' ? 'right' : 'left']: '100%',
-                        top: '-50px',
-                        [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '20px'
-                      }
-                      : {
-                        [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '20px'
-                      }),
-                    background: `linear-gradient(165deg, ${currentTheme.background}F2, ${currentTheme.background})`,
-                    border: `2px solid ${currentTheme.border}`,
-                    width: '320px',
-                    boxShadow: '0 25px 60px rgba(0,0,0,0.4)',
-                  }}
-                >
-                  <div className="flex flex-col">
-                    {/* Header */}
-                    {/* Header */}
-                    {/* Header */}
-                    {/* Header */}
-                    <div className="px-6 py-5 border-b flex items-center justify-between" style={{ borderColor: 'rgba(255, 255, 255, 0.8)' }}>
-                      {settingsView === 'main' ? (
-                        <h3 className="text-[14px] font-black tracking-[0.15em]" style={{ color: currentTheme.text }}>
-                          Accessibility Settings
-                        </h3>
-                      ) : (
-                        <button
-                          onClick={() => setSettingsView('main')}
-                          className="p-2 -ml-2 rounded-xl hover:bg-black/10 transition-colors flex items-center gap-1.5 group"
-                          style={{ color: currentTheme.text }}
-                        >
-                          <svg className="w-5 h-5 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-                          </svg>
-                          <span className="text-[13px] font-black tracking-wider opacity-100">Settings</span>
-                        </button>
-                      )}
-
-                      {/* Close Button "X" */}
-                      <button
-                        onClick={() => setShowSettingsDropdown(false)}
-                        className="p-1.5 rounded-lg bg-red-600 hover:bg-red-700 transition-colors opacity-100 shadow-md"
-                        title="Close Settings"
-                        aria-label="Close Settings"
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
-                      </button>
-                    </div>
-
-                    {/* Content Switcher */}
-                    <div className="flex-1 overflow-y-auto custom-scrollbar max-h-[450px]">
-                      {settingsView === 'main' && (
-                        <div className="py-2 flex flex-col">
-                          {[
-                            { id: 'size', name: 'Larger Menu Icons', icon: 'M4 8V6a2 2 0 012-2h4M4 16v2a2 2 0 002 2h4M20 8V6a2 2 0 00-2-2h-4M20 16v2a2 2 0 01-2 2h-4' },
-                            { id: 'profiles', name: 'Pick a Profile', icon: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z' }
-                          ].map((item) => (
-                            <button
-                              key={item.id}
-                              onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                setSettingsView(item.id as any);
-                              }}
-                              className="px-6 py-5 flex items-center gap-4 transition-all hover:bg-black/10 active:bg-black/20 group border-b"
-                              style={{ borderColor: 'rgba(255, 255, 255, 0.8)', color: currentTheme.text }}
-                            >
-                              <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-inner" style={{ backgroundColor: `${currentTheme.border}0D` }}>
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                  <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                                </svg>
-                              </div>
-                              <span className="font-extrabold text-[16px] flex-1">{item.name}</span>
-                              <svg className="w-5 h-5 opacity-100 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="#FFFFFF" strokeWidth="3">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                              </svg>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {settingsView === 'size' && (
-                        <div className="p-5 flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
-                          <div className="flex items-center gap-2.5 mb-1">
-                            <div className="w-2 h-6 rounded-full" style={{ backgroundColor: currentTheme.active }} />
-                            <span className="font-bold text-[17px]" style={{ color: currentTheme.text }}>Larger Menu Icons</span>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3">
-                            {[
-                              { id: 'standard', name: 'Standard', multiplier: 1, icon: 12 },
-                              { id: 'medium', name: 'Medium', multiplier: 1.08, icon: 16 },
-                              { id: 'large', name: 'Large', multiplier: 1.12, icon: 20 },
-                              { id: 'xl', name: 'Extra Large', multiplier: 1.18, icon: 24 }
-                            ].map((opt) => (
-                              <button
-                                key={opt.id}
-                                onClick={() => {
-                                  if (audioPingEnabled) playAudioPing('menu');
-                                  setSidebarIconSize(opt.multiplier);
-                                }}
-                                className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-[22px] transition-all duration-300 border-2 ${sidebarIconSize === opt.multiplier ? 'scale-[1.05] shadow-xl' : 'opacity-60 hover:opacity-100 hover:bg-white/5'}`}
-                                style={{
-                                  backgroundColor: sidebarIconSize === opt.multiplier ? `${currentTheme.active}33` : 'transparent',
-                                  borderColor: sidebarIconSize === opt.multiplier ? currentTheme.active : 'rgba(255, 255, 255, 0.4)',
-                                  color: currentTheme.text
-                                }}
-                              >
-                                <div
-                                  className="flex items-center justify-center rounded-lg mb-1"
-                                  style={{
-                                    width: '36px',
-                                    height: '28px',
-                                    background: sidebarIconSize === opt.multiplier ? currentTheme.active : `${currentTheme.text}11`,
-                                    border: `1.5px solid ${sidebarIconSize === opt.multiplier ? 'transparent' : currentTheme.text + '22'}`
-                                  }}
-                                >
-                                  <Image
-                                    src="/scalability.png"
-                                    alt="Menu Icon"
-                                    width={opt.icon - 4}
-                                    height={opt.icon - 4}
-                                    className="object-contain"
-                                    style={{
-                                      opacity: sidebarIconSize === opt.multiplier ? 1 : 0.8
-                                    }}
-                                  />
-                                </div>
-                                <span className="font-extrabold text-[12px] uppercase tracking-wider">{opt.name}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {settingsView === 'profiles' && (
-                        <div className="p-5 flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-2 h-6 rounded-full" style={{ backgroundColor: currentTheme.active }} />
-                              <span className="font-extrabold text-[18px]" style={{ color: currentTheme.text }}>Pick a Profile</span>
-                            </div>
-                            <span className="text-[11px] font-black uppercase tracking-widest opacity-30" style={{ color: currentTheme.text }}>Quick Setup</span>
-                          </div>
-
-                          <div className="grid grid-cols-1 gap-3">
-                            {[
-                              { id: 'lowvision', name: 'Low Vision', desc: 'Larger text, ruler, high contrast', icon: 'M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z' },
-                              { id: 'colorblind', name: 'Colour Blind', desc: 'Colour filters, high contrast', icon: 'M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-1-14.414V18.414A6.002 6.002 0 0 0 12 20a6 6 0 0 0 0-12 6.002 6.002 0 0 0-1 2.414z' },
-                              { id: 'blindness', name: 'Blind', desc: 'Text-to-speech, screen reader', icon: 'M12 3a4 4 0 0 1 4 4c0 2.21-1.79 4-4 4s-4-1.79-4-4 1.79-4 4-4zm-2 15v4H8v-4c0-.55-.45-1-1-1s-1 .45-1 1v4H4v-4c0-2.76 2.24-5 5-5h6c2.76 0 5 2.24 5 5v4h-2v-4c0-.55-.45-1-1-1s-1 .45-1 1v4h-2v-4H10z' },
-                              { id: 'photosensitive', name: 'Photosensitive', desc: 'Dark / Grey mode, few animations', icon: 'M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z' },
-                              { id: 'motor', name: 'Motor Impaired', desc: 'Large buttons, keyboard nav', icon: 'M21 11H3c-.55 0-1 .45-1 1v8c0 1.65 1.35 3 3 3h14c1.65 0 3-1.35 3-3v-8c0-.55-.45-1-1-1zm-9 9h-2v-2h2v2zm2-4h-2v-2h2v2zm-4 4H8v-2h2v2zm0-4H8v-2h2v2zm4 0h2v2h-2v-2zm-6 4H6v-2h2v2zm0-4H6v-2h2v2zm9 4h-2v-2h2v2zm0-4h-2v-2h2v2zM12 2C8.13 2 5 5.13 5 9h2c0-2.76 2.24-5 5-5s5 2.24 5 5h2c0-3.87-3.13-7-7-7z' },
-                              { id: 'dyslexia', name: 'Dyslexia Friendly', desc: 'Special font, spacing adjustments', icon: 'M9.6 3H7.8C4.5 3 2 5.5 2 8.6v.6c0 1.2.3 2.5 1 3.5.8 1.1 1.9 1.9 3.2 2.3-.9 1.4-2 3.3-3.6 5.5l1.6 1.2c2-2.7 3.3-5 4.3-6.9.3.2.7.4 1.1.4 1.7 0 3-1.3 3-3V5.4C12.6 4.1 11.2 3 9.6 3zm1.2 5.6c0 .8-.8 1.4-1.8 1.4-.9 0-1.8-.7-1.8-1.5V6c0-.9.8-1.5 1.8-1.5s1.8.6 1.8 1.5v2.6zM20.2 3h-1.8c-3.3 0-5.8 2.5-5.8 5.6v.6c0 1.2.3 2.5 1 3.5.8 1.1 1.9 1.9 3.2 2.3-.9 1.4-2 3.3-3.6 5.5l1.6 1.2c2-2.7 3.3-5 4.3-6.9.3.2.7.4 1.1.4 1.7 0 3-1.3 3-3V5.4c0-1.3-1.4-2.4-3-2.4zm1.2 5.6c0 .8-.8 1.4-1.8 1.4-.9 0-1.8-.7-1.8-1.5V6c0-.9.8-1.5 1.8-1.5s1.8.6 1.8 1.5v2.6z' },
-                              { id: 'adhd', name: 'ADHD', desc: 'Focus tools, reading mask', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z' },
-                              { id: 'cognitive', name: 'Cognitive Disability', desc: 'Simplified layout, reading mask, dictionary', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-1.07 3.97-2.9 5.4z' },
-                              { id: 'seizure', name: 'Seizure & Epileptic', desc: 'Stop animations, reduce motion', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
-                              { id: 'elderly', name: 'Elderly / Senior', desc: 'Extra-large text, simple UI', icon: 'M21 14h-5.26c.92-1.33 1.69-3.14 1.94-5H21c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1h-3.38A5.95 5.95 0 0 0 13 2c-3.31 0-6 2.69-6 6 0 2.97 2.16 5.43 5 5.91V14H6c-2.21 0-4 1.79-4 4v2h2v-2c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v2h2v-2c0-2.21-1.79-4-4-4zm-8-3c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z' },
-                              { id: 'hearing', name: 'Hearing Impaired', desc: 'Visual indicators, Captions', icon: 'M19 3h-8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-6.5 13.5c-2.48 0-4.5-2.02-4.5-4.5S10.02 7.5 12.5 7.5s4.5 2.02 4.5 4.5-2.02 4.5-4.5 4.5zM3.5 10v4c1.1 0 2-.9 2-2s-.9-2-2-2zM7 6v12c2.21 0 4-1.79 4-4s-1.79-4-4-4z' },
-                              { id: 'reading', name: 'Reading Support', desc: 'Reading Aids, Spacing, Guides', icon: 'M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4zm0 14v-2h12v2H6zm0-4v-2h12v2H6z' },
-                              { id: 'custom', name: 'My Profile', desc: 'Build your own custom experience', icon: 'M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z' }
-                            ].map((profile) => (
-                              <button
-                                type="button"
-                                key={profile.id}
-                                onClick={() => {
-                                  if (audioPingEnabled) playAudioPing('menu');
-                                  applyProfile(profile.id);
-                                }}
-                                className={`w-full p-4 rounded-[24px] flex items-center gap-4 border-2 transition-all hover:bg-white/5 active:scale-[0.98] group text-left ${activeProfile === profile.id ? 'scale-[1.02] shadow-lg' : ''}`}
-                                style={{
-                                  borderColor: activeProfile === profile.id ? currentTheme.active : 'rgba(255, 255, 255, 0.4)',
-                                  backgroundColor: activeProfile === profile.id ? `${currentTheme.active}22` : 'transparent',
-                                  color: currentTheme.text
-                                }}
-                              >
-                                <div
-                                  className="w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-inner"
-                                  style={{
-                                    backgroundColor: activeProfile === profile.id ? currentTheme.active : `${currentTheme.border}0D`,
-                                    color: activeProfile === profile.id ? '#FFFFFF' : 'inherit'
-                                  }}
-                                >
-                                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d={profile.icon} />
-                                  </svg>
-                                </div>
-                                <div className="flex-1">
-                                  <div className="font-black text-[17px] leading-tight mb-0.5">{profile.name}</div>
-                                  <div className="text-[14px] font-medium opacity-80">{profile.desc}</div>
-                                </div>
-                                <div
-                                  className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-opacity ${activeProfile === profile.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
-                                  style={{
-                                    borderColor: currentTheme.active,
-                                    backgroundColor: activeProfile === profile.id ? currentTheme.active : 'transparent'
-                                  }}
-                                >
-                                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke={activeProfile === profile.id ? '#FFFFFF' : currentTheme.active} strokeWidth="4">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                  </svg>
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-
-
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Footer - Only on main view */}
-                    {settingsView === 'main' && (
-                      <div
-                        className="px-6 py-5 mt-2 transition-all hover:bg-black/20 cursor-pointer flex justify-center border-t border-dashed"
-                        style={{ background: `${currentTheme.active}11`, borderColor: 'rgba(255, 255, 255, 0.8)' }}
-                        onClick={() => setShowSettingsDropdown(false)}
-                      >
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
             <div className={`flex h-full w-full ${isVertical
               ? (panelPosition === 'right' ? 'flex-row-reverse' : 'flex-row')
               : 'flex-row'
               }`}>
               <div
                 className={`flex items-center p-1.5 ${isVertical
-                  ? `flex-col w-[90px] sm:w-[120px] gap-3 sm:gap-4 h-full overflow-y-auto custom-scrollbar`
+                  ? `flex-col w-[100px] sm:w-[130px] gap-3 sm:gap-4 h-full overflow-y-auto custom-scrollbar`
                   : `${sidebarIconSize >= 1.3 ? 'flex-wrap overflow-y-auto content-start py-2' : 'flex-row items-center overflow-x-auto'} h-full w-full justify-start custom-scrollbar gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                   }`}
                 style={{
@@ -1625,67 +1769,34 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                   boxShadow: 'none'
                 }}
               >
-                {/* Logo removed as per user request */}
-
+                {/* Close Button UI */}
                 <button
                   type="button"
+                  onMouseEnter={() => textToSpeech && speak('close', ttsVoiceGender)}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    // Prevent immediate close if just opened (race condition)
                     if (Date.now() - lastOpenTimeRef.current < 300) return;
-                    if (audioPingEnabled) playAudioPing('menu'); // Using menu sound
+                    if (audioPingEnabled) playAudioPing('menu');
+                    speak('close', ttsVoiceGender);
                     setIsOpen(false);
                     setSelectedCategory(null);
-
-                    // Interaction counting for Feedback Popup
-                    const countKey = 'accessibility_bar_close_count';
-                    const feedbackGivenKey = 'accessibility_feedback_given';
-
-                    // Forcing popup to show "abi kelye" (for now) as requested, ignoring previous state
-                    // if (!localStorage.getItem(feedbackGivenKey)) {
-                    const usage = JSON.parse(safeStorage.getItem('accessibility-usage') || '{}');
-                    const currentCount = parseInt(safeStorage.getItem(countKey) || '0');
-                    const newCount = currentCount + 1;
-                    safeStorage.setItem(countKey, newCount.toString());
-
-                    // Show popup on close if feedback not given (matches "whenever cross is clicked")
                     setShowFeedbackPopup(true);
-                    // }
                   }}
-                  className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100]`}
+                  className="p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100] flex items-center justify-center"
                   style={{
                     background: '#FFFFFF',
-                    backdropFilter: 'blur(10px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(10px) saturate(180%)',
                     border: '2px solid rgba(0,0,0,0.2)',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    width: isVertical ? '55px' : '58px',
-                    height: isVertical ? '55px' : '58px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
+                    width: isVertical ? '60px' : '63px',
+                    height: isVertical ? '60px' : '63px'
                   }}
                   aria-label="Close"
                 >
-                  <svg
-                    className="h-5 w-5"
-                    style={{ color: '#000000' }}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
+                  <svg className="h-6 w-6" style={{ color: '#000000' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
-
-
-
 
                 <div className={`accessibility-bar pointer-events-auto flex ${isVertical ? 'flex-col space-y-3 sm:space-y-4 items-center flex-shrink-0' : 'flex-row items-center flex-grow gap-2'}`}>
 
@@ -1729,8 +1840,8 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                     className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
                                     style={{
                                       background: '#FFFFFF',
-                                      backdropFilter: 'blur(10px) saturate(180%)',
-                                      WebkitBackdropFilter: 'blur(10px) saturate(180%)',
+                                      backdropFilter: 'none',
+                                      WebkitBackdropFilter: 'none',
                                       border: '2px solid rgba(0,0,0,0.2)',
                                       width: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
                                       height: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
@@ -1871,17 +1982,19 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                     width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
                                     height: (isVertical ? 80 : 58) * sidebarIconSize + 'px'
                                   }
-                                  : category.id === 'az' && selectedCategory !== category.id // Apply pin-like style to AZ when not selected
+                                  : category.id === 'az' // A-Z button always white background
                                     ? {
-                                      background: barTheme === 'white'
-                                        ? 'linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.05))'
-                                        : 'linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.1))',
-                                      backdropFilter: 'blur(10px) saturate(180%)',
-                                      WebkitBackdropFilter: 'blur(10px) saturate(180%)',
-                                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
-                                      boxShadow: 'none',
-                                      width: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
-                                      height: (isVertical ? 55 : 58) * sidebarIconSize + 'px'
+                                      background: '#FFFFFF',
+                                      backdropFilter: 'none',
+                                      WebkitBackdropFilter: 'none',
+                                      border: '2px solid rgba(0,0,0,0.2)',
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                      width: selectedCategory === category.id
+                                        ? (isVertical ? 78 : 58) * sidebarIconSize + 'px'
+                                        : (isVertical ? 55 : 58) * sidebarIconSize + 'px',
+                                      height: selectedCategory === category.id
+                                        ? (isVertical ? 80 : 58) * sidebarIconSize + 'px'
+                                        : (isVertical ? 55 : 58) * sidebarIconSize + 'px'
                                     }
                                     : selectedCategory === category.id
                                       ? {
@@ -1946,7 +2059,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                               )}
                               {isVertical && category.id !== 'reset' && (
                                 <span
-                                  className={`text-[9px] font-bold leading-tight text-center px-0.5 whitespace-pre-line uppercase opacity-100 ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
+                                  className={`text-[9px] font-bold leading-tight text-center px-0.5 whitespace-pre-line opacity-100 ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
                                   style={{ color: '#000000', letterSpacing: '0.02em' }}
                                 >
                                   {category.name}
@@ -1993,7 +2106,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                             {/* Directional Arrow */}
                             <div className="flex flex-col items-center">
                               {currentPage < 4 && (
-                                <span 
+                                <span
                                   className="text-[15px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
                                 >
@@ -2001,7 +2114,7 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                 </span>
                               )}
                               {currentPage === 4 && (
-                                <span 
+                                <span
                                   className="text-[15px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
                                 >
@@ -2081,10 +2194,10 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                 <div
                   className={`accessibility-bar pointer-events-auto flex flex-col min-w-0 ${isVertical
                     ? 'relative flex-1 h-full'
-                    : `fixed z-[2147483647] ${panelPosition === 'bottom' ? (isMobile ? 'bottom-[90px]' : 'bottom-[94px]') : (isMobile ? 'top-[90px]' : 'top-[94px]')} ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : 'w-[350px]'} shadow-2xl rounded-none overflow-hidden animate-fade-in`
+                    : `fixed z-[2147483647] ${panelPosition === 'bottom' ? (isMobile ? 'bottom-[90px]' : 'bottom-[94px]') : (isMobile ? 'top-[90px]' : 'top-[94px]')} ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[680px]' : 'w-[350px]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
                     }`}
                   style={!isVertical ? {
-                    left: isMobile ? '10px' : `${Math.max(10, Math.min(window.innerWidth - 360, selectedOffset - 175))}px`,
+                    left: isMobile ? '10px' : `${Math.max(10, Math.min(window.innerWidth - (selectedCategory === 'az' ? 690 : 360), selectedOffset - (selectedCategory === 'az' ? 340 : 175)))}px`,
                     background: `linear-gradient(135deg, ${currentTheme.background}F2, ${currentTheme.background}E6)`, // Increased opacity slightly since blur is gone
                     borderTop: `4px solid ${currentTheme.border}4D`,
                     borderBottom: `4px solid ${currentTheme.border}4D`,
@@ -2133,15 +2246,15 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                                   ?.icon || ''
                               }
                               alt=""
-                              width={selectedCategory === 'position' ? 36 : 32}
-                              height={selectedCategory === 'position' ? 36 : 32}
+                              width={selectedCategory === 'position' ? 40 : 36}
+                              height={selectedCategory === 'position' ? 40 : 36}
                               className={`${selectedCategory === 'speech' ? '' : 'brightness-0'} -translate-y-0.5`}
                             />
                           )}
                         </div>
                         <div className="flex flex-col">
                           <h2
-                            className={`text-[16px] sm:text-[20px] font-extrabold uppercase tracking-tight leading-[1.1] mt-2 sm:mt-[12px] max-w-[180px] sm:max-w-[240px] ${['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
+                            className={`text-[20px] sm:text-[24px] font-extrabold tracking-tight leading-[1.1] mt-2 sm:mt-[12px] max-w-[180px] sm:max-w-[240px] ${['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
                               ? 'whitespace-nowrap'
                               : 'whitespace-normal line-clamp-2'
                               }`}
@@ -2151,11 +2264,19 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
                           </h2>
                         </div>
                       </div>
-                      <div className="flex items-center absolute top-0 right-0">
+                      <div className="flex items-center absolute top-3 right-2">
 
                         <button
+                          onMouseEnter={() => {
+                            // Speak "close" when cursor hovers over close button
+                            if (textToSpeech) {
+                              speak('close', ttsVoiceGender);
+                            }
+                          }}
                           onClick={() => {
                             if (audioPingEnabled) playAudioPing('menu');
+                            // Speak "close" when close button is clicked
+                            speak('close', ttsVoiceGender);
                             setSelectedCategory(null);
                           }}
                           className="p-3 pr-4 rounded-none transition-all hover:bg-black/10 z-10 flex items-center gap-1.5"
@@ -2481,6 +2602,87 @@ ANIMATION`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorCl
               setShowFeedbackPopup(false);
             }}
           />
+        )
+      }
+
+      {/* First Time Text to Speech Popup */}
+      {
+        showFirstTimeTtsPopup && (
+          <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483649] flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => {
+                // Don't allow closing by clicking outside on first time
+              }}
+            />
+            <div
+              className="relative rounded-3xl p-6 sm:p-8 shadow-2xl max-w-lg w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px]"
+              style={{
+                backgroundColor: currentTheme.background,
+                color: currentTheme.text,
+                borderColor: currentTheme.border
+              }}
+            >
+              <div className="text-center w-full mb-6">
+                <h2 className="text-xl sm:text-2xl font-black mb-4 leading-tight">
+                  Text to Speech support is on by default. Would you like to:
+                </h2>
+
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
+                  <button
+                    onClick={() => {
+                      // Keep it on - close the popup and show sidebar tutorial
+                      setShowFirstTimeTtsPopup(false);
+
+                      // Show sidebar tutorial after TTS popup closes
+                      setTimeout(() => {
+                        setTutorialIcon(moveUiIcon);
+                        setShowSidebarTutorial(true);
+                        setHasSeenSidebarTutorialThisSession(true);
+                        if (typeof window !== 'undefined') {
+                          sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
+                        }
+                      }, 300);
+                    }}
+                    className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
+                    style={{
+                      backgroundColor: currentTheme.active,
+                      color: currentTheme.text,
+                      borderColor: currentTheme.border
+                    }}
+                  >
+                    Keep it on
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Switch off Text to Speech - close the popup and show sidebar tutorial
+                      setTextToSpeech?.(false);
+                      setShowFirstTimeTtsPopup(false);
+
+                      // Show sidebar tutorial after TTS popup closes
+                      setTimeout(() => {
+                        setTutorialIcon(moveUiIcon);
+                        setShowSidebarTutorial(true);
+                        setHasSeenSidebarTutorialThisSession(true);
+                        if (typeof window !== 'undefined') {
+                          sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
+                        }
+                      }, 300);
+                    }}
+                    className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
+                    style={{
+                      backgroundColor: currentTheme.active,
+                      color: currentTheme.text,
+                      borderColor: currentTheme.border
+                    }}
+                  >
+                    <span className="block">Switch off</span>
+                    <span className="block">Text to Speech</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )
       }
 

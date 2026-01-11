@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import Image from 'next/image';
@@ -23,6 +23,8 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
     // Removed showForm state as we are now showing everything linearly
 
     const t = translations[language] || translations['en'];
+    const contactFormRef = useRef<HTMLDivElement>(null);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const currentTheme = BAR_THEMES[barTheme];
 
@@ -88,10 +90,10 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
             <div className="w-full h-[1px] mx-auto w-[96%]" style={{ backgroundColor: `${guideTheme.text}33` }}></div>
 
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-12 space-y-12 sm:space-y-20">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-12 space-y-12 sm:space-y-20">
 
 
-                <div id="contact-form-section" className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div ref={contactFormRef} id="contact-form-section" className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
                     <div className="w-full md:w-1/3 flex flex-col pt-4">
                         <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 leading-none drop-shadow-sm" style={{ color: guideTheme.text }}>Contact Us</h2>
                         <div className="w-full h-2 rounded-full mb-8 shadow-sm" style={{ backgroundColor: guideTheme.accentYellow }}></div>
@@ -230,9 +232,17 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                const contactSection = document.getElementById('contact-form-section');
-                                if (contactSection) {
-                                    contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                // Use refs for embed compatibility (Shadow DOM)
+                                if (contactFormRef.current && scrollContainerRef.current) {
+                                    const container = scrollContainerRef.current;
+                                    const target = contactFormRef.current;
+                                    const containerRect = container.getBoundingClientRect();
+                                    const targetRect = target.getBoundingClientRect();
+                                    const scrollTop = container.scrollTop + (targetRect.top - containerRect.top);
+                                    container.scrollTo({ top: scrollTop, behavior: 'smooth' });
+                                } else if (contactFormRef.current) {
+                                    // Fallback: use scrollIntoView
+                                    contactFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                 }
                             }}
                             className="px-8 py-4 rounded-xl font-black uppercase tracking-[0.15em] text-sm transition-all shadow-lg whitespace-nowrap group-hover:scale-105"

@@ -90,7 +90,7 @@ export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps)
                     <button
                         onClick={onClose}
                         className="w-full py-4 rounded-xl text-black font-black uppercase tracking-widest hover:translate-y-[-1px] active:translate-y-0 transition-all shadow-lg text-xl border-2 border-black/10 flex justify-center items-center"
-                        style={{ backgroundColor: '#FFD700' }}
+                        style={{ backgroundColor: barTheme === 'yellow' ? '#87CEEB' : '#FFD700' }}
                     >
                         Got it
                     </button>

@@ -215,7 +215,7 @@ export default function FeedbackControl() {
                     {/* Comment - Question 8 */}
                     <div className="space-y-3 pt-2">
                         <label className="text-[16px] font-bold tracking-tight block" style={{ color: theme.text }}>
-                            {t.controls.otherFeedback}
+                            5. {t.controls.otherFeedback}
                         </label>
                         <div className="relative">
                             <textarea

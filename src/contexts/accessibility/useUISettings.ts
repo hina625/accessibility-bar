@@ -24,7 +24,7 @@ export function useUISettings() {
     const [panelPosition, setPanelPosition] = useState<PanelPosition>('left');
     const [barTheme, setBarTheme] = useState<BarTheme>('purple');
     const [isMobile, setIsMobile] = useState(false);
-    const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(true);
+    const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(false);
     const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(false);
     const [isPanelPinned, setIsPanelPinned] = useState<boolean>(false);
     const [sidebarIconSize, setSidebarIconSize] = useState<number>(1);
@@ -39,10 +39,9 @@ export function useUISettings() {
 
     // Initial load
     useEffect(() => {
+        // Load UI preferences (bar position, theme, etc.) but not cursor settings
+        // Cursor settings affect the website and should only be applied when user explicitly selects
         const saved = {
-            cursorSize: localStorage.getItem('accessibility-cursorSize'),
-            cursorStyle: localStorage.getItem('accessibility-cursorStyle'),
-            cursorColor: localStorage.getItem('accessibility-cursorColor'),
             primaryButton: localStorage.getItem('accessibility-primaryButton'),
             buttonPosition: localStorage.getItem('accessibility-buttonPosition'),
             panelPosition: localStorage.getItem('accessibility-panelPosition'),
@@ -54,9 +53,11 @@ export function useUISettings() {
             resetIconStyle: localStorage.getItem('accessibility-resetIconStyle'),
         };
 
-        if (saved.cursorSize) setCursorSize(Number(saved.cursorSize));
-        if (saved.cursorStyle) setCursorStyle(saved.cursorStyle as CursorStyle);
-        if (saved.cursorColor) setCursorColor(saved.cursorColor);
+        // Don't load cursor settings - they affect the website
+        // if (saved.cursorSize) setCursorSize(Number(saved.cursorSize));
+        // if (saved.cursorStyle) setCursorStyle(saved.cursorStyle as CursorStyle);
+        // if (saved.cursorColor) setCursorColor(saved.cursorColor);
+        
         if (saved.primaryButton) setPrimaryButton(saved.primaryButton as 'left' | 'right');
         if (saved.buttonPosition) setButtonPosition(saved.buttonPosition as ButtonPosition);
         if (saved.panelPosition) setPanelPosition(saved.panelPosition as PanelPosition);
@@ -77,7 +78,7 @@ export function useUISettings() {
                 setBarTheme(theme);
             }
         }
-        if (saved.showActiveIndicators) setShowActiveIndicators(saved.showActiveIndicators === 'true');
+        if (saved.showActiveIndicators !== null) setShowActiveIndicators(saved.showActiveIndicators === 'true');
         if (saved.audioPingEnabled) setAudioPingEnabled(saved.audioPingEnabled === 'true');
         if (saved.isPanelPinned) setIsPanelPinned(saved.isPanelPinned === 'true');
         if (saved.sidebarIconSize) setSidebarIconSize(Number(saved.sidebarIconSize));

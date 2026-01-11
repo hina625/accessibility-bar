@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { API_ENDPOINTS } from '@/config/api';
+import { speakWithHighlighting, clearAllHighlights } from '@/utils/ttsHighlighting';
 
 export function useToolsSettings() {
-    const [textToSpeech, setTextToSpeech] = useState<boolean>(false);
+    const [textToSpeech, setTextToSpeech] = useState<boolean>(true); // Default enabled
     const [speechToText, setSpeechToText] = useState<boolean>(false);
     const [onPageDictionary, setOnPageDictionary] = useState<boolean>(false);
     const [keyboardNavigation, setKeyboardNavigation] = useState<boolean>(false);
@@ -11,7 +12,7 @@ export function useToolsSettings() {
     const [pageSummary, setPageSummary] = useState<boolean>(false);
     const [summaryContent, setSummaryContent] = useState<string>('');
     const [summarizationHistory, setSummarizationHistory] = useState<any[]>([]);
-    const [smartSuggestions, setSmartSuggestions] = useState<boolean>(true); // Default to true for "next feature" impact
+    const [smartSuggestions, setSmartSuggestions] = useState<boolean>(false);
 
     const [ttsAutoPlay, setTtsAutoPlay] = useState<boolean>(false);
     const [ttsReadWholePage, setTtsReadWholePage] = useState<boolean>(false);
@@ -26,39 +27,11 @@ export function useToolsSettings() {
 
 
     useEffect(() => {
-        const saved = {
-            textToSpeech: localStorage.getItem('accessibility-textToSpeech'),
-            keyboardNavigation: localStorage.getItem('accessibility-keyboardNavigation'),
-            onPageDictionary: localStorage.getItem('accessibility-onPageDictionary'),
-            ttsAutoPlay: localStorage.getItem('accessibility-ttsAutoPlay'),
-            ttsReadWholePage: localStorage.getItem('accessibility-ttsReadWholePage'),
-            ttsMovableControls: localStorage.getItem('accessibility-ttsMovableControls'),
-            ttsVoiceGender: localStorage.getItem('accessibility-ttsVoiceGender'),
-            ttsReadingSpeed: localStorage.getItem('accessibility-ttsReadingSpeed'),
-            ttsReadSelectedText: localStorage.getItem('accessibility-ttsReadSelectedText'),
-            ttsHoverToSpeak: localStorage.getItem('accessibility-ttsHoverToSpeak'),
-            pronunciationGuide: localStorage.getItem('accessibility-pronunciationGuide'),
-            smartSuggestions: localStorage.getItem('accessibility-smartSuggestions'),
-            pageSummary: localStorage.getItem('accessibility-pageSummary'),
-            realTimeTranslation: localStorage.getItem('accessibility-realTimeTranslation'),
-            selectionLanguage: localStorage.getItem('accessibility-selectionLanguage'),
-        };
-
-        if (saved.textToSpeech === 'true') setTextToSpeech(true);
-        if (saved.keyboardNavigation === 'true') setKeyboardNavigation(true);
-        if (saved.onPageDictionary === 'true') setOnPageDictionary(true);
-        if (saved.ttsAutoPlay === 'true') setTtsAutoPlay(true);
-        if (saved.ttsReadWholePage === 'true') setTtsReadWholePage(true);
-        if (saved.ttsMovableControls === 'true') setTtsMovableControls(true);
-        if (saved.ttsVoiceGender) setTtsVoiceGender(saved.ttsVoiceGender as any);
-        if (saved.ttsReadingSpeed) setTtsReadingSpeed(Number(saved.ttsReadingSpeed));
-        if (saved.ttsReadSelectedText === 'true') setTtsReadSelectedText(true);
-        if (saved.ttsHoverToSpeak === 'true') setTtsHoverToSpeak(true);
-        if (saved.pronunciationGuide === 'true') setPronunciationGuide(true);
-        if (saved.smartSuggestions === 'false') setSmartSuggestions(false); // Default logic inverted because default is true
-        if (saved.pageSummary === 'true') setPageSummary(true);
-        if (saved.realTimeTranslation === 'true') setRealTimeTranslation(true);
-        if (saved.selectionLanguage) setSelectionLanguage(saved.selectionLanguage);
+        // Don't load from localStorage on initial mount - start with defaults
+        // Styles will only be applied when user explicitly selects options
+        // Only load language preference as it doesn't affect page styling
+        const savedSelectionLanguage = localStorage.getItem('accessibility-selectionLanguage');
+        if (savedSelectionLanguage) setSelectionLanguage(savedSelectionLanguage);
     }, []);
 
 
@@ -100,12 +73,12 @@ export function useToolsSettings() {
     useEffect(() => localStorage.setItem('accessibility-selectionLanguage', selectionLanguage), [selectionLanguage]);
 
 
-    // 1. Sync Logic: When main TTS is turned OFF, turn off all sub-features
     useEffect(() => {
         if (!textToSpeech) {
             if (window.speechSynthesis) {
                 window.speechSynthesis.cancel();
             }
+            clearAllHighlights();
             setTtsAutoPlay(false);
             setTtsReadWholePage(false);
             setTtsHoverToSpeak(false);
@@ -114,7 +87,6 @@ export function useToolsSettings() {
         }
     }, [textToSpeech]);
 
-    // 2. Reading Logic: Handles actual speech synthesis
     useEffect(() => {
         if (!textToSpeech) return;
 
@@ -130,12 +102,12 @@ export function useToolsSettings() {
                     resolve(window.speechSynthesis.getVoices());
                 };
                 window.speechSynthesis.addEventListener('voiceschanged', handler);
-                // Fallback timeout
+               
                 setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
             });
         };
 
-        const speak = async (text: string) => {
+        const speak = async (text: string, container?: HTMLElement, isSelected: boolean = false) => {
             if (!window.speechSynthesis) {
                 console.error('Speech synthesis not supported');
                 return;
@@ -147,34 +119,30 @@ export function useToolsSettings() {
             const voices = await getVoices();
             console.log('Available voices:', voices.length);
 
-            // Split text into chunks to avoid browser limits (usually around 200-300 chars)
-            const chunks = text.match(/[^.!?]+[.!?]+|[^.!?]+/g) || [text];
-
-            for (const chunk of chunks) {
-                if (chunk.trim().length === 0) continue;
-
-                const utterance = new SpeechSynthesisUtterance(chunk.trim());
-                utterance.rate = ttsReadingSpeed;
-
-                if (voices.length > 0) {
-                    const selectedVoice = voices.find(v =>
-                        ttsVoiceGender === 'male'
-                            ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                            : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                    );
-                    if (selectedVoice) utterance.voice = selectedVoice;
-                }
-
-                // Create a promise to wait for this utterance to finish or error
-                await new Promise((resolve) => {
-                    utterance.onend = resolve;
-                    utterance.onerror = (e) => {
-                        console.error('TTS Chunk Error:', e);
-                        resolve(null);
-                    };
-                    window.speechSynthesis.speak(utterance);
-                });
+            const targetContainer = container || document.getElementById('accessible-content') || document.body;
+            
+            // Find voice
+            let selectedVoice: SpeechSynthesisVoice | undefined;
+            if (voices.length > 0) {
+                selectedVoice = voices.find(v =>
+                    ttsVoiceGender === 'male'
+                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                );
             }
+
+            // Use highlighting function
+            return speakWithHighlighting(text, targetContainer, {
+                rate: ttsReadingSpeed,
+                voice: selectedVoice,
+                isSelectedText: isSelected,
+                onEnd: () => {
+                    console.log('Speech ended');
+                },
+                onError: (error) => {
+                    console.error('TTS Error:', error);
+                }
+            });
         };
 
         const handleMouseUp = () => {
@@ -182,9 +150,19 @@ export function useToolsSettings() {
                 const selection = window.getSelection();
                 const selectedText = selection?.toString().trim();
 
-                if (selectedText && selectedText.length > 0) {
+                if (selectedText && selectedText.length > 0 && selection && selection.rangeCount > 0) {
                     console.log('Selected text to speak:', selectedText);
-                    speak(selectedText);
+                    const range = selection.getRangeAt(0);
+                    const container = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+                        ? (range.commonAncestorContainer.parentElement as HTMLElement)
+                        : (range.commonAncestorContainer as HTMLElement);
+                    
+                    if (container) {
+                        const contentContainer = container.closest('#accessible-content') || document.body;
+                        speak(selectedText, contentContainer as HTMLElement, true);
+                    } else {
+                        speak(selectedText, undefined, true);
+                    }
                 }
             }, 50);
         };
@@ -193,22 +171,27 @@ export function useToolsSettings() {
             const content = document.getElementById('accessible-content') || document.body;
             if (content) {
                 console.log('Reading whole page content...');
-                speak(content.innerText);
+                speak(content.innerText, content as HTMLElement, false);
             } else {
                 console.warn('No content found to read');
             }
         } else {
-            // Cancel speech if "Read Whole Page" is turned off
+           
             if (window.speechSynthesis) {
                 console.log('Read Whole Page disabled, cancelling synthesis');
                 window.speechSynthesis.cancel();
+                // Clear highlights smoothly without page refresh
+                clearAllHighlights(false);
             }
         }
 
         document.addEventListener('mouseup', handleMouseUp);
         return () => {
             document.removeEventListener('mouseup', handleMouseUp);
-            if (window.speechSynthesis) window.speechSynthesis.cancel();
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            clearAllHighlights();
         };
     }, [textToSpeech, ttsReadWholePage, ttsReadingSpeed, ttsVoiceGender]);
 
@@ -240,13 +223,13 @@ export function useToolsSettings() {
         };
 
         const handleMouseOver = (e: MouseEvent) => {
-            // Use composedPath to find the actual element even through Shadow DOM
+      
             const path = e.composedPath();
             const target = path[0] as HTMLElement;
 
             if (!target || target === lastElement) return;
 
-            // Stop if we're hovering over the accessibility bar
+         
             const isBar = path.some(node =>
                 (node as HTMLElement).classList?.contains('accessibility-bar') ||
                 (node as HTMLElement).id === 'a11y-embed-host-react'
@@ -275,22 +258,17 @@ export function useToolsSettings() {
     useEffect(() => {
         if (!textToSpeech || !ttsAutoPlay) return;
 
-        const speak = (text: string) => {
-            if (!window.speechSynthesis) return;
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = ttsReadingSpeed;
-
-            const voices = window.speechSynthesis.getVoices();
-            if (voices.length > 0) {
-                const selectedVoice = voices.find(v =>
-                    ttsVoiceGender === 'male'
-                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                );
-                if (selectedVoice) utterance.voice = selectedVoice;
-            }
-            window.speechSynthesis.speak(utterance);
+        const getVoices = async (): Promise<SpeechSynthesisVoice[]> => {
+            return new Promise((resolve) => {
+                const voices = window.speechSynthesis.getVoices();
+                if (voices.length > 0) {
+                    resolve(voices);
+                } else {
+                    window.speechSynthesis.onvoiceschanged = () => {
+                        resolve(window.speechSynthesis.getVoices());
+                    };
+                }
+            });
         };
 
         const handleClick = (e: MouseEvent) => {
@@ -298,7 +276,6 @@ export function useToolsSettings() {
             const target = path[0] as HTMLElement;
             if (!target) return;
 
-            // Filter elements: stop if we click the bar itself
             const isBarOrTrigger = path.some(node =>
                 (node as HTMLElement).classList?.contains('accessibility-bar') ||
                 (node as HTMLElement).classList?.contains('accessibility-trigger') ||
@@ -306,9 +283,44 @@ export function useToolsSettings() {
             );
             if (isBarOrTrigger) return;
 
-            const text = target.innerText?.trim();
-            if (text && text.length > 0) {
-                speak(text);
+            // Get text from clicked element and its parent for better context
+            let text = target.innerText?.trim() || target.textContent?.trim();
+            let container: HTMLElement | undefined = target;
+            
+            // Try to find a better container (paragraph, div with text)
+            if (!text || text.length === 0) {
+                const parent = target.parentElement;
+                if (parent) {
+                    text = parent.innerText?.trim() || parent.textContent?.trim();
+                    container = parent;
+                }
+            }
+
+            if (text && text.length > 0 && container) {
+                // Use highlighting for click text to speech with voice selection
+                getVoices().then(voices => {
+                    let selectedVoice: SpeechSynthesisVoice | undefined;
+                    if (voices.length > 0) {
+                        selectedVoice = voices.find(v =>
+                            ttsVoiceGender === 'male'
+                                ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
+                                : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
+                        );
+                    }
+
+                    const contentContainer = container.closest('#accessible-content') || container || document.body;
+                    speakWithHighlighting(text, contentContainer as HTMLElement, {
+                        rate: ttsReadingSpeed,
+                        voice: selectedVoice,
+                        isSelectedText: false, // Treat as whole element text
+                        onEnd: () => {
+                            console.log('Click TTS ended');
+                        },
+                        onError: (error) => {
+                            console.error('Click TTS Error:', error);
+                        }
+                    });
+                });
             }
         };
 
@@ -364,6 +376,8 @@ export function useToolsSettings() {
             window.speechSynthesis.cancel();
             setIsPaused(false);
         }
+        // Clear highlights smoothly
+        clearAllHighlights(false);
     };
 
     return {

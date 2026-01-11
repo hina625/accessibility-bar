@@ -15,50 +15,16 @@ export function useReadingSettings() {
     const [highlightLinks, setHighlightLinks] = useState<boolean>(false);
     const [highlightHeadings, setHighlightHeadings] = useState<boolean>(false);
     const [largeButtons, setLargeButtons] = useState<boolean>(false);
-    const [readingProgressBar, setReadingProgressBar] = useState<boolean>(true);
+    const [readingProgressBar, setReadingProgressBar] = useState<boolean>(true); // Default enabled
     const [readingProgressBarColor, setReadingProgressBarColor] = useState<string>('#000000');
 
-    // Initial load
+   
     useEffect(() => {
-        const saved = {
-            readingGuide: localStorage.getItem('accessibility-readingGuide'),
-            readingGuideColor: localStorage.getItem('accessibility-readingGuideColor'),
-            readingGuideThickness: localStorage.getItem('accessibility-readingGuideThickness'),
-            readingRuler: localStorage.getItem('accessibility-readingRuler'),
-            readingRulerColor: localStorage.getItem('accessibility-readingRulerColor'),
-            readingRulerWidth: localStorage.getItem('accessibility-readingRulerWidth'),
-            readingMask: localStorage.getItem('accessibility-readingMask'),
-            readingMaskColor: localStorage.getItem('accessibility-readingMaskColor'),
-            readingMaskSize: localStorage.getItem('accessibility-readingMaskSize'),
-            readingSpotlight: localStorage.getItem('accessibility-readingSpotlight'),
-            readingSpotlightBrightness: localStorage.getItem('accessibility-readingSpotlightBrightness'),
-            highlightLinks: localStorage.getItem('accessibility-highlightLinks'),
-            highlightHeadings: localStorage.getItem('accessibility-highlightHeadings'),
-            largeButtons: localStorage.getItem('accessibility-largeButtons'),
-            readingProgressBar: localStorage.getItem('accessibility-readingProgressBar'),
-            readingProgressBarColor: localStorage.getItem('accessibility-readingProgressBarColor'),
-        };
-
-        if (saved.readingGuide === 'true') setReadingGuide(true);
-        if (saved.readingGuideColor) setReadingGuideColor(saved.readingGuideColor);
-        if (saved.readingGuideThickness) setReadingGuideThickness(Number(saved.readingGuideThickness));
-        if (saved.readingRuler === 'true') setReadingRuler(true);
-        if (saved.readingRulerColor) setReadingRulerColor(saved.readingRulerColor);
-        if (saved.readingRulerWidth) setReadingRulerWidth(Number(saved.readingRulerWidth));
-        if (saved.readingMask === 'true') setReadingMask(true);
-        if (saved.readingMaskColor) setReadingMaskColor(saved.readingMaskColor);
-        if (saved.readingMaskSize) setReadingMaskSize(Number(saved.readingMaskSize));
-        if (saved.readingSpotlight === 'true') setReadingSpotlight(true);
-        if (saved.readingSpotlightBrightness) setReadingSpotlightBrightness(Number(saved.readingSpotlightBrightness));
-        if (saved.highlightLinks === 'true') setHighlightLinks(true);
-        if (saved.highlightHeadings === 'true') setHighlightHeadings(true);
-        if (saved.largeButtons === 'true') setLargeButtons(true);
-        if (saved.readingProgressBar === 'false') setReadingProgressBar(false);
-        else setReadingProgressBar(true);
-        if (saved.readingProgressBarColor) setReadingProgressBarColor(saved.readingProgressBarColor);
+        // Don't load from localStorage on initial mount - start with defaults
+        // Styles will only be applied when user explicitly selects options
     }, []);
 
-    // Effects
+  
     useEffect(() => {
         localStorage.setItem('accessibility-readingGuide', readingGuide.toString());
         localStorage.setItem('accessibility-readingGuideColor', readingGuideColor);
@@ -104,36 +70,43 @@ export function useReadingSettings() {
         localStorage.setItem('accessibility-readingProgressBar', readingProgressBar.toString());
         localStorage.setItem('accessibility-readingProgressBarColor', readingProgressBarColor);
 
-        // Update browser scrollbar color
         const styleId = 'accessibility-scrollbar-style';
         let styleEl = document.getElementById(styleId) as HTMLStyleElement;
-        if (!styleEl) {
-            styleEl = document.createElement('style');
-            styleEl.id = styleId;
-            document.head.appendChild(styleEl);
-        }
+        
+        if (readingProgressBar) {
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = styleId;
+                document.head.appendChild(styleEl);
+            }
 
-        styleEl.textContent = `
-            html {
-                scrollbar-color: ${readingProgressBarColor} transparent !important;
+            styleEl.textContent = `
+                html {
+                    scrollbar-color: ${readingProgressBarColor} transparent !important;
+                }
+                ::-webkit-scrollbar {
+                    width: 12px !important;
+                }
+                ::-webkit-scrollbar-track {
+                    background: transparent !important;
+                }
+                ::-webkit-scrollbar-thumb {
+                    background-color: ${readingProgressBarColor} !important;
+                    border-radius: 6px !important;
+                    border: 3px solid transparent !important;
+                    background-clip: content-box !important;
+                }
+                ::-webkit-scrollbar-thumb:hover {
+                    background-color: ${readingProgressBarColor} !important;
+                    opacity: 0.8 !important;
+                }
+            `;
+        } else {
+            // Remove style element when disabled
+            if (styleEl) {
+                styleEl.remove();
             }
-            ::-webkit-scrollbar {
-                width: 12px !important;
-            }
-            ::-webkit-scrollbar-track {
-                background: transparent !important;
-            }
-            ::-webkit-scrollbar-thumb {
-                background-color: ${readingProgressBarColor} !important;
-                border-radius: 6px !important;
-                border: 3px solid transparent !important;
-                background-clip: content-box !important;
-            }
-            ::-webkit-scrollbar-thumb:hover {
-                background-color: ${readingProgressBarColor} !important;
-                opacity: 0.8 !important;
-            }
-        `;
+        }
     }, [readingProgressBar, readingProgressBarColor]);
 
     return {

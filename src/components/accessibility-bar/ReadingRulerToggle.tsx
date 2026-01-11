@@ -36,8 +36,21 @@ export default function ReadingRulerToggle() {
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                     onClick={handleToggle}
                 >
-                    <div className="flex items-center">
-                        <span className="text-[16px] font-medium" style={{ color: theme.text }}>Reading Ruler</span>
+                    <div className="flex items-center relative group">
+                        <span 
+                            className="text-[16px] font-medium relative inline-block" 
+                            style={{ color: theme.text }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.borderBottomColor = theme.text;
+                                e.currentTarget.style.borderBottomWidth = '2px';
+                                e.currentTarget.style.borderBottomStyle = 'solid';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.borderBottomWidth = '0px';
+                            }}
+                        >
+                            Reading Ruler
+                        </span>
                         <div onClick={(e) => e.stopPropagation()}>
                             <InfoPopupButton
                                 title="Reading Ruler"

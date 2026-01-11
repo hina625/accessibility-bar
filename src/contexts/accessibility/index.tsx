@@ -783,7 +783,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                 case 'speech':
                     if (tools.textToSpeech) list.push({ label: ct.tts || "Speech", onRemove: withAudioPing(() => tools.setTextToSpeech(false)) });
                     if (tools.speechToText) list.push({ label: ct.speechToText || "Voice Control", onRemove: withAudioPing(() => tools.setSpeechToText(false)) });
-                    if (tools.ttsAutoPlay) list.push({ label: ct.autoPlay || "Click to Speak", onRemove: withAudioPing(() => tools.setTtsAutoPlay(false)) });
+                    if (tools.ttsAutoPlay) list.push({ label: ct.autoPlay || "Click Text to Speak", onRemove: withAudioPing(() => tools.setTtsAutoPlay(false)) });
                     if (tools.ttsReadWholePage) list.push({ label: ct.readPageContent || "Read Page", onRemove: withAudioPing(() => tools.setTtsReadWholePage(false)) });
                     if (tools.ttsHoverToSpeak) list.push({ label: ct.hoverToSpeak || "Hover to Speak", onRemove: withAudioPing(() => tools.setTtsHoverToSpeak(false)) });
                     break;

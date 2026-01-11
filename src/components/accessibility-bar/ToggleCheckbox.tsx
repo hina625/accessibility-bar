@@ -25,7 +25,20 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
             onClick={(e) => { e.stopPropagation(); onChange(); }}
         >
             <div className="flex flex-col flex-1">
-                <span className={labelClassName || "text-[16px] font-semibold"} style={{ color: theme.text }}>{label}</span>
+                <span 
+                    className={labelClassName || "text-[16px] font-semibold relative inline-block"} 
+                    style={{ color: theme.text }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.borderBottomColor = theme.text;
+                        e.currentTarget.style.borderBottomWidth = '2px';
+                        e.currentTarget.style.borderBottomStyle = 'solid';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.borderBottomWidth = '0px';
+                    }}
+                >
+                    {label}
+                </span>
             </div>
             <div
                 className="w-6 h-6 rounded flex items-center justify-center transition-all ml-3"
