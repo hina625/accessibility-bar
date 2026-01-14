@@ -29,7 +29,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
 
     if (submitted) {
         return (
-            <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483648] flex items-center justify-center p-4 animate-in fade-in duration-300">
+            <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483648] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300">
                 <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
                 <div
                     className="relative rounded-3xl p-8 shadow-2xl max-w-sm w-full text-center m-4 animate-scale-up z-10"
@@ -58,7 +58,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                 onClick={onClose}
             />
             <div
-                className="relative rounded-3xl p-4 sm:p-8 shadow-2xl max-w-4xl w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px]"
+                className="relative rounded-3xl p-4 sm:p-8 shadow-2xl max-w-4xl w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px] max-h-[90vh] overflow-y-auto"
                 style={{
                     backgroundColor: currentTheme.background,
                     color: currentTheme.text,

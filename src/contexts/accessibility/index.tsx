@@ -77,7 +77,7 @@ export interface AccessibilityContextType extends AccessibilityState {
     toggleTtsAutoPlay: () => void;
     toggleTtsReadWholePage: () => void;
     toggleTtsMovableControls: () => void;
-    setTtsVoiceGender: (gender: 'male' | 'female') => void;
+    setTtsVoiceGender: (gender: 'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer') => void;
     setTtsReadingSpeed: (speed: number) => void;
     toggleTtsReadSelectedText: () => void;
     toggleTtsHoverToSpeak: () => void;

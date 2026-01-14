@@ -1,11 +1,12 @@
 'use client';
 
+import React from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 interface ToggleCheckboxProps {
     id: string;
-    label: string;
+    label: string | React.ReactNode;
     checked: boolean;
     onChange: () => void;
     description?: string;
@@ -26,15 +27,15 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
         >
             <div className="flex flex-col flex-1">
                 <span 
-                    className={labelClassName || "text-[16px] font-semibold relative inline-block"} 
+                    className={labelClassName || "text-[16px] font-semibold relative inline"} 
                     style={{ color: theme.text }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.borderBottomColor = theme.text;
-                        e.currentTarget.style.borderBottomWidth = '2px';
-                        e.currentTarget.style.borderBottomStyle = 'solid';
+                        e.currentTarget.style.textDecoration = 'underline';
+                        e.currentTarget.style.textDecorationThickness = '2px';
+                        e.currentTarget.style.textUnderlineOffset = '2px';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.borderBottomWidth = '0px';
+                        e.currentTarget.style.textDecoration = 'none';
                     }}
                 >
                     {label}

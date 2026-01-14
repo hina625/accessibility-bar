@@ -3,6 +3,50 @@
 let currentHighlightSpan: HTMLSpanElement | null = null;
 let selectedTextRange: Range | null = null;
 
+// Check if we're in embed mode (accessibility bar is embedded)
+const isEmbedMode = (): boolean => {
+    try {
+        return !!(
+            document.getElementById('a11y-embed-host-react') ||
+            document.querySelector('.a11y-embed-host') ||
+            (window.parent && window.parent !== window && document.querySelector('[class*="a11y-embed"]'))
+        );
+    } catch (e) {
+        return false;
+    }
+};
+
+// Check if an element is within the allowed scope for modification
+// In embed mode, we should only modify elements within #accessible-content
+// This prevents modifying the actual website's DOM structure
+const isElementAllowedForModification = (element: Node | HTMLElement): boolean => {
+    if (!element) return false;
+    
+    const htmlElement = element.nodeType === Node.TEXT_NODE 
+        ? (element.parentElement as HTMLElement)
+        : (element as HTMLElement);
+    
+    if (!htmlElement) return false;
+    
+    // Never allow modification within accessibility bar or embed host
+    if (htmlElement.closest('.accessibility-bar') || htmlElement.closest('.a11y-embed-host')) {
+        return false;
+    }
+    
+    // If we're in embed mode, only allow modification within #accessible-content
+    // This ensures we don't modify the actual website's DOM
+    if (isEmbedMode()) {
+        // Check if element is within #accessible-content
+        const accessibleContent = htmlElement.closest('#accessible-content');
+        if (!accessibleContent) {
+            // Not within #accessible-content, don't allow modification to prevent changing actual website
+            return false;
+        }
+    }
+    
+    return true;
+};
+
 export function clearAllHighlights(immediate: boolean = false) {
     if (currentHighlightSpan) {
         try {
@@ -33,6 +77,8 @@ export function clearAllHighlights(immediate: boolean = false) {
                     const parent = element.parentNode;
                     if (parent && element.textContent) {
                         const textNode = document.createTextNode(element.textContent);
+                        // Use correct document for creating text node if possible, though document works generally
+                        // Ideally: const textNode = (doc.ownerDocument || document).createTextNode(...)
                         parent.replaceChild(textNode, element);
                         parent.normalize();
                     }
@@ -50,6 +96,9 @@ export function clearAllHighlights(immediate: boolean = false) {
                 clearInDocument(root);
             }
         });
+
+        // Don't clear in parent document if in embed mode (to avoid affecting parent website)
+        // Only clear in current document
     };
 
     if (immediate) {
@@ -59,14 +108,74 @@ export function clearAllHighlights(immediate: boolean = false) {
     }
 }
 
+// Helper to apply highlight styles inline (essential for embed/shadow DOM where global CSS might not apply)
+const applyHighlightStyles = (span: HTMLElement, isCurrent: boolean) => {
+    span.style.backgroundColor = isCurrent ? 'rgba(255, 215, 0, 0.7)' : 'rgba(255, 255, 0, 0.5)';
+    span.style.outline = isCurrent ? '3px solid #FFA500' : '2px solid #FFD700';
+    span.style.outlineOffset = '2px';
+    span.style.borderRadius = '3px';
+    span.style.transition = 'all 0.2s ease';
+    // Don't change font-weight to preserve original text style
+    // Ensure visibility
+    span.style.display = 'inline';
+    span.style.position = 'relative';
+    span.style.zIndex = '2147483647'; // Max z-index
+};
+
+// Scroll into view with embed mode support and visibility check
+const scrollIntoViewSafely = (element: HTMLElement) => {
+    // Don't scroll in embed mode to avoid unnecessary scrolling
+    if (isEmbedMode()) {
+        return;
+    }
+    
+    try {
+        const rect = element.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+
+        // Define "safe area" (padding) to determine if scroll is needed
+        // We only want to scroll if the element is OUTSIDE this safe area
+        const padding = 50;
+
+        const isAbove = rect.top < padding;
+        const isBelow = rect.bottom > (viewportHeight - padding);
+        const isLeft = rect.left < padding;
+        const isRight = rect.right > (viewportWidth - padding);
+
+        // Only scroll if actually necessary (element is not comfortably visible)
+        if (isAbove || isBelow || isLeft || isRight) {
+            // Only scroll within current window/document - don't scroll parent window in embed mode
+            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        }
+    } catch (e) {
+        // Fallback to simple scrollIntoView
+        try {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        } catch (e2) {
+            // Ignore
+        }
+    }
+};
+
 export function highlightSelectedText() {
-    const selection = window.getSelection();
+    // Only check current window/document - don't access parent window in embed mode
+    let selection = window.getSelection();
+    let doc = document;
+
     if (!selection || selection.rangeCount === 0) {
         return null;
     }
 
     const range = selection.getRangeAt(0);
     if (range.collapsed) {
+        return null;
+    }
+
+    // Check if we're allowed to modify the selected element
+    const startContainer = range.startContainer;
+    if (!isElementAllowedForModification(startContainer)) {
+        // Selection is not within allowed scope, don't modify
         return null;
     }
 
@@ -77,11 +186,12 @@ export function highlightSelectedText() {
     try {
         // Wrap the selected text in a highlight span
         const contents = range.extractContents();
-        const span = document.createElement('span');
+        const span = doc.createElement('span'); // Use correct document
         span.className = 'tts-highlight-current';
+        applyHighlightStyles(span, true); // Inline styles
 
         // Move contents to span
-        const fragment = document.createDocumentFragment();
+        const fragment = doc.createDocumentFragment(); // Use correct document
         while (contents.firstChild) {
             fragment.appendChild(contents.firstChild);
         }
@@ -91,7 +201,7 @@ export function highlightSelectedText() {
         currentHighlightSpan = span;
 
         // Scroll into view
-        span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+        scrollIntoViewSafely(span);
 
         return span;
     } catch (e) {
@@ -107,6 +217,9 @@ export function highlightWord(text: string, container: HTMLElement, charIndex: n
             const parent = currentHighlightSpan.parentNode;
             if (parent && currentHighlightSpan.textContent) {
                 const textNode = document.createTextNode(currentHighlightSpan.textContent);
+                // Try to use correct document scope
+                // const doc = parent.ownerDocument || document;
+                // const textNode = doc.createTextNode(currentHighlightSpan.textContent);
                 parent.replaceChild(textNode, currentHighlightSpan);
                 parent.normalize();
             }
@@ -116,34 +229,44 @@ export function highlightWord(text: string, container: HTMLElement, charIndex: n
         }
     }
 
-    // Find the word at charIndex in the text by looking for word boundaries
-    let wordStart = charIndex;
-    let wordEnd = charIndex;
+    // Find the word bound at charIndex
+    let start = 0;
+    let end = 0;
+    let foundWord = '';
+
+    // Simple word boundary check (same as before)
+    const boundaryRegex = /\s|[.,!?;:()\[\]"']/;
 
     // Find start of word
-    while (wordStart > 0 && /\S/.test(text[wordStart - 1])) {
-        wordStart--;
+    for (let i = charIndex; i >= 0; i--) {
+        if (boundaryRegex.test(text[i])) {
+            start = i + 1;
+            break;
+        }
+        if (i === 0) start = 0;
     }
+
     // Find end of word
-    while (wordEnd < text.length && /\S/.test(text[wordEnd])) {
-        wordEnd++;
+    for (let i = charIndex; i < text.length; i++) {
+        if (boundaryRegex.test(text[i])) {
+            end = i;
+            break;
+    }
+        if (i === text.length - 1) end = text.length;
     }
 
-    if (wordStart >= wordEnd || wordStart < 0 || wordEnd > text.length) {
-        return null;
-    }
-
-    const foundWord = text.substring(wordStart, wordEnd).trim();
-    if (!foundWord) {
-        return null;
-    }
+    foundWord = text.substring(start, end).trim();
+    if (!foundWord) return null;
 
     // Find the word in the document - work with both regular DOM and embed/shadow DOM
     const searchInContainer = (searchContainer: HTMLElement | Document | ShadowRoot): HTMLSpanElement | null => {
         const rootElement = (searchContainer as Document).body || (searchContainer as ShadowRoot).host || (searchContainer as HTMLElement);
         if (!rootElement) return null;
 
-        const walker = document.createTreeWalker(
+        // Determine the correct document context
+        const doc = rootElement.ownerDocument || document;
+
+        const walker = doc.createTreeWalker(
             rootElement as HTMLElement,
             NodeFilter.SHOW_TEXT,
             {
@@ -162,30 +285,64 @@ export function highlightWord(text: string, container: HTMLElement, charIndex: n
             }
         );
 
+        // Count characters as we walk through the DOM to match charIndex
+        let domCharIndex = 0;
         let node: Node | null;
         while ((node = walker.nextNode())) {
             const nodeText = node.textContent || '';
             if (!nodeText || nodeText.trim().length === 0) continue;
 
-            // Find word using regex with word boundaries
-            const wordRegex = new RegExp(`\\b${foundWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-            const match = wordRegex.exec(nodeText);
+            // Check if charIndex falls within this node's text range
+            const nodeStartIndex = domCharIndex;
+            const nodeEndIndex = domCharIndex + nodeText.length;
 
-            if (match && match.index !== undefined) {
-                try {
-                    const wordStartInNode = match.index;
-                    const wordEndInNode = match.index + match[0].length;
+            if (charIndex >= nodeStartIndex && charIndex < nodeEndIndex) {
+                // charIndex is in this node, find the word at the relative position
+                const relativeCharIndex = charIndex - nodeStartIndex;
+                
+                // Find word boundaries within this node
+                let wordStart = relativeCharIndex;
+                let wordEnd = relativeCharIndex;
+                const boundaryRegex = /\s|[.,!?;:()\[\]"']/;
 
-                    const range = document.createRange();
-                    range.setStart(node, wordStartInNode);
-                    range.setEnd(node, wordEndInNode);
+                // Find start of word
+                for (let i = relativeCharIndex; i >= 0; i--) {
+                    if (boundaryRegex.test(nodeText[i])) {
+                        wordStart = i + 1;
+                        break;
+                    }
+                    if (i === 0) wordStart = 0;
+                }
+
+                // Find end of word
+                for (let i = relativeCharIndex; i < nodeText.length; i++) {
+                    if (boundaryRegex.test(nodeText[i])) {
+                        wordEnd = i;
+                        break;
+                    }
+                    if (i === nodeText.length - 1) wordEnd = nodeText.length;
+                }
+
+                const wordText = nodeText.substring(wordStart, wordEnd).trim();
+                if (wordText && wordText.toLowerCase() === foundWord.toLowerCase()) {
+                    // Check if we're allowed to modify this element
+                    if (!isElementAllowedForModification(node)) {
+                        // Skip this node if it's not within allowed scope
+                        continue;
+                    }
+                    
+                    try {
+                        const range = doc.createRange();
+                        range.setStart(node, wordStart);
+                        range.setEnd(node, wordEnd);
 
                     // Extract and wrap in highlight span
                     const contents = range.extractContents();
-                    const span = document.createElement('span');
+                        const span = doc.createElement('span');
                     span.className = 'tts-highlight-current';
+                        applyHighlightStyles(span, true);
 
-                    const fragment = document.createDocumentFragment();
+                        const fragment = doc.createDocumentFragment();
                     while (contents.firstChild) {
                         fragment.appendChild(contents.firstChild);
                     }
@@ -194,8 +351,7 @@ export function highlightWord(text: string, container: HTMLElement, charIndex: n
                     range.insertNode(span);
                     currentHighlightSpan = span;
 
-                    // Scroll into view
-                    span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                        scrollIntoViewSafely(span);
 
                     return span;
                 } catch (e) {
@@ -203,26 +359,35 @@ export function highlightWord(text: string, container: HTMLElement, charIndex: n
                     continue;
                 }
             }
+            }
+
+            // Update character index for next node
+            domCharIndex += nodeText.length;
         }
         return null;
     };
 
     // Try container first (most specific)
     if (container) {
-        const shadowRoot = container.getRootNode();
-        if (shadowRoot instanceof ShadowRoot && shadowRoot !== document) {
-            const result = searchInContainer(shadowRoot);
+        // If container is a document or ShadowRoot, handle accordingly
+        if (container.nodeType === Node.DOCUMENT_NODE || container instanceof ShadowRoot) {
+            const result = searchInContainer(container as any);
             if (result) return result;
+        } else {
+            // It's an element
+            const shadowRoot = container.getRootNode();
+            if (shadowRoot instanceof ShadowRoot) {
+                const result = searchInContainer(shadowRoot);
+                if (result) return result;
+            } else {
+                // Try searching within the container itself or its owner document
+        const result = searchInContainer(container);
+        if (result) return result;
+            }
         }
     }
 
-    // Try container directly
-    if (container && container !== document.body) {
-        const result = searchInContainer(container);
-        if (result) return result;
-    }
-
-    // Fallback to main document
+    // Fallback to main document (or correct parent document if in embed)
     return searchInContainer(document);
 }
 
@@ -261,7 +426,8 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
     }
 
     // Find the sentence in the document using a more robust approach
-    const walker = document.createTreeWalker(
+    const doc = container.ownerDocument || document;
+    const walker = doc.createTreeWalker(
         container,
         NodeFilter.SHOW_TEXT,
         {
@@ -285,6 +451,12 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
         const index = lowerText.indexOf(sentenceWords);
 
         if (index !== -1) {
+            // Check if we're allowed to modify this element
+            if (!isElementAllowedForModification(node)) {
+                // Skip this node if it's not within allowed scope
+                continue;
+            }
+            
             try {
                 // Try to find the full sentence by looking ahead
                 let endIndex = index + sentenceWords.length;
@@ -299,15 +471,16 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
                 }
 
                 // If we found a likely sentence end, use it; otherwise use the original sentence length
-                const range = document.createRange();
+                const range = doc.createRange(); // Use correct doc
                 range.setStart(node, index);
                 range.setEnd(node, Math.min(sentenceEnd, index + targetSentence.length));
 
                 const contents = range.extractContents();
-                const span = document.createElement('span');
+                const span = doc.createElement('span'); // Use correct doc
                 span.className = 'tts-highlight-current';
+                applyHighlightStyles(span, true); // Inline styles
 
-                const fragment = document.createDocumentFragment();
+                const fragment = doc.createDocumentFragment(); // Use correct doc
                 while (contents.firstChild) {
                     fragment.appendChild(contents.firstChild);
                 }
@@ -316,8 +489,7 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
                 range.insertNode(span);
                 currentHighlightSpan = span;
 
-                // Scroll into view
-                span.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                scrollIntoViewSafely(span);
 
                 return span;
             } catch (e) {
@@ -366,11 +538,17 @@ export function speakWithHighlighting(
     const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
     let currentSentenceIndex = 0;
     let accumulatedText = '';
+    
+    // Track last processed charIndex to avoid re-highlighting words that have already passed
+    let lastProcessedCharIndex = -1;
 
     utterance.onboundary = (event: SpeechSynthesisEvent) => {
         if (options.isSelectedText) {
             // For selected text, highlight word by word within the selection
             if (event.name === 'word' && event.charIndex !== undefined) {
+                // Only highlight if moving forward (not repeating backwards)
+                if (event.charIndex >= lastProcessedCharIndex) {
+                    lastProcessedCharIndex = event.charIndex;
                 // Remove the initial selection highlight before highlighting individual words
                 if (currentHighlightSpan) {
                     try {
@@ -386,13 +564,18 @@ export function speakWithHighlighting(
                     }
                 }
                 highlightWord(text, container, event.charIndex);
+                }
             } else if (currentHighlightSpan) {
-                currentHighlightSpan.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+                scrollIntoViewSafely(currentHighlightSpan);
             }
         } else if (event.name === 'word' || event.name === 'sentence') {
             // For whole page reading, highlight word by word
             if (!options.isSelectedText && event.charIndex !== undefined) {
                 const charIndex = event.charIndex;
+
+                // Only highlight if moving forward (not repeating backwards)
+                if (charIndex >= lastProcessedCharIndex) {
+                    lastProcessedCharIndex = charIndex;
 
                 // Highlight word for word-by-word
                 if (event.name === 'word') {
@@ -410,6 +593,7 @@ export function speakWithHighlighting(
                                 highlightSentence(text, container, currentSentenceIndex);
                             }
                             break;
+                            }
                         }
                     }
                 }
@@ -429,7 +613,7 @@ export function speakWithHighlighting(
         options.onEnd?.();
     };
 
-    utterance.onerror = (event: ErrorEvent) => {
+    utterance.onerror = (event: any) => {
         clearAllHighlights();
         options.onError?.(new Error(`Speech synthesis error: ${event.message || 'Unknown error'}`));
     };

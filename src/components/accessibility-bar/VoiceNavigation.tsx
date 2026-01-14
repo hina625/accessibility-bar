@@ -470,8 +470,8 @@ export default function VoiceNavigation() {
                 } else {
                     // If not auto-restarting, clear the ref
                     isListeningRef.current = false;
-                }
-            };
+            }
+        };
 
             // Start listening immediately
             try {
@@ -583,6 +583,7 @@ export default function VoiceNavigation() {
                             </div>
                         </div>
                     </div>
+
 
                     {/* Start/Stop Listening Button */}
                     <button

@@ -14,6 +14,7 @@ import cursor2Img from '@/assets/icons/cursor (2).png?inline';
 import cursor3Img from '@/assets/icons/cursor (3).png?inline';
 import hangImg from '@/assets/icons/hang.png?inline';
 import optionImg from '@/assets/icons/option.png?inline';
+import { safeStorage } from '@/utils/safeStorage';
 
 export function useUISettings() {
     const [cursorSize, setCursorSize] = useState<number>(DEFAULT_CURSOR_SIZE);
@@ -24,8 +25,8 @@ export function useUISettings() {
     const [panelPosition, setPanelPosition] = useState<PanelPosition>('left');
     const [barTheme, setBarTheme] = useState<BarTheme>('purple');
     const [isMobile, setIsMobile] = useState(false);
-    const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(false);
-    const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(false);
+    const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(true);
+    const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(true);
     const [isPanelPinned, setIsPanelPinned] = useState<boolean>(false);
     const [sidebarIconSize, setSidebarIconSize] = useState<number>(1);
     const [resetIconStyle, setResetIconStyle] = useState<ResetIconStyle>('red-black');
@@ -42,22 +43,22 @@ export function useUISettings() {
         // Load UI preferences (bar position, theme, etc.) but not cursor settings
         // Cursor settings affect the website and should only be applied when user explicitly selects
         const saved = {
-            primaryButton: localStorage.getItem('accessibility-primaryButton'),
-            buttonPosition: localStorage.getItem('accessibility-buttonPosition'),
-            panelPosition: localStorage.getItem('accessibility-panelPosition'),
-            barTheme: localStorage.getItem('accessibility-barTheme'),
-            showActiveIndicators: localStorage.getItem('accessibility-showActiveIndicators'),
-            audioPingEnabled: localStorage.getItem('accessibility-audioPingEnabled'),
-            isPanelPinned: localStorage.getItem('accessibility-isPanelPinned'),
-            sidebarIconSize: localStorage.getItem('accessibility-sidebarIconSize'),
-            resetIconStyle: localStorage.getItem('accessibility-resetIconStyle'),
+            primaryButton: safeStorage.getItem('accessibility-primaryButton'),
+            buttonPosition: safeStorage.getItem('accessibility-buttonPosition'),
+            panelPosition: safeStorage.getItem('accessibility-panelPosition'),
+            barTheme: safeStorage.getItem('accessibility-barTheme'),
+            showActiveIndicators: safeStorage.getItem('accessibility-showActiveIndicators'),
+            audioPingEnabled: safeStorage.getItem('accessibility-audioPingEnabled'),
+            isPanelPinned: safeStorage.getItem('accessibility-isPanelPinned'),
+            sidebarIconSize: safeStorage.getItem('accessibility-sidebarIconSize'),
+            resetIconStyle: safeStorage.getItem('accessibility-resetIconStyle'),
         };
 
         // Don't load cursor settings - they affect the website
         // if (saved.cursorSize) setCursorSize(Number(saved.cursorSize));
         // if (saved.cursorStyle) setCursorStyle(saved.cursorStyle as CursorStyle);
         // if (saved.cursorColor) setCursorColor(saved.cursorColor);
-        
+
         if (saved.primaryButton) setPrimaryButton(saved.primaryButton as 'left' | 'right');
         if (saved.buttonPosition) setButtonPosition(saved.buttonPosition as ButtonPosition);
         if (saved.panelPosition) setPanelPosition(saved.panelPosition as PanelPosition);
@@ -69,7 +70,7 @@ export function useUISettings() {
             // Migrate 'blue' to 'Turquoise' if found
             if (themeValue === 'blue') {
                 themeValue = 'Turquoise';
-                localStorage.setItem('accessibility-barTheme', 'Turquoise');
+                safeStorage.setItem('accessibility-barTheme', 'Turquoise');
             }
             // Cast to BarTheme and validate
             let theme = themeValue as BarTheme;
@@ -78,8 +79,17 @@ export function useUISettings() {
                 setBarTheme(theme);
             }
         }
-        if (saved.showActiveIndicators !== null) setShowActiveIndicators(saved.showActiveIndicators === 'true');
-        if (saved.audioPingEnabled) setAudioPingEnabled(saved.audioPingEnabled === 'true');
+        if (saved.showActiveIndicators !== null) {
+            setShowActiveIndicators(saved.showActiveIndicators === 'true');
+        } else {
+            setShowActiveIndicators(true); // Default enabled
+        }
+
+        if (saved.audioPingEnabled !== null) {
+            setAudioPingEnabled(saved.audioPingEnabled === 'true');
+        } else {
+            setAudioPingEnabled(true); // Default enabled
+        }
         if (saved.isPanelPinned) setIsPanelPinned(saved.isPanelPinned === 'true');
         if (saved.sidebarIconSize) setSidebarIconSize(Number(saved.sidebarIconSize));
         if (saved.resetIconStyle) setResetIconStyle(saved.resetIconStyle as ResetIconStyle);
@@ -277,20 +287,20 @@ export function useUISettings() {
                 host.shadowRoot?.getElementById('a11y-cursor-style')?.remove();
             });
         }
-        localStorage.setItem('accessibility-cursorSize', cursorSize.toString());
-        localStorage.setItem('accessibility-cursorStyle', cursorStyle);
-        localStorage.setItem('accessibility-cursorColor', cursorColor);
+        safeStorage.setItem('accessibility-cursorSize', cursorSize.toString());
+        safeStorage.setItem('accessibility-cursorStyle', cursorStyle);
+        safeStorage.setItem('accessibility-cursorColor', cursorColor);
     }, [cursorSize, cursorStyle, cursorColor]);
 
-    useEffect(() => localStorage.setItem('accessibility-primaryButton', primaryButton), [primaryButton]);
-    useEffect(() => localStorage.setItem('accessibility-buttonPosition', buttonPosition), [buttonPosition]);
-    useEffect(() => localStorage.setItem('accessibility-panelPosition', panelPosition), [panelPosition]);
-    useEffect(() => localStorage.setItem('accessibility-barTheme', barTheme), [barTheme]);
-    useEffect(() => localStorage.setItem('accessibility-showActiveIndicators', showActiveIndicators.toString()), [showActiveIndicators]);
-    useEffect(() => localStorage.setItem('accessibility-audioPingEnabled', audioPingEnabled.toString()), [audioPingEnabled]);
-    useEffect(() => localStorage.setItem('accessibility-isPanelPinned', isPanelPinned.toString()), [isPanelPinned]);
-    useEffect(() => localStorage.setItem('accessibility-sidebarIconSize', sidebarIconSize.toString()), [sidebarIconSize]);
-    useEffect(() => localStorage.setItem('accessibility-resetIconStyle', resetIconStyle), [resetIconStyle]);
+    useEffect(() => safeStorage.setItem('accessibility-primaryButton', primaryButton), [primaryButton]);
+    useEffect(() => safeStorage.setItem('accessibility-buttonPosition', buttonPosition), [buttonPosition]);
+    useEffect(() => safeStorage.setItem('accessibility-panelPosition', panelPosition), [panelPosition]);
+    useEffect(() => safeStorage.setItem('accessibility-barTheme', barTheme), [barTheme]);
+    useEffect(() => safeStorage.setItem('accessibility-showActiveIndicators', showActiveIndicators.toString()), [showActiveIndicators]);
+    useEffect(() => safeStorage.setItem('accessibility-audioPingEnabled', audioPingEnabled.toString()), [audioPingEnabled]);
+    useEffect(() => safeStorage.setItem('accessibility-isPanelPinned', isPanelPinned.toString()), [isPanelPinned]);
+    useEffect(() => safeStorage.setItem('accessibility-sidebarIconSize', sidebarIconSize.toString()), [sidebarIconSize]);
+    useEffect(() => safeStorage.setItem('accessibility-resetIconStyle', resetIconStyle), [resetIconStyle]);
 
     const togglePanelPin = () => setIsPanelPinned(prev => !prev);
 

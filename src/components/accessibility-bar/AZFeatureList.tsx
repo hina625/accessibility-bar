@@ -279,7 +279,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                     if (audioPingEnabled) playAudioPing('menu');
                                     scrollToSection(letter);
                                 }}
-                                className="w-full flex items-center justify-center text-[15px] font-black hover:scale-125 transition-all"
+                                className="w-full flex items-center justify-center text-[20px] font-black hover:scale-125 transition-all"
                                 style={{
                                     color: currentTheme.text,
                                     cursor: groupedFeatures[letter] ? 'pointer' : 'default',

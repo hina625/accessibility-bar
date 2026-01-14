@@ -21,7 +21,20 @@ export default function MagnifierToggle() {
             }}
         >
             <div className="flex items-center">
-                <span className="text-[16px] font-medium" style={{ color: theme.text }}>Magnifier</span>
+                <span 
+                    className="text-[16px] font-medium relative inline" 
+                    style={{ color: theme.text }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.textDecoration = 'underline';
+                        e.currentTarget.style.textDecorationThickness = '2px';
+                        e.currentTarget.style.textUnderlineOffset = '2px';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.textDecoration = 'none';
+                    }}
+                >
+                    Magnifier
+                </span>
                 <div onClick={(e) => e.stopPropagation()}>
                     <InfoPopupButton
                         title="Magnifier"

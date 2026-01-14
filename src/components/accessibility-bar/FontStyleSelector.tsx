@@ -151,7 +151,7 @@ export default function FontStyleSelector() {
         type="dyslexia"
       />
 
-      <div className="text-[14px] font-medium opacity-90 p-2.5 px-3 rounded-lg flex items-center gap-3 mt-2"
+      <div className="text-[16px] font-medium opacity-90 p-2.5 px-3 rounded-lg flex items-center gap-3 mt-2"
         style={{ color: theme.text, backgroundColor: `${theme.active}44`, border: `1px solid ${theme.text}22` }}>
         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: '#FACC15' }}></div>
         <span className="leading-none">{t.controls.currentSelection}: <span className="font-bold underline underline-offset-2">{currentFontName}</span></span>

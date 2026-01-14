@@ -20,9 +20,9 @@ export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps)
     else if (panelPosition === 'right') displayIcon = sidebarRightImg;
 
     return (
-        <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483647] flex items-center justify-center p-6 bg-black/80 animate-fade-in">
+        <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483647] flex items-center justify-center p-4 sm:p-6 bg-black/80 animate-fade-in">
             <div
-                className="relative w-full max-w-[480px] bg-white rounded-[32px] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.4)] border-[5px] animate-slide-up flex flex-col items-center"
+                className="relative w-full max-w-[480px] bg-white rounded-[32px] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.4)] border-[5px] animate-slide-up flex flex-col items-center max-h-[90vh] overflow-y-auto"
                 style={{
                     backgroundColor: currentTheme.background,
                     borderColor: currentTheme.border,
@@ -31,13 +31,13 @@ export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps)
                 }}
             >
                 {/* Modal Content */}
-                <div className="p-8 pt-10 flex flex-col items-center w-full">
-                    <h3 className="text-2xl font-black uppercase mb-6 tracking-tight text-center" style={{ color: currentTheme.text }}>
+                <div className="p-6 sm:p-8 pt-8 sm:pt-10 flex flex-col items-center w-full">
+                    <h3 className="text-xl sm:text-2xl font-black mb-4 sm:mb-6 tracking-tight text-center" style={{ color: currentTheme.text }}>
                         Sidebar Position
                     </h3>
-                    <div className="w-full space-y-2 mb-7 px-4">
-                        <p className="text-base font-bold mb-6 leading-normal text-center" style={{ color: currentTheme.text }}>
-                            Press/Click the Sidebar icon to move the Sidebar to your preferred position:
+                    <div className="w-full space-y-2 mb-6 sm:mb-7 px-3 sm:px-4">
+                        <p className="text-sm sm:text-base font-bold mb-4 sm:mb-6 leading-normal text-center" style={{ color: currentTheme.text }}>
+                            Press/Click the Sidebar Position icon (on the Main Menu) to move the Sidebar to your preferred position:
                         </p>
 
                         {/* Header Icon - Moved below sentence */}
@@ -73,14 +73,14 @@ export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps)
                         ].map((item, idx) => (
                             <div
                                 key={idx}
-                                className="flex items-center justify-start p-3 px-6 rounded-xl border-2 hover:brightness-95 transition-all"
+                                className="flex items-center justify-start p-3 px-4 sm:px-6 rounded-xl border-2 hover:brightness-95 transition-all"
                                 style={{
                                     backgroundColor: currentTheme.hover,
                                     borderColor: currentTheme.border,
                                     color: currentTheme.text
                                 }}
                             >
-                                <div className="text-base font-normal leading-tight">
+                                <div className="text-sm sm:text-base font-normal leading-tight">
                                     {item.text}
                                 </div>
                             </div>
@@ -89,10 +89,10 @@ export default function SidebarTutorial({ onClose, icon }: SidebarTutorialProps)
 
                     <button
                         onClick={onClose}
-                        className="w-full py-4 rounded-xl text-black font-black uppercase tracking-widest hover:translate-y-[-1px] active:translate-y-0 transition-all shadow-lg text-xl border-2 border-black/10 flex justify-center items-center"
+                        className="w-full py-3 sm:py-4 rounded-xl text-black font-black tracking-widest hover:translate-y-[-1px] active:translate-y-0 transition-all shadow-lg text-lg sm:text-xl border-2 border-black/10 flex justify-center items-center"
                         style={{ backgroundColor: barTheme === 'yellow' ? '#87CEEB' : '#FFD700' }}
                     >
-                        Got it
+                        Got It
                     </button>
                 </div>
             </div>

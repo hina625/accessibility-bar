@@ -4,6 +4,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --font-lexend: 'Lexend', sans-serif;
+  --font-open-sans: 'Open Sans', sans-serif;
 }
 
 @theme inline {
@@ -210,7 +212,6 @@ body .tts-highlight-current:not(.accessibility-bar *):not(.a11y-embed-host *) {
   outline: 3px solid #FFA500 !important;
   outline-offset: 2px !important;
   border-radius: 3px !important;
-  font-weight: bold !important;
   transition: all 0.2s ease !important;
 }
 
@@ -540,6 +541,18 @@ body *,
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Hide scrollbars for top and bottom bars with large icons */
+.icons-scroll-hidden::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.icons-scroll-hidden {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 @keyframes progress-once {

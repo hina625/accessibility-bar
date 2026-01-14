@@ -167,6 +167,11 @@ export default function PronunciationGuidePopup() {
             </div>
 
             <div className="p-4 space-y-4">
+                {/* Instruction text */}
+                <div className="text-[13px] pb-2 border-b" style={{ color: theme.text, opacity: 0.7, borderColor: theme.border }}>
+                    <p>Highlight any word to hear an audio pronunciation of it</p>
+                </div>
+                
                 {isLoading ? (
                     <div className="flex items-center gap-2 py-2" style={{ color: theme.text, opacity: 0.6 }}>
                         <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: theme.active, borderTopColor: 'transparent' }}></div>

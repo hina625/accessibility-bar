@@ -4,11 +4,11 @@ import { createRoot } from 'react-dom/client'
 import AccessibilityBar from '../components/accessibility-bar/AccessibilityBar'
 import { AccessibilityProvider } from '../contexts/AccessibilityContext'
 
-// @ts-ignore
+
 import css from './embed.css?inline'
-// @ts-ignore
+
 import tailwindCss from './embed-tailwind.css?inline'
-// @ts-ignore
+
 import documentStyles from './document-styles.css?inline'
 
 
@@ -19,10 +19,9 @@ function mount() {
         (window as any).AccessibilityBarEmbed = (window as any).AccessibilityBarEmbed || {}
     }
 
-    // Prevent duplicate mounting
+ 
     if (document.getElementById('a11y-embed-host-react')) return
 
-    // 1. Inject Global Document Styles
     if (!document.getElementById('a11y-global-styles')) {
         const docStyle = document.createElement('style')
         docStyle.id = 'a11y-global-styles'
@@ -30,7 +29,7 @@ function mount() {
         document.head.appendChild(docStyle)
     }
 
-    // 2. Inject Fonts (matching layout.tsx concept)
+  
     const fontUrls = [
         'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Lexend:wght@100..900&family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap',
         'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/dist/external/open-dyslexic.css'
@@ -45,7 +44,6 @@ function mount() {
         }
     })
 
-    // 3. Inject SVG Filters (matching layout.tsx concept)
     if (!document.getElementById('a11y-color-filters')) {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
         svg.id = 'a11y-color-filters'
@@ -54,7 +52,6 @@ function mount() {
         svg.style.position = 'absolute'
         svg.style.pointerEvents = 'none'
 
-        // Define filters in a clean way
         svg.innerHTML = `
       <defs>
         <filter id="protanopia-filter">
@@ -71,12 +68,10 @@ function mount() {
         document.body.appendChild(svg)
     }
 
-    // 4. Create Host Element (Zero-Footprint Strategy)
     const host = document.createElement('div')
     host.id = 'a11y-embed-host-react'
     host.className = 'a11y-embed-host'
 
-    // CRITICAL: 0x0 size and visible overflow to prevent blocking
     host.style.all = 'initial'
     host.style.position = 'fixed'
     host.style.left = '0'
@@ -89,12 +84,10 @@ function mount() {
 
     const shadow = host.attachShadow({ mode: 'open' })
 
-    // 5. Inject Scoped Styles into Shadow DOM
     const styleContainer = document.createElement('div')
     styleContainer.innerHTML = `<style>${tailwindCss}</style><style>${css}</style>`
     shadow.appendChild(styleContainer)
 
-    // 6. Create React Root Container
     const container = document.createElement('div')
     container.id = 'a11y-react-root'
     container.style.position = 'static'
@@ -106,11 +99,11 @@ function mount() {
     shadow.appendChild(container)
     document.documentElement.appendChild(host)
 
-    // 7. Mount Application
+  
     try {
         const root = createRoot(container)
 
-        // Render EXACTLY like layout.tsx: Provider -> Bar
+        
         root.render(
             <React.StrictMode>
                 <AccessibilityProvider>
@@ -124,7 +117,7 @@ function mount() {
         console.error('AccessibilityBar mount error:', err)
     }
 
-    // 8. Expose API
+
     const api = {
         init: mount
     }
@@ -134,7 +127,7 @@ function mount() {
     }
 }
 
-// Auto-init
+
 if (typeof window !== 'undefined') {
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         mount()

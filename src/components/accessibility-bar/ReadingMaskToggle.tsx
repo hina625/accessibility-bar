@@ -35,15 +35,15 @@ export default function ReadingMaskToggle() {
         >
           <div className="flex items-center relative group">
             <span 
-              className="text-[16px] font-medium relative inline-block" 
+              className="text-[16px] font-medium relative inline" 
               style={{ color: theme.text }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderBottomColor = theme.text;
-                e.currentTarget.style.borderBottomWidth = '2px';
-                e.currentTarget.style.borderBottomStyle = 'solid';
+                e.currentTarget.style.textDecoration = 'underline';
+                e.currentTarget.style.textDecorationThickness = '2px';
+                e.currentTarget.style.textUnderlineOffset = '2px';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderBottomWidth = '0px';
+                e.currentTarget.style.textDecoration = 'none';
               }}
             >
               Reading Mask

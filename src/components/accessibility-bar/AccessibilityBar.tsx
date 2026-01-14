@@ -65,6 +65,8 @@ import moveUiIcon from '@/assets/icons/move_ui.png?inline';
 import sidebarShowIcon from '@/assets/icons/show_sidebar.png?inline';
 import sidebarHideIcon from '@/assets/icons/hide_sidebar.png?inline';
 import pinIcon from '@/assets/icons/office-push-pin.png?inline';
+import accessibilityIcon from '@/assets/icons/first icon og accessibilty.png?inline';
+import scalabilityIcon from '@/assets/icons/scalability.png?inline';
 const azIcon = accessTriggerIcon;
 import paginationArrowIcon from '@/assets/icons/arrow-right.png?inline';
 import OnPageDictionary from './OnPageDictionary';
@@ -72,7 +74,6 @@ import TextAlignControl from './TextAlignControl';
 import LanguageSelector from './LanguageSelector';
 import PageBackgroundColor from './PageBackgroundColor';
 import PositionControls from './PositionControls';
-import accessibilityIcon from '@/assets/icons/first_icon_accessibility.png?inline';
 
 import ContentFiltering from './ContentFiltering';
 import PlainTextModeControl from './PlainTextModeControl';
@@ -97,8 +98,8 @@ import TtsPlayer from './TtsPlayer';
 import FeedbackControl from './FeedbackControl';
 
 import ThemeSelector from './ThemeSelector';
-import InfoPopupButton from './InfoPopupButton';
 import ToggleCheckbox from './ToggleCheckbox';
+import InfoPopupButton from './InfoPopupButton';
 import SelectionTranslator from './SelectionTranslator';
 import InfoPage from './InfoPage';
 import SidebarTutorial from './SidebarTutorial';
@@ -108,8 +109,7 @@ import FeedbackPopup from './FeedbackPopup';
 import AZFeatureList from './AZFeatureList';
 import { translations } from '@/contexts/accessibility/translations';
 
-import { THEME, BAR_THEMES } from '@/contexts/accessibility/theme';
-import type { BarTheme } from '@/contexts/accessibility/theme';
+import { THEME, BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function AccessibilityBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -119,27 +119,29 @@ export default function AccessibilityBar() {
   const [selectedOffset, setSelectedOffset] = useState<number>(0);
   const [selectedCategoryRect, setSelectedCategoryRect] = useState<DOMRect | null>(null);
   const [showSidebarTutorial, setShowSidebarTutorial] = useState(false);
-  const [hasSeenSidebarTutorialThisSession, setHasSeenSidebarTutorialThisSession] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('accessibility-seen-sidebar-tutorial-session') === 'true';
-    }
-    return false;
-  });
+  const [hasSeenSidebarTutorialThisSession, setHasSeenSidebarTutorialThisSession] = useState(false);
   const [tutorialIcon, setTutorialIcon] = useState<any>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const iconsContainerRef = useRef<HTMLDivElement>(null);
   const [categoryStartIndex, setCategoryStartIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [itemsPerPage, setItemsPerPage] = useState(5);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showActiveFeaturesList, setShowActiveFeaturesList] = useState(false);
   const [showFeedbackPopup, setShowFeedbackPopup] = useState(false);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const settingsModalRef = useRef<HTMLDivElement>(null);
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [settingsView, setSettingsView] = useState<'main' | 'size' | 'profiles'>('main');
-  const [positionPage, setPositionPage] = useState(0);
   const [activeProfile, setActiveProfile] = useState<string | null>(null);
   const lastOpenTimeRef = useRef<number>(0);
   const [showFirstTimeTtsPopup, setShowFirstTimeTtsPopup] = useState(false);
+  const [hasShownTtsPopupThisSession, setHasShownTtsPopupThisSession] = useState(false);
+  const [positionPage, setPositionPage] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const context = useAccessibility();
   const {
@@ -197,8 +199,6 @@ export default function AccessibilityBar() {
     setReadingRulerWidth,
     setReadingMaskSize,
     setReadingProgressBarColor,
-    readingProgressBarColor,
-    readingProgressBar,
     setPlainTextSize,
     setLargeButtons,
     setKeyboardNavigation,
@@ -236,6 +236,8 @@ export default function AccessibilityBar() {
     setButtonPosition,
     panelPosition,
     setPanelPosition,
+    readingProgressBar,
+    readingProgressBarColor,
     toggleReadingProgressBar,
     toggleAudioPing,
     toggleShowActiveIndicators,
@@ -243,6 +245,8 @@ export default function AccessibilityBar() {
     ttsReadWholePage,
     stopTts
   } = context;
+
+  const isVertical = panelPosition === 'left' || panelPosition === 'right';
 
   const applyProfile = (profileId: string) => {
     softReset();
@@ -341,6 +345,9 @@ export default function AccessibilityBar() {
   };
 
   const currentTheme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
+  const modalBorderColor = ['purple', 'oceanBlue', 'navy', 'black', 'grayscale', 'pink'].includes(barTheme)
+    ? 'rgba(255, 255, 255, 0.6)'
+    : 'rgba(0, 0, 0, 0.6)';
 
   const t = translations[language] || translations['en'];
 
@@ -355,26 +362,27 @@ export default function AccessibilityBar() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Add padding-top to body when accessibility bar panel is open AND positioned at top
-  // This pushes content down instead of overlaying it
-  // Only apply padding when panel is open, not just when button is at top
   useEffect(() => {
     const isTopPosition = buttonPosition === 'top' || buttonPosition === 'top-left' || buttonPosition === 'top-right';
+    const isPanelTop = panelPosition === 'top';
 
-    // Only add padding when panel is open AND positioned at top
-    if (isOpen && isTopPosition) {
-      const paddingTop = isMobile ? '88px' : '96px'; // Button height (80px) + margin (16px mobile, 24px desktop)
+    if ((isOpen && isTopPosition) || (isOpen && isPanelTop)) {
+      // Calculate height based on icon size multiplier
+      // Base height approx 70px + padding
+      const baseHeight = isMobile ? 80 : 90;
+      const calculatedHeight = baseHeight * (isPanelTop ? sidebarIconSize : 1);
+      const paddingTop = `${calculatedHeight}px`;
+
       document.body.style.paddingTop = paddingTop;
+      document.body.style.transition = 'padding-top 0.3s ease';
     } else {
-      // Remove padding when panel is closed or position is not at top
       document.body.style.paddingTop = '';
     }
 
     return () => {
-      // Cleanup: remove padding when component unmounts
       document.body.style.paddingTop = '';
     };
-  }, [isOpen, buttonPosition, isMobile]);
+  }, [isOpen, buttonPosition, panelPosition, isMobile, sidebarIconSize]);
 
 
   useEffect(() => {
@@ -383,6 +391,82 @@ export default function AccessibilityBar() {
       setSelectedCategory(null);
     }
   }, [onPageDictionary, pageSummary, pageStructure]);
+
+
+  const checkScrollState = () => {
+    if (!iconsContainerRef.current) return;
+    const container = iconsContainerRef.current;
+    setCanScrollLeft(container.scrollLeft > 0);
+    setCanScrollRight(container.scrollLeft < container.scrollWidth - container.clientWidth - 1);
+  };
+
+
+  useEffect(() => {
+    const isTopPosition = panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right';
+    const isHorizontal = panelPosition !== 'left' && panelPosition !== 'right';
+
+    if (isOpen && isHorizontal && isTopPosition) {
+
+      setTimeout(() => {
+        checkScrollState();
+      }, 100);
+
+      const container = iconsContainerRef.current;
+      if (container) {
+        container.addEventListener('scroll', checkScrollState);
+        window.addEventListener('resize', checkScrollState);
+
+        // Also check scroll state when icons might change (DOM updates)
+        const observer = new MutationObserver(() => {
+          setTimeout(() => checkScrollState(), 50);
+        });
+        observer.observe(container, { childList: true, subtree: true });
+
+        return () => {
+          container.removeEventListener('scroll', checkScrollState);
+          window.removeEventListener('resize', checkScrollState);
+          observer.disconnect();
+        };
+      }
+    }
+  }, [isOpen, panelPosition, sidebarIconSize]);
+
+  useEffect(() => {
+    const calculateItems = () => {
+      if (isVertical) {
+        setItemsPerPage(5);
+      } else {
+        // Horizontal: Top or Bottom
+        if (sidebarIconSize === 1.3) {
+          setItemsPerPage(15);
+        } else if (sidebarIconSize === 1.5) {
+          setItemsPerPage(14);
+        } else {
+          // Standard or Medium or other
+          // Account for page zoom when calculating available space
+          const zoomFactor = pageZoom ? pageZoom / 100 : 1;
+          const iconWidth = 58 * sidebarIconSize;
+          const gap = 8;
+          // Adjust container width based on zoom - when zoomed in, less space is available
+          const containerWidth = window.innerWidth / zoomFactor;
+          const closeBtnWidth = isMobile ? 60 : 63;
+          const azWidth = 58 * sidebarIconSize;
+          const resetWidth = 58 * sidebarIconSize;
+          const reserved = closeBtnWidth + azWidth + resetWidth + (isMobile ? 40 : 80);
+          const available = containerWidth - reserved;
+          const count = Math.floor(available / (iconWidth + gap));
+          setItemsPerPage(Math.max(1, count));
+        }
+      }
+    };
+    calculateItems();
+    window.addEventListener('resize', calculateItems);
+    return () => window.removeEventListener('resize', calculateItems);
+  }, [isVertical, sidebarIconSize, isMobile, panelPosition, pageZoom]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [isVertical, sidebarIconSize, panelPosition]);
 
 
   const handleResetSelected = () => {
@@ -470,49 +554,120 @@ export default function AccessibilityBar() {
     }
   }, [selectedCategory]);
 
+  // Recalculate selectedOffset when panel position changes and category is selected
+  useEffect(() => {
+    if (selectedCategory && !isVertical && isOpen) {
+      const updateOffset = () => {
+        // Find the button that corresponds to the selected category
+        let selectedButton: HTMLElement | null = null;
+
+        // 1. Try finding within the component (Ref) - Primary method, works in Shadow DOM
+        if (iconsContainerRef.current) {
+          selectedButton = iconsContainerRef.current.querySelector(
+            `[data-category-btn][data-category-id="${selectedCategory}"]`
+          ) as HTMLElement;
+        }
+
+        // 2. Global fallback (for backward compatibility or odd rendering cases)
+        if (!selectedButton) {
+          selectedButton = document.querySelector(
+            `.a11y-embed-host [data-category-btn][data-category-id="${selectedCategory}"]`
+          ) as HTMLElement;
+        }
+
+        if (!selectedButton) {
+          selectedButton = document.querySelector(
+            `[data-category-btn][data-category-id="${selectedCategory}"]`
+          ) as HTMLElement;
+        }
+
+        if (selectedButton) {
+          // Scroll button into view if it's in a scrollable container
+          const scrollContainer = selectedButton.closest('.overflow-x-auto, .custom-scrollbar');
+          if (scrollContainer) {
+            selectedButton.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
+          }
+
+          // Use requestAnimationFrame to ensure layout has settled
+          requestAnimationFrame(() => {
+            const rect = selectedButton.getBoundingClientRect();
+            // Only update if button is visible (has dimensions)
+            if (rect.width > 0 && rect.height > 0) {
+              const offset = rect.left + rect.width / 2;
+              setSelectedOffset(offset);
+            }
+          });
+          return true;
+        }
+        return false;
+      };
+
+      // 1. Try immediately (synchronously)
+      if (updateOffset()) return;
+
+      // 2. Try with fallbacks to handle layout transitions (upto 400ms)
+      const timeouts: NodeJS.Timeout[] = [];
+
+      const rafId = requestAnimationFrame(() => {
+        if (updateOffset()) return;
+
+        // Retry at intervals to catch end of layout transitions
+        // 50ms (fast), 150ms (mid), 350ms (end of standard transition), 500ms (safety)
+        [50, 150, 350, 500].forEach(delay => {
+          timeouts.push(setTimeout(() => updateOffset(), delay));
+        });
+      });
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        timeouts.forEach(clearTimeout);
+      };
+    }
+  }, [panelPosition, selectedCategory, isVertical, isOpen]);
+
   useEffect(() => {
     // Handler for clicking outside the panel
     const handleClickOutside = (event: MouseEvent) => {
       // If panel is closed or pinned, do nothing
       if (!isOpen || isPanelPinned) return;
 
+      // Don't close the main panel if settings modal is open (let settings modal handler handle it)
+      if (showSettingsDropdown) return;
+
       const target = event.target as Node;
       const path = event.composedPath();
 
-      // Check if click is outside panel using composedPath for Shadow DOM support
       const isOutsidePanel =
         (panelRef.current && !path.includes(panelRef.current)) &&
         !path.some(el => (el as Element)?.classList?.contains?.('accessibility-bar'));
 
-      // Check if click is outside trigger button (if it exists)
       const isOutsideTrigger = !triggerRef.current || !triggerRef.current.contains(target);
 
-      // CRITICAL FIX FOR EMBED MODE:
-      // In embed mode (Shadow DOM), the event target might look like the host element to the outside document.
-      // We need to check if the click path includes our specific embed host ID or class.
       const isEmbedHost = path.some(el =>
         (el as Element)?.id === 'a11y-embed-host-react' ||
         (el as Element)?.classList?.contains?.('a11y-embed-host')
       );
 
-      // If it IS the embed host, we consider it "inside" for this check, 
-      // because the internal click handling (inside the shadow root) will handle the specific button clicks.
-      // If we don't return here, this "outside" listener will fire and close the panel immediately.
       if (isEmbedHost) return;
 
       if (isOutsidePanel && isOutsideTrigger) {
-        // Only close the expanded panel (category), do not close the main bar
+        // Close only the category panel, keep the main bar open
         if (selectedCategory) {
-          // Verify if we are in Info mode (full screen), if so, ignore outside clicks
           if (selectedCategory === 'info') return;
+          // Close category panel but keep main bar open
           setSelectedCategory(null);
         }
+        // Removed: Panel should only close when Exit button is clicked, not on outside click
+        // else {
+        //   // If no category is open, close the entire panel
+        //   setIsOpen(false);
+        // }
       }
     };
 
     if (isOpen) {
       lastOpenTimeRef.current = Date.now();
-      // Use short delay to prevent the opening click from being caught
+
       const timer = setTimeout(() => {
         document.addEventListener('mousedown', handleClickOutside);
       }, 100);
@@ -521,7 +676,33 @@ export default function AccessibilityBar() {
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }
-  }, [isOpen, isPanelPinned, selectedCategory]);
+  }, [isOpen, isPanelPinned, selectedCategory, showSettingsDropdown]);
+
+  // Handle click outside settings modal
+  useEffect(() => {
+    if (!showSettingsDropdown) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+      const path = event.composedPath();
+
+      const isOutsideModal = settingsModalRef.current && !path.includes(settingsModalRef.current);
+      const isOutsideButton = settingsButtonRef.current && !settingsButtonRef.current.contains(target);
+
+      if (isOutsideModal && isOutsideButton) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      document.addEventListener('mousedown', handleClickOutside);
+    }, 100);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSettingsDropdown]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -775,11 +956,10 @@ export default function AccessibilityBar() {
   };
 
   const categories = [
-    { id: 'az', name: `A-Z\nLIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
+    { id: 'az', name: `A to Z\nLIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'reset', name: `RESET`, icon: resetIcon, colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
-    { id: 'move_ui', name: `SIDEBAR\nPOSITION`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
-    { id: 'position', name: `CUSTOMISE\nTOOLBAR`, icon: profileIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
-    { id: 'font', name: `FONT TOOLS`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
+    { id: 'move_ui', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
+    { id: 'font', name: `Font Tools`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'textSpacing', name: `Text\nAlignment`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
     { id: 'lineHeight', name: `Line Height`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
     { id: 'letterSpacing', name: `Letter/Word\nSpacing`, icon: letterSpacingIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
@@ -1243,8 +1423,6 @@ export default function AccessibilityBar() {
     }
   };
 
-  const isVertical = panelPosition === 'left' || panelPosition === 'right';
-
   const getPanelPositionClasses = () => {
     switch (panelPosition) {
       case 'right':
@@ -1269,445 +1447,78 @@ export default function AccessibilityBar() {
   return (
     <>
       {!isOpen && (
-        <button
-          type="button"
-          ref={triggerRef}
-          onMouseDown={(e) => e.stopPropagation()}
-          onMouseUp={(e) => e.stopPropagation()}
-          onMouseEnter={() => {
-            if (textToSpeech) {
-              speak('Accessibility Options', ttsVoiceGender);
-            }
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            // Enable text to speech by default and show popup every time
-            setTextToSpeech?.(true);
-            // Show popup
-            setShowFirstTimeTtsPopup(true);
-
-            setIsOpen(true);
-          }}
-          className={`accessibility-bar a11y-embed-host fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
-          style={{
-            background: `linear-gradient(135deg, ${currentTheme.background}CC, ${currentTheme.background}B3)`,
-            backdropFilter: 'blur(20px) saturate(190%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(190%)',
-            border: `4px solid ${currentTheme.border}4D`,
-            boxShadow: 'none',
-            pointerEvents: 'auto',
-            zoom: '1', // Prevent browser zoom influence
-            transform: 'none', // Prevent transform scaling
-            fontSize: '16px' // Force base font size
-          }}
-          aria-label="Open accessibility menu"
-          aria-expanded={isOpen}
-          title="Accessibility Options (Ctrl+Shift+A)"
-        >
-          <Image
-            src={accessTriggerIcon}
-            alt=""
-            width={70}
-            height={70}
-            className="h-full w-full object-contain"
-            priority={true}
+        <>
+          <div
+            className={`fixed z-[2147483646] h-20 w-20 rounded-full animate-ping ${getButtonPositionClasses()}`}
+            style={{
+              backgroundColor: currentTheme.active || '#3b82f6',
+              opacity: 0.6,
+              pointerEvents: 'none',
+              animationDuration: '2s'
+            }}
           />
-        </button>
+          <button
+            type="button"
+            ref={triggerRef}
+            onMouseDown={(e) => e.stopPropagation()}
+            onMouseUp={(e) => e.stopPropagation()}
+            onMouseEnter={() => {
+              if (textToSpeech) {
+                speak('Accessibility Options', ttsVoiceGender);
+              }
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+
+              // Enable text to speech by default and show popup once per page load
+              setTextToSpeech?.(true);
+              // Show popup only once per page load/refresh
+              if (!hasShownTtsPopupThisSession) {
+                setShowFirstTimeTtsPopup(true);
+                setHasShownTtsPopupThisSession(true);
+              }
+
+              setIsOpen(true);
+            }}
+            className={`accessibility-bar a11y-embed-host fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
+            style={{
+              background: barTheme === 'pink' 
+                ? `linear-gradient(135deg, #EC5DD6CC, #EC5DD6B3)`
+                : barTheme === 'Turquoise'
+                ? `linear-gradient(135deg, #38FFC3CC, #38FFC3B3)`
+                : `linear-gradient(135deg, ${currentTheme.background}CC, ${currentTheme.background}B3)`,
+              backdropFilter: 'blur(20px) saturate(190%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(190%)',
+              border: barTheme === 'pink'
+                ? `4px solid #F472B64D`
+                : barTheme === 'Turquoise'
+                ? `4px solid #0abd87ff4D`
+                : `4px solid ${currentTheme.border}4D`,
+              boxShadow: 'none',
+              pointerEvents: 'auto',
+              zoom: '1', // Prevent browser zoom influence
+              transform: 'none', // Prevent transform scaling
+              fontSize: '16px' // Force base font size
+            }}
+            aria-label="Open accessibility menu"
+            aria-expanded={isOpen}
+            title="Accessibility Options (Ctrl+Shift+A)"
+          >
+            <Image
+              src={accessTriggerIcon}
+              alt=""
+              width={70}
+              height={70}
+              className="h-full w-full object-contain"
+              priority={true}
+            />
+          </button>
+        </>
       )}
 
       {isOpen && (
         <>
-          {/* Plus Button - Truly Outside Positioning */}
-          <div
-            className="fixed z-[2147483650]"
-            style={{
-              ...(isVertical
-                ? {
-                  [panelPosition === 'right' ? 'right' : 'left']: (isMobile ? 'clamp(70px, 15vw, 90px)' : `${120 * sidebarIconSize}px`),
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px'
-                }
-                : {
-                  [panelPosition === 'bottom' ? 'bottom' : 'top']: (isMobile ? 'clamp(70px, 15vw, 90px)' : `${80 * sidebarIconSize}px`),
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px'
-                })
-            }}
-          >
-            <button
-              onClick={() => {
-                if (audioPingEnabled) playAudioPing();
-                setShowSettingsDropdown(!showSettingsDropdown);
-              }}
-              className={`relative flex items-center justify-center ${isVertical ? 'w-6 h-[220px]' : 'w-[220px] h-6'} rounded-none transition-all duration-300 hover:brightness-110 active:scale-95 shadow-xl`}
-              style={{
-                zoom: '1', // Isolate from zoom
-                fontSize: '16px', // Isolate from font size
-                background: showSettingsDropdown
-                  ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
-                  : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
-                border: 'none',
-                boxShadow: `0 8px 32px ${currentTheme.border}4D`
-              }}
-              aria-label="Settings Menu"
-              title="Settings"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="transition-transform duration-300"
-                style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
-              >
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-            </button>
-
-            {/* Large Grid Settings Modal */}
-            {showSettingsDropdown && (
-              <div
-                className="absolute z-[2147483651] overflow-hidden rounded-none shadow-2xl border-2"
-                style={{
-                  bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '100%' : 'auto'),
-                  top: isVertical ? '50%' : (panelPosition === 'top' ? '100%' : 'auto'),
-                  left: isVertical ? (panelPosition === 'left' ? '100%' : 'auto') : '50%',
-                  right: isVertical ? (panelPosition === 'right' ? '100%' : 'auto') : 'auto',
-                  transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
-                  [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '20px',
-                  [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: isVertical ? '20px' : '0',
-                  backgroundColor: currentTheme.background,
-                  borderColor: currentTheme.border,
-                  width: 'calc(100vw - 40px)',
-                  maxWidth: '1350px',
-                }}
-              >
-                <div className="flex flex-col h-full">
-                  {/* Compact Header */}
-                  <div className="px-8 py-4 border-b flex items-center justify-between" style={{ borderColor: `${currentTheme.border}4D` }}>
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={logoIcon}
-                        alt=""
-                        className="w-10 h-10 object-contain"
-                        style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
-                      />
-                      <h2 className="text-[20px] font-black tracking-tight" style={{ color: currentTheme.text }}>
-                        Accessibility Setting
-                      </h2>
-                    </div>
-                    <button
-                      onClick={() => setShowSettingsDropdown(false)}
-                      className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:bg-black/10 active:scale-95"
-                      style={{ color: currentTheme.text }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Unified 2x5 Grid */}
-                  <div className="grid grid-cols-5 grid-rows-2 gap-0 overflow-y-auto custom-scrollbar" style={{ flex: 1 }}>
-
-                    {/* Row 1, Cell 1: Language */}
-                    <section className="p-6 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[18px] font-bold mb-4" style={{ color: currentTheme.text }}>Language</h3>
-                      <LanguageSelector />
-                    </section>
-
-                    {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
-                    <section className="p-6 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-[18px] font-bold" style={{ color: currentTheme.text }}>Accessibility Position Button</h3>
-                        {accessibilityIcon && (
-                          <img
-                            src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
-                            alt=""
-                            width={40}
-                            height={40}
-                            className="object-contain"
-                            style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
-                          />
-                        )}
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { id: 'top-left', label: 'Top Left' }, { id: 'top-right', label: 'Top Right' },
-                          { id: 'bottom-left', label: 'Bottom Left' }, { id: 'bottom-right', label: 'Bottom Right' },
-                          { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' },
-                          { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }
-                        ].slice(positionPage * 4, (positionPage + 1) * 4).map((pos) => (
-                          <button
-                            key={pos.id}
-                            onClick={() => setButtonPosition(pos.id as any)}
-                            className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
-                            style={{
-                              borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
-                              backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
-                              color: currentTheme.text,
-                              fontSize: '14px',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            {pos.label}
-                          </button>
-                        ))}
-                        <button
-                          onClick={() => {
-                            if (audioPingEnabled) playAudioPing('menu');
-                            setPositionPage(p => p === 0 ? 1 : 0);
-                          }}
-                          className="col-span-2 p-1.5 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95 min-h-[36px]"
-                          style={{
-                            borderColor: `${currentTheme.border}4D`,
-                            backgroundColor: `${currentTheme.text}08`,
-                            color: currentTheme.text
-                          }}
-                          aria-label={positionPage === 0 ? "Show more" : "Show less"}
-                        >
-                          {positionPage === 0 ? (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                              <line x1="12" y1="5" x2="12" y2="19"></line>
-                              <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                          ) : (
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                              <path d="M19 12H5M12 19l-7-7 7-7" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </section>
-
-                    <section className="p-4 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <h3 className="text-[16px] font-bold" style={{ color: currentTheme.text }}>Feature Indicators</h3>
-                        <InfoPopupButton
-                          title="Feature Indicators"
-                          description="Displays red circles on icons to show which features are active."
-                        />
-                      </div>
-                      <ToggleCheckbox
-                        id="show-active-indicators"
-                        label="Active Circle (Red Dots)"
-                        checked={showActiveIndicators}
-                        onChange={toggleShowActiveIndicators}
-                      />
-                    </section>
-
-                    {/* Row 1, Cell 4: Icon Size */}
-                    <section className="p-4 border-r border-b" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Sidebar Icon Size</h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { id: 'standard', name: 'Standard', multiplier: 1 },
-                          { id: 'medium', name: 'Medium', multiplier: 1.15 },
-                          { id: 'large', name: 'Large', multiplier: 1.3 },
-                          { id: 'xl', name: 'XL', multiplier: 1.5 }
-                        ].map((opt) => (
-                          <button
-                            key={opt.id}
-                            onClick={() => setSidebarIconSize(opt.multiplier)}
-                            className={`py-1.5 rounded-md border text-[11px] font-black transition-all ${sidebarIconSize === opt.multiplier ? 'shadow-inner' : 'opacity-60 hover:opacity-100'}`}
-                            style={{
-                              borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : `${currentTheme.border}4D`,
-                              backgroundColor: sidebarIconSize === opt.multiplier ? `${currentTheme.active}40` : `${currentTheme.text}08`,
-                              color: currentTheme.text
-                            }}
-                          >
-                            {opt.name}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    {/* Themes: Row Span 2 (Cell 5 in both rows) */}
-                    <section className="row-span-2 p-6 border-l" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[18px] font-bold mb-6" style={{ color: currentTheme.text }}>6. Colour</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {Object.entries(BAR_THEMES).map(([key, theme]) => (
-                          <button
-                            key={key}
-                            onClick={() => {
-                              if (audioPingEnabled) playAudioPing('menu');
-                              setBarTheme(key as BarTheme);
-                            }}
-                            className={`flex flex-col items-center justify-between p-2 rounded-[16px] border-2 transition-all duration-300 ${barTheme === key ? 'scale-105' : 'opacity-80 hover:opacity-100 hover:scale-[1.02]'} active:scale-95 min-h-[100px]`}
-                            style={{
-                              borderColor: barTheme === key ? currentTheme.text : `${currentTheme.border}33`,
-                              backgroundColor: `${currentTheme.text}08`,
-                            }}
-                          >
-                            {/* Swatch Circle */}
-                            <div
-                              className="w-11 h-11 rounded-full border-2 shadow-sm flex items-center justify-center relative mb-1.5"
-                              style={{
-                                backgroundColor: theme.background,
-                                borderColor: barTheme === key ? theme.text : 'rgba(255,255,255,0.2)'
-                              }}
-                            >
-                              <span
-                                className="text-[16px] font-black"
-                                style={{ color: theme.text }}
-                              >
-                                A
-                              </span>
-
-                              {barTheme === key && (
-                                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-black/10">
-                                  <svg className="w-3.5 h-3.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={5}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Label */}
-                            <span
-                              className={`text-[10px] font-black uppercase tracking-wider text-center px-0.5`}
-                              style={{ color: currentTheme.text }}
-                            >
-                              {key === 'grayscale' ? 'GREY SCALE' : key === 'Turquoise' ? 'SKY' : key === 'oceanBlue' ? 'OCEAN BLUE' : key}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    {/* Row 2, Cell 1: Scrolling Progress Bar */}
-                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Scrolling Progress Bar</h3>
-                      <ToggleCheckbox
-                        id="reading-progress-bar"
-                        label="Active on Scrolling"
-                        checked={readingProgressBar}
-                        onChange={toggleReadingProgressBar}
-                      />
-                      {readingProgressBar && (
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                          {['#000000', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#17D1C6'].map(color => (
-                            <button
-                              key={color}
-                              onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                setReadingProgressBarColor(color);
-                              }}
-                              className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
-                              style={{
-                                backgroundColor: color,
-                                border: color === '#FFFFFF' ? '2px solid rgba(0,0,0,0.1)' : 'none',
-                                boxShadow: readingProgressBarColor === color
-                                  ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
-                                  : 'none'
-                              }}
-                              aria-label={`Color ${color}`}
-                            >
-                              {readingProgressBarColor === color && (
-                                <span className="absolute inset-0 flex items-center justify-center">
-                                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke={['#FFFF00', '#00FF00', '#FFFFFF', '#17D1C6'].includes(color) ? '#000000' : '#FFFFFF'} strokeWidth={4}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </span>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </section>
-
-                    {/* Row 2, Cell 2: Reset Icon */}
-                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Reset Icon (Button)</h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { id: 'red-black', color: '#FF0000' },
-                          { id: 'yellow-black', color: '#FFD700' },
-                          { id: 'turquoise-black', color: '#17D1C6' },
-                          { id: 'white-black', color: '#FFFFFF' },
-                          { id: 'black-white', color: '#000000' }
-                        ].map((style) => (
-                          <button
-                            key={style.id}
-                            onClick={() => {
-                              if (audioPingEnabled) playAudioPing('menu');
-                              setResetIconStyle(style.id as any);
-                            }}
-                            className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
-                            style={{
-                              backgroundColor: style.color,
-                              border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : 'none',
-                              boxShadow: resetIconStyle === style.id
-                                ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
-                                : 'none'
-                            }}
-                            aria-label={`Reset Style ${style.id}`}
-                          >
-                            {resetIconStyle === style.id && (
-                              <span className="absolute inset-0 flex items-center justify-center">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
-                                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                              </span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                    {/* Row 2, Cell 3: Audio Ping */}
-                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Audio Ping</h3>
-                      <ToggleCheckbox
-                        id="audio-ping-enabled"
-                        label="Audio ping on select"
-                        checked={audioPingEnabled}
-                        onChange={toggleAudioPing}
-                      />
-                    </section>
-
-                    {/* Row 2, Cell 4: Pick a Profile */}
-                    <section className="p-4 border-r" style={{ borderColor: `${currentTheme.border}4D` }}>
-                      <h3 className="text-[16px] font-bold mb-3" style={{ color: currentTheme.text }}>Pick a Profile</h3>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {[
-                          { id: 'lowvision', name: 'Low Vision' },
-                          { id: 'colorblind', name: 'Blind' },
-                          { id: 'motor', name: 'Motor' },
-                          { id: 'adhd', name: 'ADHD' }
-                        ].map((profile) => (
-                          <button
-                            key={profile.id}
-                            onClick={() => applyProfile(profile.id)}
-                            className={`py-1.5 rounded-md border text-[10px] font-black transition-all ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-60 hover:opacity-100'}`}
-                            style={{
-                              borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
-                              backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
-                              color: currentTheme.text
-                            }}
-                          >
-                            {profile.name}
-                          </button>
-                        ))}
-                      </div>
-                    </section>
-
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           <div
             ref={panelRef}
@@ -1741,8 +1552,589 @@ export default function AccessibilityBar() {
               boxShadow: 'none',
               WebkitBoxShadow: 'none'
             }}
+            role="dialog"
+            aria-modal="true"
             aria-label="Accessibility options"
           >
+            {/* Plus Button - Truly Outside Positioning */}
+            <div
+              className="absolute z-[2147483650]"
+              style={{
+                ...(isVertical
+                  ? {
+                    [panelPosition === 'right' ? 'right' : 'left']: '100%',
+                    top: '43.5%',
+                    transform: 'translateY(-50%)',
+                    [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px'
+                  }
+                  : {
+                    [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px'
+                  })
+              }}
+            >
+              <button
+                ref={settingsButtonRef}
+                onClick={() => {
+                  if (audioPingEnabled) playAudioPing();
+                  setShowSettingsDropdown(!showSettingsDropdown);
+                }}
+                className={`relative flex items-center justify-center ${isVertical ? 'w-6 h-[220px]' : 'w-[220px] h-6'} rounded-none transition-all duration-300 hover:brightness-110 active:scale-95 shadow-xl`}
+                style={{
+                  zoom: '1', // Isolate from zoom
+                  fontSize: '16px', // Isolate from font size
+                  background: showSettingsDropdown
+                    ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
+                    : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                  border: 'none',
+                  boxShadow: `0 8px 32px ${currentTheme.border}4D`
+                }}
+                aria-label="Customise"
+                title="Customise"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="transition-transform duration-300"
+                  style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+              </button>
+
+              {/* Settings Modal (2x5 Grid) */}
+              {showSettingsDropdown && (
+                <div
+                  ref={settingsModalRef}
+                  className="absolute z-[2147483651] rounded-none shadow-2xl border-4 flex flex-col"
+                  onMouseEnter={() => {
+                    if (textToSpeech) {
+                      speak('Customise', ttsVoiceGender);
+                    }
+                  }}
+                  style={{
+                    bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '100%' : 'auto'),
+                    top: isVertical ? '50%' : (panelPosition === 'top' ? '100%' : 'auto'),
+                    left: isVertical ? (panelPosition === 'left' ? '100%' : 'auto') : '50%',
+                    right: isVertical ? (panelPosition === 'right' ? '100%' : 'auto') : 'auto',
+                    transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
+                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '20px',
+                    [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: isVertical ? '20px' : '0',
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
+                    width: isMobile ? 'calc(100vw - 20px)' : 'calc(100vw - 40px)',
+                    maxWidth: isMobile ? '100%' : '1200px',
+                    maxHeight: isMobile ? '90vh' : '85vh',
+                    height: isMobile ? '90vh' : 'auto',
+                  }}
+                >
+                    {/* Indicator Arrow for Settings Modal */}
+                    <div
+                    className="absolute pointer-events-none z-[2147483653]"
+                      style={{
+                        left: isVertical ? (panelPosition === 'left' ? '-14px' : 'auto') : '50%',
+                        right: isVertical ? (panelPosition === 'right' ? '-14px' : 'auto') : 'auto',
+                        top: isVertical ? '50%' : (panelPosition === 'top' ? '-14px' : 'auto'),
+                        bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '-14px' : 'auto'),
+                        transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
+                      filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))'
+                      }}
+                    >
+                      <svg
+                        width="30"
+                        height="20"
+                        viewBox="0 0 30 20"
+                        fill="none"
+                        style={{
+                          transform: isVertical
+                            ? (panelPosition === 'left' ? 'rotate(-90deg)' : 'rotate(90deg)')
+                            : (panelPosition === 'top' ? 'rotate(0deg)' : 'rotate(180deg)')
+                        }}
+                      >
+                        <path
+                        d={isVertical
+                          ? (panelPosition === 'left' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
+                          : (panelPosition === 'top' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
+                        }
+                          fill={currentTheme.background}
+                        stroke={currentTheme.border}
+                          strokeWidth="4"
+                        />
+                      </svg>
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid' }}>
+                    {/* Compact Header */}
+                    <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
+                      <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
+                        <img
+                          src={logoIcon}
+                          alt=""
+                          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} object-contain`}
+                          style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
+                        />
+                      </div>
+                      <h2
+                        className={`font-black tracking-tight text-center ${
+                          isMobile ? 'text-[16px] leading-snug px-8' : 'text-[18px] md:text-[22px] leading-[1.1]'
+                        }`}
+                        style={{ color: currentTheme.text }}
+                      >
+                        {isMobile ? 'Customise' : 'Customise Your Experience'}
+                      </h2>
+                      <button
+                        onClick={() => setShowSettingsDropdown(false)}
+                        className={`absolute ${isMobile ? 'right-2' : 'right-4 md:right-6'} flex items-center ${isMobile ? 'gap-1 px-1.5 py-1' : 'gap-2 px-2 py-1'} rounded-lg transition-all hover:brightness-110 active:scale-95`}
+                        style={{ backgroundColor: 'transparent', color: currentTheme.text }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                        {!isMobile && <span className="text-base font-semibold">Close</span>}
+                      </button>
+                    </div>
+
+                    {/* Unified 2x6 Grid - Scrollable Content */}
+                    <div
+                      className="grid gap-0 overflow-y-auto custom-scrollbar flex-1"
+                      style={{
+                        // On mobile stack all sections in a single column for readability.
+                        // On larger screens use the 2x6 dashboard-style grid.
+                        gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
+                        maxHeight: '100%'
+                      }}
+                    >
+
+                      {/* Row 1, Cell 1: Language */}
+                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
+                        <div className="mb-2"></div>
+                        <LanguageSelector />
+                      </section>
+
+                      {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
+                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
+                        <div className="flex items-center justify-between mb-0.5">
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
+                          {accessibilityIcon && (
+                            <img
+                              src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
+                              alt=""
+                              width={45}
+                              height={45}
+                              className="object-contain"
+                              style={{ filter: 'none' }}
+                            />
+                          )}
+                        </div>
+                        <div className="mb-2"></div>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { id: 'top-left', label: 'Top Left' }, { id: 'top-right', label: 'Top Right' },
+                            { id: 'bottom-left', label: 'Bottom Left' }, { id: 'bottom-right', label: 'Bottom Right' },
+                            { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' },
+                            { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }
+                          ].slice(positionPage * 4, (positionPage + 1) * 4).map((pos) => (
+                            <button
+                              key={pos.id}
+                              onClick={() => setButtonPosition(pos.id as any)}
+                              className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
+                              style={{
+                                borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
+                                backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                                color: currentTheme.text,
+                                fontSize: '14px',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              {pos.label}
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => {
+                              if (audioPingEnabled) playAudioPing('menu');
+                              setPositionPage(p => p === 0 ? 1 : 0);
+                            }}
+                            className="col-span-2 p-1.5 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95 min-h-[36px]"
+                            style={{
+                              borderColor: `${currentTheme.border}4D`,
+                              backgroundColor: `${currentTheme.text}08`,
+                              color: currentTheme.text
+                            }}
+                            aria-label={positionPage === 0 ? "Show more" : "Show less"}
+                          >
+                            {positionPage === 0 ? (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                              </svg>
+                            ) : (
+                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      </section>
+
+                      {/* Row 1, Cell 3: Feature Indicators */}
+                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
+                        <div className="mb-1"></div>
+                        <ToggleCheckbox
+                          id="show-active-indicators"
+                          label={<span>Active Circle<br />(Red Dots)</span>}
+                          checked={showActiveIndicators}
+                          onChange={toggleShowActiveIndicators}
+                        />
+                        <div className="absolute bottom-2 right-2">
+                          <InfoPopupButton
+                            title="Feature Indicators"
+                            description="Displays red circles on menu icons to indicate which features are currently active."
+                          />
+                        </div>
+                      </section>
+
+                      {/* Row 1, Cell 4: Icon Size */}
+                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
+                        <div className="mb-0.5"></div>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {[
+                            { id: 'standard', name: 'Standard', multiplier: 1 },
+                            { id: 'medium', name: 'Medium', multiplier: 1.15 },
+                            { id: 'large', name: 'Large', multiplier: 1.3 },
+                            { id: 'xl', name: 'XL', multiplier: 1.5 }
+                          ].map((opt) => (
+                            <button
+                              key={opt.id}
+                              onClick={() => {
+                                if (audioPingEnabled) playAudioPing('menu');
+                                setSidebarIconSize(opt.multiplier);
+                              }}
+                              className={`flex flex-col items-center justify-center p-1.5 rounded-[12px] border-2 transition-all duration-300 gap-1 ${sidebarIconSize === opt.multiplier ? 'scale-105' : 'opacity-80 hover:opacity-100 hover:scale-[1.02]'} active:scale-95`}
+                              style={{
+                                borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : `${currentTheme.border}33`,
+                                backgroundColor: `${currentTheme.text}08`,
+                              }}
+                            >
+                              {/* Swatch-like Box */}
+                              <div
+                                className="w-10 h-10 rounded-[10px] border-2 shadow-sm flex items-center justify-center relative mb-1"
+                                style={{
+                                  backgroundColor: '#FFFFFF',
+                                  borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : 'rgba(0,0,0,0.1)'
+                                }}
+                              >
+                                <img
+                                  src={typeof scalabilityIcon === 'string' ? scalabilityIcon : (scalabilityIcon as any).src || scalabilityIcon}
+                                  alt=""
+                                  style={{
+                                    width: `${18 * opt.multiplier}px`,
+                                    height: `${18 * opt.multiplier}px`,
+                                    filter: 'brightness(0)'
+                                  }}
+                                  className="object-contain"
+                                />
+
+                                {sidebarIconSize === opt.multiplier && (
+                                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-black/10">
+                                    <svg className="w-2.5 h-2.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={5}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Label */}
+                              <span
+                                className={`text-[11px] font-black uppercase tracking-wider text-center leading-tight`}
+                                style={{ color: currentTheme.text }}
+                              >
+                                {opt.name}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
+                      <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
+
+                        {/* Dark Themes Section */}
+                        <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
+                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
+                          <div className="grid grid-cols-3 gap-2">
+                            {Object.entries(BAR_THEMES)
+                              .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
+                              .map(([key, theme]) => {
+                                const isSelected = barTheme === key;
+                                const label = key === 'grayscale' ? (
+                                  <span>Gray<br />Scale</span>
+                                ) : key === 'oceanBlue' ? (
+                                  <span>Ocean<br />Blue</span>
+                                ) : (
+                                  key.charAt(0).toUpperCase() + key.slice(1)
+                                );
+                                const labelText = typeof label === 'string' ? label : key === 'grayscale' ? 'Grayscale' : key === 'oceanBlue' ? 'Ocean Blue' : key.charAt(0).toUpperCase() + key.slice(1);
+                                return (
+                                  <button
+                                    key={key}
+                                    onClick={() => {
+                                      if (audioPingEnabled) playAudioPing('menu');
+                                      setBarTheme(key as BarTheme);
+                                    }}
+                                    className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
+                                    style={{
+                                      borderColor: isSelected ? theme.active : currentTheme.border,
+                                      backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
+                                    }}
+                                    title={labelText}
+                                  >
+                                    <div
+                                      className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
+                                      style={{
+                                        backgroundColor: theme.background,
+                                        borderColor: theme.border,
+                                        color: theme.text
+                                      }}
+                                    >
+                                      <span className="text-base font-bold">A</span>
+                                      {isSelected && (
+                                        <div
+                                          className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
+                                        >
+                                          <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                          </svg>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                                      {label}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+
+                        {/* Light Themes Section */}
+                        <div className="space-y-1.5">
+                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
+                          <div className="grid grid-cols-3 gap-2">
+                            {Object.entries(BAR_THEMES)
+                              .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
+                              .map(([key, theme]) => {
+                                const isSelected = barTheme === key;
+                                const label = key === 'Turquoise' ? 'Turq' : key.charAt(0).toUpperCase() + key.slice(1);
+                                return (
+                                  <button
+                                    key={key}
+                                    onClick={() => {
+                                      if (audioPingEnabled) playAudioPing('menu');
+                                      setBarTheme(key as BarTheme);
+                                    }}
+                                    className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
+                                    style={{
+                                      borderColor: isSelected ? theme.active : currentTheme.border,
+                                      backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
+                                    }}
+                                    title={label}
+                                  >
+                                    <div
+                                      className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
+                                      style={{
+                                        backgroundColor: theme.background,
+                                        borderColor: theme.border,
+                                        color: theme.text
+                                      }}
+                                    >
+                                      <span className="text-base font-bold">A</span>
+                                      {isSelected && (
+                                        <div
+                                          className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
+                                        >
+                                          <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                          </svg>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight whitespace-nowrap" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                                      {label}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      </section>
+
+                      {/* Row 2, Cell 1: Scrolling Progress Bar */}
+                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
+                        <div className="mb-1"></div>
+                        <ToggleCheckbox
+                          id="reading-progress-bar"
+                          label="Active on Scrolling"
+                          checked={readingProgressBar}
+                          onChange={toggleReadingProgressBar}
+                        />
+                        {readingProgressBar && (
+                          <div className="mt-2 grid grid-cols-3 gap-2">
+                            {['#000000', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#17D1C6'].map(color => (
+                              <button
+                                key={color}
+                                onClick={() => {
+                                  if (audioPingEnabled) playAudioPing('menu');
+                                  setReadingProgressBarColor(color);
+                                }}
+                                className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
+                                style={{
+                                  backgroundColor: color,
+                                  border: color === '#FFFFFF' ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                                  boxShadow: readingProgressBarColor === color
+                                    ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
+                                    : 'none'
+                                }}
+                                aria-label={`Colour ${color}`}
+                              >
+                                {readingProgressBarColor === color && (
+                                  <span className="absolute inset-0 flex items-center justify-center">
+                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={['#FFFF00', '#00FF00', '#FFFFFF', '#17D1C6'].includes(color) ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  </span>
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </section>
+
+                      {/* Row 2, Cell 2: Reset Icon */}
+                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
+                        <div className="mb-4"></div>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { id: 'red-black', color: '#FF0000' },
+                            { id: 'yellow-black', color: '#FFD700' },
+                            { id: 'turquoise-black', color: '#17D1C6' },
+                            { id: 'white-black', color: '#FFFFFF' },
+                            { id: 'black-white', color: '#000000' },
+                            { id: 'pink-white', color: '#EC5DD6' }
+                          ].map((style) => (
+                            <button
+                              key={style.id}
+                              onClick={() => {
+                                if (audioPingEnabled) playAudioPing('menu');
+                                setResetIconStyle(style.id as any);
+                              }}
+                              className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
+                              style={{
+                                backgroundColor: style.color,
+                                border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : (style.id === 'pink-white' && resetIconStyle === style.id ? '2px solid #FFFFFF' : 'none'),
+                                boxShadow: resetIconStyle === style.id
+                                  ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
+                                  : 'none'
+                              }}
+                              aria-label={`Reset Style ${style.id}`}
+                            >
+                              {resetIconStyle === style.id && (
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </section>
+
+                      {/* Row 2, Cell 3: Audio Ping */}
+                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
+                        <div className="mb-2"></div>
+                        <ToggleCheckbox
+                          id="audio-ping-enabled"
+                          label="Audio Ping on select or deselect features"
+                          checked={audioPingEnabled}
+                          onChange={toggleAudioPing}
+                        />
+                      </section>
+
+                      {/* Row 2, Cell 4: Pick a Profile */}
+                      <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
+                        <div className="mb-2"></div>
+                        <div
+                          className="flex-1 overflow-y-auto custom-scrollbar pr-1"
+                          style={{ maxHeight: 'none' }}
+                        >
+                          <div className="grid grid-cols-1 gap-1 h-[160px] overflow-y-auto custom-scrollbar pr-1">
+                            {[
+                              { id: 'motor', name: 'Motor Impaired' },
+                              { id: 'blindness', name: 'Blindness' },
+                              { id: 'colorblind', name: 'Colour Blind' },
+                              { id: 'dyslexia', name: 'Dyslexia' },
+                              { id: 'lowvision', name: 'Visually Impaired' },
+                              { id: 'cognitive', name: 'Cognitive Disability' },
+                              { id: 'seizure', name: 'Seizure Safe' },
+                              { id: 'adhd', name: 'ADHD Friendly' },
+                              { id: 'photosensitive', name: 'Photosensitive' },
+                              { id: 'elderly', name: 'Elderly' },
+                              { id: 'hearing', name: 'Hearing Impaired' },
+                              { id: 'reading', name: 'Reading Support' }
+                            ].map((profile) => (
+                              <button
+                                key={profile.id}
+                                onClick={() => applyProfile(profile.id)}
+                                className={`w-full py-1.5 px-3 rounded-lg border text-[12px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
+                                style={{
+                                  borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
+                                  backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                                  color: currentTheme.text
+                                }}
+                              >
+                                <span className="flex-1">{profile.name}</span>
+                                <div
+                                  className="w-6 h-6 rounded flex items-center justify-center transition-all ml-3 flex-shrink-0"
+                                  style={{
+                                    backgroundColor: activeProfile === profile.id ? currentTheme.active : 'rgba(255, 255, 255, 0.9)',
+                                    border: activeProfile === profile.id ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+                                  }}
+                                >
+                                  {activeProfile === profile.id && (
+                                    <svg className="w-4 h-4" style={{ color: currentTheme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </section>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
             <div className={`flex h-full w-full ${isVertical
               ? (panelPosition === 'right' ? 'flex-row-reverse' : 'flex-row')
               : 'flex-row'
@@ -1750,7 +2142,7 @@ export default function AccessibilityBar() {
               <div
                 className={`flex items-center p-1.5 ${isVertical
                   ? `flex-col w-[100px] sm:w-[130px] gap-3 sm:gap-4 h-full overflow-y-auto custom-scrollbar`
-                  : `${sidebarIconSize >= 1.3 ? 'flex-wrap overflow-y-auto content-start py-2' : 'flex-row items-center overflow-x-auto'} h-full w-full justify-start custom-scrollbar gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
+                  : `${(panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? 'flex-row items-center relative overflow-x-auto icons-scroll-hidden' : 'flex-row items-center overflow-x-auto custom-scrollbar'} h-full w-full justify-start gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                   }`}
                 style={{
                   background: isVertical
@@ -1769,53 +2161,116 @@ export default function AccessibilityBar() {
                   boxShadow: 'none'
                 }}
               >
-                {/* Close Button UI */}
+                {/* Logo removed as per user request */}
+
                 <button
                   type="button"
-                  onMouseEnter={() => textToSpeech && speak('close', ttsVoiceGender)}
+                  onMouseEnter={() => {
+                    // Speak "Exit" when cursor hovers over close button
+                    if (textToSpeech) {
+                      speak('Exit', ttsVoiceGender);
+                    }
+                  }}
                   onClick={(e) => {
                     e.stopPropagation();
                     e.preventDefault();
+                    // Prevent immediate close if just opened (race condition)
                     if (Date.now() - lastOpenTimeRef.current < 300) return;
-                    if (audioPingEnabled) playAudioPing('menu');
-                    speak('close', ttsVoiceGender);
+                    if (audioPingEnabled) playAudioPing('menu'); // Using menu sound
+
+                    // Speak "Exit" when close button is clicked
+                    speak('Exit', ttsVoiceGender);
+
                     setIsOpen(false);
                     setSelectedCategory(null);
+
+                    // Interaction counting for Feedback Popup
+                    const countKey = 'accessibility_bar_close_count';
+                    const feedbackGivenKey = 'accessibility_feedback_given';
+
+                    // Forcing popup to show "abi kelye" (for now) as requested, ignoring previous state
+                    // if (!localStorage.getItem(feedbackGivenKey)) {
+                    const usage = JSON.parse(safeStorage.getItem('accessibility-usage') || '{}');
+                    const currentCount = parseInt(safeStorage.getItem(countKey) || '0');
+                    const newCount = currentCount + 1;
+                    safeStorage.setItem(countKey, newCount.toString());
+
+                    // Show popup on close if feedback not given (matches "whenever cross is clicked")
                     setShowFeedbackPopup(true);
+                    // }
                   }}
-                  className="p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100] flex items-center justify-center"
+                  className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100]`}
                   style={{
                     background: '#FFFFFF',
+                    backdropFilter: 'blur(10px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(10px) saturate(180%)',
                     border: '2px solid rgba(0,0,0,0.2)',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     width: isVertical ? '60px' : '63px',
-                    height: isVertical ? '60px' : '63px'
+                    height: isVertical ? '60px' : '63px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                   aria-label="Close"
                 >
-                  <svg className="h-6 w-6" style={{ color: '#000000' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="h-6 w-6"
+                    style={{ color: '#000000' }}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
 
-                <div className={`accessibility-bar pointer-events-auto flex ${isVertical ? 'flex-col space-y-3 sm:space-y-4 items-center flex-shrink-0' : 'flex-row items-center flex-grow gap-2'}`}>
+                <div
+                  ref={iconsContainerRef}
+                  className={`accessibility-bar pointer-events-auto flex relative ${isVertical ? 'flex-col space-y-3 sm:space-y-4 items-center flex-shrink-0' : `flex-row items-center flex-grow gap-2 ${(panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? 'icons-scroll-hidden' : ''}`}`}
+                  style={!isVertical && (panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? {
+                    overflowX: 'scroll', // Needed for programmatic scrolling
+                    overflowY: 'hidden', // Prevent vertical scrolling
+                    scrollBehavior: 'smooth',
+                    scrollbarWidth: 'none', // Firefox - hide scrollbar
+                    msOverflowStyle: 'none', // IE/Edge - hide scrollbar
+                    userSelect: 'none', // Prevent text selection
+                    WebkitUserSelect: 'none',
+                  } : {}}
+                  onMouseDown={(e) => {
+                    // Prevent drag selection
+                    if (!isVertical) {
+                      const target = e.target as HTMLElement;
+                      if (!target.closest('button') && !target.closest('[data-category-btn]')) {
+                        e.preventDefault();
+                      }
+                    }
+                  }}
+                >
 
 
                   {(() => {
                     // Exclude constant categories from paginated list
                     const constantCategoryIds = ['reset', 'az', 'move_ui_extra']; // reset and az are handled separately
                     const paginatedCategories = categories.filter(c => c.id !== 'reset' && c.id !== 'az');
-                    const shouldPaginate = isVertical;
-                    const startIndex = (currentPage - 1) * itemsPerPage;
+                    // Disable pagination for all sizes (Standard, Medium, Large, XL) to show all icons
+                    // This prevents icons from disappearing when zooming - all sizes behave like Large/XL
+                    const shouldPaginate = !isVertical ? false : true;
+                    const startIndex = shouldPaginate ? (currentPage - 1) * itemsPerPage : 0;
                     const visibleCategories = shouldPaginate
                       ? paginatedCategories.slice(startIndex, startIndex + itemsPerPage)
-                      : categories;
+                      : paginatedCategories; // Show all icons when pagination is disabled
                     const totalPages = shouldPaginate ? Math.ceil(paginatedCategories.length / itemsPerPage) : 1;
 
                     return (
                       <>
-                        {/* Reset button - rendered constantly before paginated list */}
-                        {shouldPaginate && (() => {
+                        {/* 3 Constant Icons: A-Z and Reset (Close is rendered before this container) */}
+                        {(() => {
                           const resetCategory = categories.find(c => c.id === 'reset');
                           const azCategory = categories.find(c => c.id === 'az');
 
@@ -1826,6 +2281,7 @@ export default function AccessibilityBar() {
                                 <div key="az-constant" className="relative group/category">
                                   <button
                                     data-category-btn
+                                    data-category-id="az"
                                     onClick={() => {
                                       if (audioPingEnabled) playAudioPing('menu');
                                       setSelectedCategory('az');
@@ -1833,7 +2289,7 @@ export default function AccessibilityBar() {
                                     }}
                                     onMouseEnter={() => {
                                       if (textToSpeech) {
-                                        speak(azCategory.name, ttsVoiceGender);
+                                        speak('A to Z List', ttsVoiceGender);
                                       }
                                     }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
@@ -1851,15 +2307,15 @@ export default function AccessibilityBar() {
                                     title={azCategory.name}
                                   >
                                     <div
-                                      className="flex flex-col items-center justify-center font-black leading-none"
+                                      className="flex flex-col items-center justify-center leading-none gap-0.5"
                                       style={{
                                         width: 32 * sidebarIconSize,
                                         height: 32 * sidebarIconSize,
                                         color: '#000000',
                                       }}
                                     >
-                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
-                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
+                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                     </div>
                                   </button>
                                 </div>
@@ -1870,6 +2326,7 @@ export default function AccessibilityBar() {
                                   <button
                                     type="button"
                                     data-category-btn
+                                    data-category-id="reset"
                                     onClick={(e) => {
                                       e.preventDefault();
                                       e.stopPropagation();
@@ -1877,7 +2334,7 @@ export default function AccessibilityBar() {
                                       setShowResetConfirm(true);
                                     }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
-                                    onMouseEnter={() => textToSpeech && speak(resetCategory.name, ttsVoiceGender)}
+                                    onMouseEnter={() => textToSpeech && speak(resetCategory.name.replace(/\n/g, ' '), ttsVoiceGender)}
                                     className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
                                     style={{
                                       background: resetIconStyle === 'red-black'
@@ -1888,13 +2345,15 @@ export default function AccessibilityBar() {
                                             ? '#17D1C6'
                                             : resetIconStyle === 'white-black'
                                               ? '#FFFFFF'
-                                              : '#000000',
+                                              : resetIconStyle === 'pink-white'
+                                                ? '#EC4899'
+                                                : '#000000',
                                       backdropFilter: 'blur(5px) saturate(180%)',
                                       WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                       border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
-                                      width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
-                                      height: (isVertical ? 80 : 58) * sidebarIconSize + 'px',
-                                      boxShadow: 'none'
+                                    width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
+                                    height: (isVertical ? 80 : 58) * sidebarIconSize + 'px',
+                                    boxShadow: 'none'
                                     }}
                                     aria-label={resetCategory.name}
                                     title={resetCategory.name}
@@ -1916,11 +2375,13 @@ export default function AccessibilityBar() {
                           );
                         })()}
 
+
                         {visibleCategories.map((category, index) => (
                           <div key={category.id} className="relative group/category">
                             <button
                               type="button"
                               data-category-btn
+                              data-category-id={category.id}
                               onKeyDown={(e) => handleCategoryKeyDown(e, shouldPaginate ? index + 1 : index)}
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1930,14 +2391,11 @@ export default function AccessibilityBar() {
                                   return;
                                 }
                                 if (category.id === 'move_ui') {
-                                  // Show tutorial popup once per session (after refresh, it will show again)
+                                  // Show tutorial popup once per page load (after refresh, it will show again)
                                   if (!hasSeenSidebarTutorialThisSession) {
                                     setTutorialIcon(category.icon);
                                     setShowSidebarTutorial(true);
                                     setHasSeenSidebarTutorialThisSession(true);
-                                    if (typeof window !== 'undefined') {
-                                      sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
-                                    }
                                     return;
                                   }
                                   // After showing once in this session, cycle through positions
@@ -1956,7 +2414,8 @@ export default function AccessibilityBar() {
                               }}
                               onMouseEnter={() => {
                                 if (textToSpeech) {
-                                  speak(category.name, ttsVoiceGender);
+                                  const textToSpeak = category.id === 'az' ? 'A to Z List' : category.name.replace(/\n/g, ' ');
+                                  speak(textToSpeak, ttsVoiceGender);
                                 }
                               }}
                               className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden ${selectedCategory === category.id
@@ -1974,7 +2433,9 @@ export default function AccessibilityBar() {
                                           ? '#17D1C6'
                                           : resetIconStyle === 'white-black'
                                             ? '#FFFFFF'
-                                            : '#000000',
+                                            : resetIconStyle === 'pink-white'
+                                              ? '#EC4899'
+                                              : '#000000',
                                     backdropFilter: 'blur(5px) saturate(180%)',
                                     WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                     border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
@@ -2013,7 +2474,9 @@ export default function AccessibilityBar() {
                                         border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
                                         boxShadow: 'none',
                                         width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
-                                        height: (isVertical ? 80 : 58) * sidebarIconSize + 'px'
+                                        height: (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5))
+                                          ? (58 * sidebarIconSize + 15) + 'px'
+                                          : (isVertical ? 80 : 58) * sidebarIconSize + 'px'
                                       }
                                 )
                               }}
@@ -2022,7 +2485,7 @@ export default function AccessibilityBar() {
                             >
                               {category.id === 'az' ? (
                                 <div
-                                  className={`flex flex-col items-center justify-center font-black leading-none transition-all duration-300 ${selectedCategory === category.id
+                                  className={`flex flex-col items-center justify-center leading-none gap-0.5 transition-all duration-300 ${selectedCategory === category.id
                                     ? ''
                                     : 'opacity-70 group-hover:opacity-100'
                                     }`}
@@ -2032,14 +2495,14 @@ export default function AccessibilityBar() {
                                     color: '#000000',
                                   }}
                                 >
-                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
-                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
+                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                 </div>
                               ) : (
                                 <Image
                                   src={
                                     category.id === 'move_ui'
-                                      ? (panelPosition === 'left' ? sidebarShowIcon : panelPosition === 'right' ? sidebarHideIcon : category.icon as any)
+                                      ? (panelPosition === 'left' ? sidebarShowIcon : panelPosition === 'right' ? sidebarShowIcon : panelPosition === 'bottom' ? sidebarHideIcon : sidebarShowIcon)
                                       : category.icon || ''
                                   }
                                   alt=""
@@ -2049,18 +2512,30 @@ export default function AccessibilityBar() {
                                     filter: category.id === 'reset'
                                       ? (resetIconStyle === 'black-white' ? 'brightness(0) invert(1)' : 'brightness(0)')
                                       : (category.id === 'info' ? 'none' : 'brightness(0)'),
-                                    ...(category.id === 'reset' ? {} : {})
+                                    ...(category.id === 'reset' ? {} : {}),
+                                    ...(category.id === 'move_ui' ? {
+                                      transform: isVertical 
+                                        ? (panelPosition === 'right' ? 'rotate(-90deg)' : 'rotate(0deg)')
+                                        : (panelPosition === 'bottom' ? 'rotate(180deg) scaleX(-1)' : 'rotate(90deg)')
+                                    } : {})
                                   }}
-                                  className={`transition-all duration-300 ${!isVertical ? 'translate-y-[-3px]' : ''} ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
+                                  className={`transition-all duration-300 ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
                                     ? ''
                                     : 'opacity-70 group-hover:opacity-100'
                                     }`}
                                 />
                               )}
-                              {isVertical && category.id !== 'reset' && (
+                              {((isVertical || (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5))) && category.id !== 'reset') && (
                                 <span
-                                  className={`text-[9px] font-bold leading-tight text-center px-0.5 whitespace-pre-line opacity-100 ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
-                                  style={{ color: '#000000', letterSpacing: '0.02em' }}
+                                  className={`font-medium leading-tight text-center px-0.5 whitespace-pre-line opacity-100 ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
+                                  style={{ 
+                                    color: '#000000', 
+                                    letterSpacing: '0.02em',
+                                    fontSize: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) 
+                                      ? `${7 * sidebarIconSize}px` 
+                                      : (isVertical ? '9px' : undefined),
+                                    marginTop: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '2px' : undefined
+                                  }}
                                 >
                                   {category.name}
                                 </span>
@@ -2100,12 +2575,14 @@ export default function AccessibilityBar() {
                             </button>
                           </div>
                         ))}
+
+
                         {/* Pagination Control - for vertical sidebar */}
-                        {shouldPaginate && totalPages > 1 && (
+                        {isVertical && shouldPaginate && totalPages > 1 && (
                           <div className="flex flex-col items-center py-0.5 space-y-1.5 mt-0">
                             {/* Directional Arrow */}
                             <div className="flex flex-col items-center">
-                              {currentPage < 4 && (
+                              {currentPage < totalPages && (
                                 <span
                                   className="text-[15px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
@@ -2113,7 +2590,7 @@ export default function AccessibilityBar() {
                                   Next
                                 </span>
                               )}
-                              {currentPage === 4 && (
+                              {currentPage === totalPages && (
                                 <span
                                   className="text-[15px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
@@ -2127,14 +2604,14 @@ export default function AccessibilityBar() {
                                   e.preventDefault();
                                   e.stopPropagation();
                                   if (audioPingEnabled) playAudioPing('menu');
-                                  if (currentPage < 4) {
+                                  if (currentPage < totalPages) {
                                     setCurrentPage(p => p + 1);
                                   } else {
                                     setCurrentPage(1);
                                   }
                                 }}
                                 className="flex items-center justify-center hover:scale-110 active:scale-95 transition-transform cursor-pointer"
-                                aria-label={currentPage < 4 ? "Next Page" : "Previous Page"}
+                                aria-label={currentPage < totalPages ? "Next Page" : "Previous Page"}
                               >
                                 <Image
                                   src={paginationArrowIcon}
@@ -2143,7 +2620,7 @@ export default function AccessibilityBar() {
                                   height={12}
                                   className="transition-transform duration-300"
                                   style={{
-                                    transform: currentPage < 4 ? 'rotate(0deg)' : 'rotate(180deg)',
+                                    transform: currentPage < totalPages ? 'rotate(0deg)' : 'rotate(180deg)',
                                     filter: 'brightness(0) invert(1)' // Make it white
                                   }}
                                 />
@@ -2191,13 +2668,17 @@ export default function AccessibilityBar() {
 
 
               {selectedCategory && selectedCategory !== 'info' && (
+                <>
                 <div
                   className={`accessibility-bar pointer-events-auto flex flex-col min-w-0 ${isVertical
                     ? 'relative flex-1 h-full'
-                    : `fixed z-[2147483647] ${panelPosition === 'bottom' ? (isMobile ? 'bottom-[90px]' : 'bottom-[94px]') : (isMobile ? 'top-[90px]' : 'top-[94px]')} ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[680px]' : 'w-[350px]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
+                      : `fixed z-[2147483647] ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[680px]' : 'w-[350px]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
                     }`}
                   style={!isVertical ? {
-                    left: isMobile ? '10px' : `${Math.max(10, Math.min(window.innerWidth - (selectedCategory === 'az' ? 690 : 360), selectedOffset - (selectedCategory === 'az' ? 340 : 175)))}px`,
+                      left: isMobile ? '10px' : selectedCategory === 'az'
+                        ? `${Math.max(10, Math.min(window.innerWidth - 690, selectedOffset - 340))}px`
+                        : `${Math.max(10, Math.min(window.innerWidth - 360, selectedOffset - 175))}px`,
+                      [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + (isMobile ? 10 : 14)}px`,
                     background: `linear-gradient(135deg, ${currentTheme.background}F2, ${currentTheme.background}E6)`, // Increased opacity slightly since blur is gone
                     borderTop: `4px solid ${currentTheme.border}4D`,
                     borderBottom: `4px solid ${currentTheme.border}4D`,
@@ -2221,10 +2702,10 @@ export default function AccessibilityBar() {
                       boxShadow: 'none'
                     }}
                   >
-                    <div className="flex items-center justify-between mb-4 pr-10">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-between mb-4 pt-2">
+                      <div className="flex items-center gap-3 pt-1">
                         <div
-                          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl overflow-hidden"
+                          className={`flex ${selectedCategory === 'az' ? 'h-10 w-10' : 'h-12 w-12'} flex-shrink-0 items-center justify-center rounded-xl overflow-hidden`}
                           style={{
                             background: `linear-gradient(135deg, #FFD700, #E6C200)`,
                             backdropFilter: 'blur(10px) saturate(180%)',
@@ -2235,9 +2716,9 @@ export default function AccessibilityBar() {
                           }}
                         >
                           {selectedCategory === 'az' ? (
-                            <div className="flex flex-col items-center justify-center font-black leading-none" style={{ color: '#000000' }}>
-                              <span style={{ fontSize: '18px', display: 'block', lineHeight: '1', marginBottom: '2px' }}>A-Z</span>
-                              <span style={{ fontSize: '18px', marginTop: '2px', display: 'block', lineHeight: '1' }}>List</span>
+                              <div className="flex flex-col items-center justify-center leading-none gap-0.5" style={{ color: '#000000', width: '100%', height: '100%', padding: '1px' }}>
+                                <span style={{ fontSize: '10px', display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip' }}>A to Z</span>
+                                <span style={{ fontSize: '10px', display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap', overflow: 'visible', textOverflow: 'clip' }}>List</span>
                             </div>
                           ) : (
                             <Image
@@ -2248,57 +2729,54 @@ export default function AccessibilityBar() {
                               alt=""
                               width={selectedCategory === 'position' ? 40 : 36}
                               height={selectedCategory === 'position' ? 40 : 36}
-                              className={`${selectedCategory === 'speech' ? '' : 'brightness-0'} -translate-y-0.5`}
+                              className={`${selectedCategory === 'speech' ? '' : 'brightness-0'} translate-y-1`}
                             />
                           )}
                         </div>
-                        <div className="flex flex-col">
+                        <div className="flex flex-col pt-1">
                           <h2
-                            className={`text-[20px] sm:text-[24px] font-extrabold tracking-tight leading-[1.1] mt-2 sm:mt-[12px] max-w-[180px] sm:max-w-[240px] ${['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
-                              ? 'whitespace-nowrap'
-                              : 'whitespace-normal line-clamp-2'
-                              }`}
+                            className={`${selectedCategory === 'az' ? 'text-[28px]' : 'text-[22px]'} font-extrabold tracking-tight leading-[1.1] mt-2 sm:mt-[12px] ${selectedCategory === 'az' ? 'whitespace-nowrap' : (['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
+                              ? 'whitespace-nowrap max-w-[180px] sm:max-w-[240px]'
+                              : 'whitespace-normal line-clamp-2 max-w-[180px] sm:max-w-[240px]'
+                              )}`}
                             style={{ color: currentTheme.text }}
                           >
-                            {categories.find((c) => c.id === selectedCategory)?.name?.replace(/\n/g, ' ')}
+                              {selectedCategory === 'az' ? 'A to Z List' : categories.find((c) => c.id === selectedCategory)?.name?.replace(/\n/g, ' ').toLowerCase().split(' ').map(word => word.split('/').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('/')).join(' ')}
                           </h2>
                         </div>
                       </div>
-                      <div className="flex items-center absolute top-3 right-2">
-
-                        <button
-                          onMouseEnter={() => {
-                            // Speak "close" when cursor hovers over close button
-                            if (textToSpeech) {
-                              speak('close', ttsVoiceGender);
-                            }
-                          }}
-                          onClick={() => {
-                            if (audioPingEnabled) playAudioPing('menu');
-                            // Speak "close" when close button is clicked
-                            speak('close', ttsVoiceGender);
-                            setSelectedCategory(null);
-                          }}
-                          className="p-3 pr-4 rounded-none transition-all hover:bg-black/10 z-10 flex items-center gap-1.5"
-                          style={{ color: currentTheme.text }}
-                          aria-label={t.common.close}
+                      <button
+                        onMouseEnter={() => {
+                          // Speak "Exit" when cursor hovers over close button
+                          if (textToSpeech) {
+                            speak('Exit', ttsVoiceGender);
+                          }
+                        }}
+                        onClick={() => {
+                          if (audioPingEnabled) playAudioPing('menu');
+                          // Speak "Exit" when close button is clicked
+                          speak('Exit', ttsVoiceGender);
+                          setSelectedCategory(null);
+                        }}
+                        className="absolute top-0 right-0 flex items-center gap-1.5 px-3 py-2 rounded-none transition-all hover:bg-black/10 z-10 m-0"
+                        style={{ color: currentTheme.text, margin: 0 }}
+                        aria-label={t.common.close}
+                      >
+                        <svg
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
                         >
-                          <svg
-                            className="h-5 w-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2.5}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M6 18L18 6M6 6l12 12"
-                            />
-                          </svg>
-                          <span className="text-sm font-semibold tracking-wide">Close</span>
-                        </button>
-                      </div>
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                        <span className="text-base font-semibold tracking-wide">Close</span>
+                      </button>
                     </div>
 
                   </div>
@@ -2306,21 +2784,20 @@ export default function AccessibilityBar() {
                   <div
                     data-category-content
                     className={`${isVertical ? 'flex-1' : (isMobile ? 'h-[350px]' : 'h-[420px]')} overflow-y-auto overflow-x-hidden p-4 sm:p-6 custom-scrollbar min-w-0 break-words`}
+                    style={{ marginTop: 0, paddingTop: selectedCategory === 'az' ? '0.5rem' : undefined }}
                   >
                     {renderCategoryContent()}
+                    </div>
                   </div>
 
                   {/* Indicator Arrow */}
-                  {/* Indicator Arrow */}
-                  {selectedCategory && !isVertical && !isMobile && (
+                  {!isVertical && !isMobile && (
                     <div
-                      className="fixed z-[2147483650] pointer-events-none"
+                      className="fixed pointer-events-none"
                       style={{
                         left: `${selectedOffset - 15}px`,
-                        ...(panelPosition === 'bottom'
-                          ? { bottom: '85px' }
-                          : { top: '85px' }
-                        ),
+                        [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + (isMobile ? 10 : 14) + (panelPosition === 'bottom' ? 14 : -5)}px`,
+                        zIndex: 2147483651,
                         filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.1))'
                       }}
                     >
@@ -2343,7 +2820,7 @@ export default function AccessibilityBar() {
                       </svg>
                     </div>
                   )}
-                </div>
+                </>
               )}
             </div>
           </div >
@@ -2400,7 +2877,7 @@ export default function AccessibilityBar() {
       {/* Reset Popup Overlay */}
       {
         showResetConfirm && (
-          <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483647] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300">
+        <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483647] flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-300">
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => {
@@ -2409,7 +2886,7 @@ export default function AccessibilityBar() {
               }}
             />
             <div
-              className="relative w-full max-w-2xl rounded-[40px] overflow-hidden border-4 animate-in zoom-in-95 duration-300"
+              className="relative w-full max-w-2xl rounded-[40px] overflow-hidden border-4 animate-in zoom-in-95 duration-300 max-h-[90vh] overflow-y-auto"
               style={{
                 background: `linear-gradient(135deg, ${currentTheme.background}ee, ${currentTheme.background}dd)`,
                 backdropFilter: 'blur(20px) saturate(180%)',
@@ -2428,7 +2905,8 @@ export default function AccessibilityBar() {
                         resetIconStyle === 'turquoise-black' ? '#17D1C6' :
                           resetIconStyle === 'white-black' ? '#FFFFFF' :
                             resetIconStyle === 'black-white' ? '#000000' :
-                              currentTheme.background,
+                              resetIconStyle === 'pink-white' ? '#EC4899' :
+                                currentTheme.background,
                     backdropFilter: 'blur(10px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(10px) saturate(180%)',
                     color: (resetIconStyle === 'white-black' || resetIconStyle === 'yellow-black' || resetIconStyle === 'turquoise-black') ? '#000000' : '#FFFFFF',
@@ -2608,7 +3086,7 @@ export default function AccessibilityBar() {
       {/* First Time Text to Speech Popup */}
       {
         showFirstTimeTtsPopup && (
-          <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483649] flex items-center justify-center p-4 animate-in fade-in duration-300">
+        <div className="accessibility-bar pointer-events-auto fixed inset-0 z-[2147483649] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300">
             <div
               className="absolute inset-0 bg-black/50 backdrop-blur-sm"
               onClick={() => {
@@ -2616,7 +3094,7 @@ export default function AccessibilityBar() {
               }}
             />
             <div
-              className="relative rounded-3xl p-6 sm:p-8 shadow-2xl max-w-lg w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px]"
+              className="relative rounded-3xl p-6 sm:p-8 shadow-2xl max-w-lg w-full m-4 z-10 animate-scale-up border-[4px] sm:border-[6px] max-h-[90vh] overflow-y-auto"
               style={{
                 backgroundColor: currentTheme.background,
                 color: currentTheme.text,
@@ -2624,9 +3102,29 @@ export default function AccessibilityBar() {
               }}
             >
               <div className="text-center w-full mb-6">
-                <h2 className="text-xl sm:text-2xl font-black mb-4 leading-tight">
-                  Text to Speech support is on by default. Would you like to:
-                </h2>
+                <div className="flex flex-col items-center justify-center mb-4">
+                  <div
+                    className="flex h-16 w-16 items-center justify-center rounded-xl mb-4 overflow-hidden"
+                    style={{
+                      background: `linear-gradient(135deg, #FFD700, #E6C200)`,
+                      backdropFilter: 'blur(10px) saturate(180%)',
+                      WebkitBackdropFilter: 'blur(10px) saturate(180%)',
+                      border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.3)' : '4px solid rgba(255,255,255,0.3)',
+                      boxShadow: 'none'
+                    }}
+                  >
+                    <Image
+                      src={speakIcon}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="object-contain brightness-0"
+                    />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black leading-tight">
+                    Text to Speech support is on by default. Would you like to?
+                  </h2>
+                </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
                   <button
@@ -2634,15 +3132,14 @@ export default function AccessibilityBar() {
                       // Keep it on - close the popup and show sidebar tutorial
                       setShowFirstTimeTtsPopup(false);
 
-                      // Show sidebar tutorial after TTS popup closes
-                      setTimeout(() => {
-                        setTutorialIcon(moveUiIcon);
-                        setShowSidebarTutorial(true);
-                        setHasSeenSidebarTutorialThisSession(true);
-                        if (typeof window !== 'undefined') {
-                          sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
-                        }
-                      }, 300);
+                      // Show sidebar tutorial after TTS popup closes (once per page load)
+                      if (!hasSeenSidebarTutorialThisSession) {
+                        setTimeout(() => {
+                          setTutorialIcon(moveUiIcon);
+                          setShowSidebarTutorial(true);
+                          setHasSeenSidebarTutorialThisSession(true);
+                        }, 300);
+                      }
                     }}
                     className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
                     style={{
@@ -2659,15 +3156,14 @@ export default function AccessibilityBar() {
                       setTextToSpeech?.(false);
                       setShowFirstTimeTtsPopup(false);
 
-                      // Show sidebar tutorial after TTS popup closes
-                      setTimeout(() => {
-                        setTutorialIcon(moveUiIcon);
-                        setShowSidebarTutorial(true);
-                        setHasSeenSidebarTutorialThisSession(true);
-                        if (typeof window !== 'undefined') {
-                          sessionStorage.setItem('accessibility-seen-sidebar-tutorial-session', 'true');
-                        }
-                      }, 300);
+                      // Show sidebar tutorial after TTS popup closes (once per page load)
+                      if (!hasSeenSidebarTutorialThisSession) {
+                        setTimeout(() => {
+                          setTutorialIcon(moveUiIcon);
+                          setShowSidebarTutorial(true);
+                          setHasSeenSidebarTutorialThisSession(true);
+                        }, 300);
+                      }
                     }}
                     className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
                     style={{
@@ -2676,8 +3172,7 @@ export default function AccessibilityBar() {
                       borderColor: currentTheme.border
                     }}
                   >
-                    <span className="block">Switch off</span>
-                    <span className="block">Text to Speech</span>
+                    Switch it off
                   </button>
                 </div>
               </div>
@@ -2733,6 +3228,13 @@ export default function AccessibilityBar() {
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent !important;
+        }
+        .icons-scroll-hidden::-webkit-scrollbar {
+          display: none !important;
+        }
+        .icons-scroll-hidden {
+          -ms-overflow-style: none !important;
+          scrollbar-width: none !important;
         }
       `}</style>
       <VisualConfirmation />

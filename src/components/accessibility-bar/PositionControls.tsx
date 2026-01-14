@@ -60,18 +60,18 @@ export default function PositionControls({
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {!hideLanguage && (
-                <section className="pb-6 border-b border-gray-200/20">
-                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>1. Language</h3>
+                <section className="pb-4 border-b border-gray-200/20">
+                    <h3 className="text-[18px] font-bold mb-2" style={{ color: theme.text }}>1. Language</h3>
                     <LanguageSelector />
                 </section>
             )}
 
             {!hidePositioning && (
                 <>
-                    <section className="pb-6 border-b border-gray-200/20">
-                        <div className="flex items-center justify-between mb-4">
+                    <section className="pb-4 border-b border-gray-200/20">
+                        <div className="flex items-center justify-between mb-2">
                             <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>2. Accessibility  Position Button</h3>
                             <img
                                 src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
@@ -130,8 +130,8 @@ export default function PositionControls({
             )}
 
             {!hideProgressBar && (
-                <section className="pb-6 border-b border-gray-200/20">
-                    <h3 className="text-[18px] font-bold mb-4" style={{ color: theme.text }}>3. Scrolling Progress Bar</h3>
+                <section className="pb-4 border-b border-gray-200/20">
+                    <h3 className="text-[18px] font-bold mb-2" style={{ color: theme.text }}>3. Scrolling Progress Bar</h3>
                     <ToggleCheckbox
                         id="reading-progress-bar"
                         label="Active on Scrolling"
@@ -141,7 +141,7 @@ export default function PositionControls({
 
                     {readingProgressBar && (
                         <div className="mt-4 space-y-2">
-                            <label className="text-[16px] font-bold block mb-3" style={{ color: theme.text }}>Colour</label>
+                            <label className="text-[16px] font-bold block mb-2" style={{ color: theme.text }}>Colour</label>
                             <div className="grid grid-cols-3 gap-2">
                                 {[
                                     { name: 'Black', value: '#000000' },
@@ -168,8 +168,8 @@ export default function PositionControls({
                 </section>
             )}
             {!hidePositioning && (
-                <section className="pb-6 border-b border-gray-200/20">
-                    <div className="flex items-center mb-4">
+                <section className="pb-4 border-b border-gray-200/20">
+                    <div className="flex items-center mb-2">
                         <h3 className="text-[20px] font-bold" style={{ color: theme.text }}>4. Reset Icon (Button)</h3>
                         <InfoPopupButton
                             title="Reset Icon (Button)"
@@ -182,7 +182,8 @@ export default function PositionControls({
                             { id: 'yellow-black', color: '#FFD700', label: 'Yellow' },
                             { id: 'turquoise-black', color: '#17D1C6', label: 'Turquoise' },
                             { id: 'white-black', color: '#FFFFFF', label: 'White' },
-                            { id: 'black-white', color: '#000000', label: 'Black' }
+                            { id: 'black-white', color: '#000000', label: 'Black' },
+                            { id: 'pink-white', color: '#EC5DD6', label: 'Pink' }
                         ].map((style) => (
                             <button
                                 key={style.id}
@@ -203,7 +204,7 @@ export default function PositionControls({
                             >
                                 {resetIconStyle === style.id && (
                                     <span className="absolute inset-0 flex items-center justify-center">
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={3}>
+                                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </span>
@@ -215,8 +216,8 @@ export default function PositionControls({
             )}
 
             {!hideIndicators && (
-                <section className="pb-6 border-b border-gray-200/20">
-                    <div className="flex items-center mb-4">
+                <section className="pb-4 border-b border-gray-200/20">
+                    <div className="flex items-center mb-2">
                         <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>5. Feature Indicators</h3>
                         <InfoPopupButton
                             title="Feature Indicators"
@@ -231,7 +232,7 @@ export default function PositionControls({
                     />
 
                     {showActiveIndicators && (
-                        <div className="mt-4 space-y-2">
+                        <div className="mt-3 space-y-2">
                             {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'navigation', 'position'].map((catId) => {
                                 const features = getActiveFeaturesWithActions(catId);
                                 if (features.length === 0) return null;
@@ -273,8 +274,8 @@ export default function PositionControls({
                 </section>
             )}
 
-            <section className="pb-6 border-b border-gray-200/20">
-                <div className="flex items-center mb-4">
+            <section className="pb-4 border-b border-gray-200/20">
+                <div className="flex items-center mb-2">
                     <h3 className="text-[18px] font-bold" style={{ color: theme.text }}>6. Audio Ping</h3>
                     <InfoPopupButton
                         title="Audio Ping"

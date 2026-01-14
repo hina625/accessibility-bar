@@ -12,7 +12,7 @@ export default function SpeechToText() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
-  const ttsVoiceGenderRef = useRef<'male' | 'female'>(ttsVoiceGender || 'female');
+  const ttsVoiceGenderRef = useRef<'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>(ttsVoiceGender || 'female');
   
   // Keep the ref updated with the latest value
   useEffect(() => {

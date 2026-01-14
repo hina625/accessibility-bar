@@ -66,7 +66,7 @@ export interface AccessibilityState {
     ttsAutoPlay: boolean;
     ttsReadWholePage: boolean;
     ttsMovableControls: boolean;
-    ttsVoiceGender: 'male' | 'female';
+    ttsVoiceGender: 'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
     ttsReadingSpeed: number;
     ttsReadSelectedText: boolean;
     summarizationHistory: any[];
@@ -83,7 +83,7 @@ export interface AccessibilityState {
     notification: NotificationState;
 }
 
-export type ResetIconStyle = 'red-black' | 'white-black' | 'black-white' | 'yellow-black' | 'turquoise-black';
+export type ResetIconStyle = 'red-black' | 'white-black' | 'black-white' | 'yellow-black' | 'turquoise-black' | 'pink-white';
 
 export interface AccessibilityState {
     barTheme: BarTheme;
@@ -145,7 +145,7 @@ export interface AccessibilityState {
     ttsAutoPlay: boolean;
     ttsReadWholePage: boolean;
     ttsMovableControls: boolean;
-    ttsVoiceGender: 'male' | 'female';
+    ttsVoiceGender: 'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
     ttsReadingSpeed: number;
     ttsReadSelectedText: boolean;
     summarizationHistory: any[];

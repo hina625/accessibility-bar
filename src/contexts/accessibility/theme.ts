@@ -1,4 +1,4 @@
-export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'Turquoise' | 'navy' | 'yellow' | 'purple';
+export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'Turquoise' | 'navy' | 'yellow' | 'purple' | 'pink';
 
 export interface ThemeColors {
     background: string;
@@ -64,6 +64,13 @@ export const BAR_THEMES: Record<BarTheme, ThemeColors> = {
         hover: '#653cb8ff',
         active: '#7643e4ff',
         border: '#9D70FF',
+    },
+    pink: {
+        background: '#EC4899',
+        text: '#FFFFFF',
+        hover: '#db337fff',
+        active: '#df2874ff',
+        border: '#ff7dc0ff',
     },
 };
 

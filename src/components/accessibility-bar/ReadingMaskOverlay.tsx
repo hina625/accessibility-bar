@@ -63,7 +63,6 @@ export default function ReadingMaskOverlay() {
         aria-hidden="true"
       />
 
-      {/* Close Button - positioned to move with the mask gap */}
       <button
         onClick={toggleReadingMask}
         className="fixed right-4 z-[2147483648] w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border bg-red-600 hover:bg-red-700 border-white/20 text-white hover:scale-110"

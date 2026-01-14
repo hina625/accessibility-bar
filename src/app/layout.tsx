@@ -1,30 +1,22 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lexend, Open_Sans } from "next/font/google";
+// Temporarily disabled next/font/google due to Turbopack compatibility issue
+// import { Lexend, Open_Sans } from "next/font/google";
 import "./globals.css";
 import "./accessibility-responsive.css";
 import Script from 'next/script';
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import AccessibilityBar from "@/components/accessibility-bar/AccessibilityBar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// Using CSS variables for fonts instead to avoid Turbopack font module issue
+// const lexend = Lexend({
+//   variable: "--font-lexend",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const lexend = Lexend({
-  variable: "--font-lexend",
-  subsets: ["latin"],
-});
-
-const openSans = Open_Sans({
-  variable: "--font-open-sans",
-  subsets: ["latin"],
-});
+// const openSans = Open_Sans({
+//   variable: "--font-open-sans",
+//   subsets: ["latin"],
+// });
 
 export const metadata: Metadata = {
   title: "Accessibility Bar",
@@ -39,10 +31,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/dist/external/open-dyslexic.css" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} ${openSans.variable} antialiased font-sans`}
+        className="antialiased font-sans"
+        style={{
+          fontFamily: 'var(--font-open-sans, "Open Sans", sans-serif)',
+        }}
       >
         <a
           href="#accessible-content"

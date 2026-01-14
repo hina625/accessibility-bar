@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import Image from 'next/image';
+import pinIcon from '@/assets/icons/office-push-pin.png';
 
 export default function ReadingRuler() {
     const { readingRuler, readingRulerColor, readingRulerWidth, toggleReadingRuler } = useAccessibility();
     const [top, setTop] = useState(0);
+    const [isPinned, setIsPinned] = useState(false);
 
     useEffect(() => {
-        if (!readingRuler) return;
+        if (!readingRuler || isPinned) return;
 
         const handleMouseMove = (e: MouseEvent) => {
             setTop(e.clientY);
@@ -16,7 +19,7 @@ export default function ReadingRuler() {
 
         window.addEventListener('mousemove', handleMouseMove);
         return () => window.removeEventListener('mousemove', handleMouseMove);
-    }, [readingRuler]);
+    }, [readingRuler, isPinned]);
 
     if (!readingRuler) return null;
 
@@ -61,20 +64,37 @@ export default function ReadingRuler() {
                 borderBottom: `2px solid ${isDark() ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0.2)'}`,
             }}
         >
-            {/* Close Button */}
-            <button
-                onClick={toggleReadingRuler}
-                className={`absolute right-4 z-[2147483648] w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border ${(!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
-                    ? 'bg-yellow-400 hover:bg-yellow-500 border-black/20 text-black'
-                    : 'bg-red-600 hover:bg-red-700 border-white/20 text-white'
-                    } hover:scale-110`}
-                aria-label="Close Reading Ruler"
-                title="Close Ruler"
-            >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+            {/* Close Button and Pin Icon */}
+            <div className="absolute right-4 z-[2147483648] flex items-center gap-2">
+                <button
+                    onClick={() => setIsPinned(!isPinned)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border ${isPinned
+                        ? (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
+                            ? 'bg-green-500 hover:bg-green-600 border-black/20'
+                            : 'bg-green-600 hover:bg-green-700 border-white/20'
+                        : (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
+                            ? 'bg-yellow-400 hover:bg-yellow-500 border-black/20'
+                            : 'bg-red-600 hover:bg-red-700 border-white/20'
+                        } hover:scale-110`}
+                    aria-label={isPinned ? "Unpin Reading Ruler" : "Pin Reading Ruler"}
+                    title={isPinned ? "Unpin Ruler" : "Pin Ruler"}
+                >
+                    <Image src={pinIcon} alt="Pin" width={16} height={16} style={{ opacity: isPinned ? 1 : 0.8 }} />
+                </button>
+                <button
+                    onClick={toggleReadingRuler}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border ${(!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
+                        ? 'bg-yellow-400 hover:bg-yellow-500 border-black/20 text-black'
+                        : 'bg-red-600 hover:bg-red-700 border-white/20 text-white'
+                        } hover:scale-110`}
+                    aria-label="Close Reading Ruler"
+                    title="Close Ruler"
+                >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
             {/* Ruler Ticks Mapping */}
             <div className="absolute inset-0 opacity-40"
                 style={{

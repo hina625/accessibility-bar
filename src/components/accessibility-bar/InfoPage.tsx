@@ -52,37 +52,37 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
         >
 
             <div
-                className="flex items-center justify-between px-8 py-5 z-[50]"
+                className="flex items-start justify-between px-8 py-5 z-[50] relative"
                 style={{ backgroundColor: guideTheme.bg }}
             >
-                <div className="flex items-center gap-6">
-                    <button onClick={onClose} className="p-2.5 hover:bg-white/10 rounded-2xl transition-all active:scale-95 bg-white/5">
+                <div className="flex items-start gap-6 pt-2">
+                    <button onClick={onClose} className="p-2.5 hover:bg-white/10 rounded-2xl transition-all active:scale-95 bg-white/5 mt-1">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M19 12H5M12 19l-7-7 7-7" />
                         </svg>
                     </button>
 
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4 pt-1">
                         <div
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl text-black shadow-lg"
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl text-black shadow-lg mt-1"
                             style={{ backgroundColor: guideTheme.accentYellow, color: accentTextColor }}
                         >
                             i
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight uppercase">CONTACT US AND FEATURE GUIDE</h1>
+                        <h1 className="text-3xl font-black tracking-tight pt-1">Contact Us and Feature Guide</h1>
                     </div>
                 </div>
 
                 <button
                     onClick={onClose}
-                    className="flex items-center gap-2.5 px-8 py-3 rounded-2xl font-black text-base tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl"
+                    className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-2 rounded-none font-black text-base tracking-widest hover:scale-110 active:scale-95 transition-all shadow-xl"
                     style={{ backgroundColor: guideTheme.accentYellow, color: accentTextColor }}
                 >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    <span className="mb-[1px]">Close</span>
+                    <span>Close</span>
                 </button>
             </div>
 
@@ -363,7 +363,7 @@ Website: ${formData.website || 'N/A'}
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="sarfraz123@.com"
+                    placeholder="your.email@example.com"
                 />
             </div>
             <div className="group">
@@ -374,7 +374,7 @@ Website: ${formData.website || 'N/A'}
                     value={formData.phone}
                     onChange={handleChange}
                     className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="+1 (555) 000-0000"
+                    placeholder="Your phone number"
                 />
             </div>
             <div className="group">
@@ -385,7 +385,7 @@ Website: ${formData.website || 'N/A'}
                     value={formData.website}
                     onChange={handleChange}
                     className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="https://videodesk.co.uk"
+                    placeholder="https://yourwebsite.com"
                 />
             </div>
             <div className="group md:col-span-2">

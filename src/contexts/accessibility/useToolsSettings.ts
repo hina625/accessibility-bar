@@ -17,7 +17,7 @@ export function useToolsSettings() {
     const [ttsAutoPlay, setTtsAutoPlay] = useState<boolean>(false);
     const [ttsReadWholePage, setTtsReadWholePage] = useState<boolean>(false);
     const [ttsMovableControls, setTtsMovableControls] = useState<boolean>(false);
-    const [ttsVoiceGender, setTtsVoiceGender] = useState<'male' | 'female'>('female');
+    const [ttsVoiceGender, setTtsVoiceGender] = useState<'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('female');
     const [ttsReadingSpeed, setTtsReadingSpeed] = useState<number>(1);
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
     const [ttsHoverToSpeak, setTtsHoverToSpeak] = useState<boolean>(false);
@@ -102,7 +102,7 @@ export function useToolsSettings() {
                     resolve(window.speechSynthesis.getVoices());
                 };
                 window.speechSynthesis.addEventListener('voiceschanged', handler);
-               
+
                 setTimeout(() => resolve(window.speechSynthesis.getVoices()), 1000);
             });
         };
@@ -120,15 +120,47 @@ export function useToolsSettings() {
             console.log('Available voices:', voices.length);
 
             const targetContainer = container || document.getElementById('accessible-content') || document.body;
-            
-            // Find voice
+
+            // Find voice based on selection
             let selectedVoice: SpeechSynthesisVoice | undefined;
             if (voices.length > 0) {
-                selectedVoice = voices.find(v =>
-                    ttsVoiceGender === 'male'
-                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                );
+                const voiceName = ttsVoiceGender.toLowerCase();
+                switch (voiceName) {
+                    case 'alloy':
+                        selectedVoice = voices.find(v => 
+                            v.name.toLowerCase().includes('samantha') || 
+                            v.name.toLowerCase().includes('alex') ||
+                            v.name.toLowerCase().includes('karen')
+                        ) || voices.find(v => v.lang.startsWith('en'));
+                        break;
+                    case 'echo':
+                    case 'fable':
+                    case 'onyx':
+                    case 'male':
+                        selectedVoice = voices.find(v =>
+                            v.name.toLowerCase().includes('male') || 
+                            v.name.toLowerCase().includes('david') || 
+                            v.name.toLowerCase().includes('guy') || 
+                            v.name.toLowerCase().includes('microsoft david') || 
+                            v.name.toLowerCase().includes('daniel') || 
+                            v.name.toLowerCase().includes('thomas') ||
+                            v.name.toLowerCase().includes('alex')
+                        );
+                        break;
+                    case 'nova':
+                    case 'shimmer':
+                    case 'female':
+                        selectedVoice = voices.find(v =>
+                            v.name.toLowerCase().includes('female') || 
+                            v.name.toLowerCase().includes('zira') || 
+                            v.name.toLowerCase().includes('samantha') || 
+                            v.name.toLowerCase().includes('microsoft zira') || 
+                            v.name.toLowerCase().includes('hazel') || 
+                            v.name.toLowerCase().includes('susan') ||
+                            v.name.toLowerCase().includes('karen')
+                        );
+                        break;
+                }
             }
 
             // Use highlighting function
@@ -153,10 +185,10 @@ export function useToolsSettings() {
                 if (selectedText && selectedText.length > 0 && selection && selection.rangeCount > 0) {
                     console.log('Selected text to speak:', selectedText);
                     const range = selection.getRangeAt(0);
-                    const container = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+                    const container = range.commonAncestorContainer.nodeType === Node.TEXT_NODE
                         ? (range.commonAncestorContainer.parentElement as HTMLElement)
                         : (range.commonAncestorContainer as HTMLElement);
-                    
+
                     if (container) {
                         const contentContainer = container.closest('#accessible-content') || document.body;
                         speak(selectedText, contentContainer as HTMLElement, true);
@@ -168,7 +200,20 @@ export function useToolsSettings() {
         };
 
         if (ttsReadWholePage) {
-            const content = document.getElementById('accessible-content') || document.body;
+            let content = document.getElementById('accessible-content') || document.body;
+
+            // Check for embed mode (iframe) - try to access parent document
+            try {
+                if (window.parent && window.parent !== window) {
+                    const parentDoc = window.parent.document;
+                    // Try to find specific content container first, then fallback to body
+                    content = parentDoc.getElementById('accessible-content') || parentDoc.body;
+                }
+            } catch (e) {
+                // Cross-origin access might fail, fall back to local content
+                console.warn('Cannot access parent document for TTS:', e);
+            }
+
             if (content) {
                 console.log('Reading whole page content...');
                 speak(content.innerText, content as HTMLElement, false);
@@ -176,7 +221,7 @@ export function useToolsSettings() {
                 console.warn('No content found to read');
             }
         } else {
-           
+
             if (window.speechSynthesis) {
                 console.log('Read Whole Page disabled, cancelling synthesis');
                 window.speechSynthesis.cancel();
@@ -212,24 +257,57 @@ export function useToolsSettings() {
 
             const voices = window.speechSynthesis.getVoices();
             if (voices.length > 0) {
-                const selectedVoice = voices.find(v =>
-                    ttsVoiceGender === 'male'
-                        ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                        : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                );
+                const voiceName = ttsVoiceGender.toLowerCase();
+                let selectedVoice: SpeechSynthesisVoice | undefined;
+                switch (voiceName) {
+                    case 'alloy':
+                        selectedVoice = voices.find(v => 
+                            v.name.toLowerCase().includes('samantha') || 
+                            v.name.toLowerCase().includes('alex') ||
+                            v.name.toLowerCase().includes('karen')
+                        ) || voices.find(v => v.lang.startsWith('en'));
+                        break;
+                    case 'echo':
+                    case 'fable':
+                    case 'onyx':
+                    case 'male':
+                        selectedVoice = voices.find(v =>
+                            v.name.toLowerCase().includes('male') || 
+                            v.name.toLowerCase().includes('david') || 
+                            v.name.toLowerCase().includes('guy') || 
+                            v.name.toLowerCase().includes('microsoft david') || 
+                            v.name.toLowerCase().includes('daniel') || 
+                            v.name.toLowerCase().includes('thomas') ||
+                            v.name.toLowerCase().includes('alex')
+                        );
+                        break;
+                    case 'nova':
+                    case 'shimmer':
+                    case 'female':
+                        selectedVoice = voices.find(v =>
+                            v.name.toLowerCase().includes('female') || 
+                            v.name.toLowerCase().includes('zira') || 
+                            v.name.toLowerCase().includes('samantha') || 
+                            v.name.toLowerCase().includes('microsoft zira') || 
+                            v.name.toLowerCase().includes('hazel') || 
+                            v.name.toLowerCase().includes('susan') ||
+                            v.name.toLowerCase().includes('karen')
+                        );
+                        break;
+                }
                 if (selectedVoice) utterance.voice = selectedVoice;
             }
             window.speechSynthesis.speak(utterance);
         };
 
         const handleMouseOver = (e: MouseEvent) => {
-      
+
             const path = e.composedPath();
             const target = path[0] as HTMLElement;
 
             if (!target || target === lastElement) return;
 
-         
+
             const isBar = path.some(node =>
                 (node as HTMLElement).classList?.contains('accessibility-bar') ||
                 (node as HTMLElement).id === 'a11y-embed-host-react'
@@ -286,7 +364,7 @@ export function useToolsSettings() {
             // Get text from clicked element and its parent for better context
             let text = target.innerText?.trim() || target.textContent?.trim();
             let container: HTMLElement | undefined = target;
-            
+
             // Try to find a better container (paragraph, div with text)
             if (!text || text.length === 0) {
                 const parent = target.parentElement;
@@ -301,11 +379,43 @@ export function useToolsSettings() {
                 getVoices().then(voices => {
                     let selectedVoice: SpeechSynthesisVoice | undefined;
                     if (voices.length > 0) {
-                        selectedVoice = voices.find(v =>
-                            ttsVoiceGender === 'male'
-                                ? (v.name.toLowerCase().includes('male') || v.name.toLowerCase().includes('david') || v.name.toLowerCase().includes('guy') || v.name.toLowerCase().includes('microsoft david'))
-                                : (v.name.toLowerCase().includes('female') || v.name.toLowerCase().includes('zira') || v.name.toLowerCase().includes('samantha') || v.name.toLowerCase().includes('microsoft zira'))
-                        );
+                        const voiceName = ttsVoiceGender.toLowerCase();
+                        switch (voiceName) {
+                            case 'alloy':
+                                selectedVoice = voices.find(v => 
+                                    v.name.toLowerCase().includes('samantha') || 
+                                    v.name.toLowerCase().includes('alex') ||
+                                    v.name.toLowerCase().includes('karen')
+                                ) || voices.find(v => v.lang.startsWith('en'));
+                                break;
+                            case 'echo':
+                            case 'fable':
+                            case 'onyx':
+                            case 'male':
+                                selectedVoice = voices.find(v =>
+                                    v.name.toLowerCase().includes('male') || 
+                                    v.name.toLowerCase().includes('david') || 
+                                    v.name.toLowerCase().includes('guy') || 
+                                    v.name.toLowerCase().includes('microsoft david') || 
+                                    v.name.toLowerCase().includes('daniel') || 
+                                    v.name.toLowerCase().includes('thomas') ||
+                                    v.name.toLowerCase().includes('alex')
+                                );
+                                break;
+                            case 'nova':
+                            case 'shimmer':
+                            case 'female':
+                                selectedVoice = voices.find(v =>
+                                    v.name.toLowerCase().includes('female') || 
+                                    v.name.toLowerCase().includes('zira') || 
+                                    v.name.toLowerCase().includes('samantha') || 
+                                    v.name.toLowerCase().includes('microsoft zira') || 
+                                    v.name.toLowerCase().includes('hazel') || 
+                                    v.name.toLowerCase().includes('susan') ||
+                                    v.name.toLowerCase().includes('karen')
+                                );
+                                break;
+                        }
                     }
 
                     const contentContainer = container.closest('#accessible-content') || container || document.body;
