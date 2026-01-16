@@ -506,6 +506,7 @@ export function speakWithHighlighting(
     container: HTMLElement,
     options: {
         rate?: number;
+        pitch?: number;
         voice?: SpeechSynthesisVoice;
         onEnd?: () => void;
         onError?: (error: Error) => void;
@@ -530,6 +531,7 @@ export function speakWithHighlighting(
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = options.rate || 1.0;
+    utterance.pitch = options.pitch !== undefined ? options.pitch : 1.0;
     if (options.voice) {
         utterance.voice = options.voice;
     }

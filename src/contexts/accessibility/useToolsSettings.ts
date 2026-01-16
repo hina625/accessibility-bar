@@ -125,6 +125,9 @@ export function useToolsSettings() {
             let selectedVoice: SpeechSynthesisVoice | undefined;
             if (voices.length > 0) {
                 const voiceName = ttsVoiceGender.toLowerCase();
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                                 (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+                
                 switch (voiceName) {
                     case 'alloy':
                         selectedVoice = voices.find(v => 
@@ -137,15 +140,106 @@ export function useToolsSettings() {
                     case 'fable':
                     case 'onyx':
                     case 'male':
-                        selectedVoice = voices.find(v =>
-                            v.name.toLowerCase().includes('male') || 
-                            v.name.toLowerCase().includes('david') || 
-                            v.name.toLowerCase().includes('guy') || 
-                            v.name.toLowerCase().includes('microsoft david') || 
-                            v.name.toLowerCase().includes('daniel') || 
-                            v.name.toLowerCase().includes('thomas') ||
-                            v.name.toLowerCase().includes('alex')
-                        );
+                        // Male voices - try multiple strategies
+                        if (isMobile) {
+                            // Mobile-specific voice detection
+                            console.log('Mobile detected in useToolsSettings, available voices:', voices.map(v => v.name));
+                            
+                            // Strategy 1: Find by name
+                            selectedVoice = voices.find(v => {
+                                const name = v.name.toLowerCase();
+                                return name.includes('alex') || 
+                                       name.includes('male') ||
+                                       name.includes('david') ||
+                                       name.includes('guy') ||
+                                       name.includes('daniel') ||
+                                       name.includes('thomas') ||
+                                       name.includes('mark') ||
+                                       (name.includes('google') && name.includes('male')) ||
+                                       (name.includes('en-gb') && name.includes('male')) ||
+                                       (name.includes('en-us') && name.includes('male'));
+                            });
+                            
+                            // Strategy 2: Use voice index (mobile: usually index 1 or 2 is male)
+                            if (!selectedVoice && voices.length > 1) {
+                                const maleIndices = [1, 2, 3];
+                                for (const idx of maleIndices) {
+                                    if (idx < voices.length) {
+                                        const v = voices[idx];
+                                        const name = v.name.toLowerCase();
+                                        if (!name.includes('female') && 
+                                            !name.includes('zira') && 
+                                            !name.includes('samantha') && 
+                                            !name.includes('susan') &&
+                                            !name.includes('hazel') &&
+                                            !name.includes('karen') &&
+                                            !name.includes('victoria') &&
+                                            !name.includes('kate')) {
+                                            selectedVoice = v;
+                                            console.log('Selected male voice by index:', v.name, 'at index', idx);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Strategy 3: Find any voice that's not the first one
+                            if (!selectedVoice && voices.length > 1) {
+                                for (let i = 1; i < Math.min(voices.length, 5); i++) {
+                                    const v = voices[i];
+                                    const name = v.name.toLowerCase();
+                                    if (!name.includes('female') && 
+                                        !name.includes('zira') && 
+                                        !name.includes('samantha') && 
+                                        !name.includes('susan') &&
+                                        !name.includes('hazel') &&
+                                        !name.includes('karen') &&
+                                        !name.includes('victoria') &&
+                                        !name.includes('kate')) {
+                                        selectedVoice = v;
+                                        console.log('Selected male voice by exclusion:', v.name, 'at index', i);
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Strategy 4: Force use index 1
+                            if (!selectedVoice && voices.length > 1) {
+                                selectedVoice = voices[1];
+                                console.log('Force selected voice at index 1:', selectedVoice.name);
+                            }
+                        } else {
+                            // Desktop voice detection
+                            selectedVoice = voices.find(v =>
+                                v.name.toLowerCase().includes('male') || 
+                                v.name.toLowerCase().includes('david') || 
+                                v.name.toLowerCase().includes('guy') || 
+                                v.name.toLowerCase().includes('microsoft david') || 
+                                v.name.toLowerCase().includes('daniel') || 
+                                v.name.toLowerCase().includes('thomas') ||
+                                v.name.toLowerCase().includes('alex') ||
+                                v.name.toLowerCase().includes('mark') ||
+                                v.name.toLowerCase().includes('google uk english male') ||
+                                v.name.toLowerCase().includes('google us english male')
+                            );
+                            // Fallback: try to find any male voice by checking if it's not female
+                            if (!selectedVoice) {
+                                selectedVoice = voices.find(v => {
+                                    const name = v.name.toLowerCase();
+                                    return !name.includes('female') && 
+                                           !name.includes('zira') && 
+                                           !name.includes('samantha') && 
+                                           !name.includes('susan') &&
+                                           !name.includes('hazel') &&
+                                           !name.includes('karen') &&
+                                           (name.includes('male') || name.includes('david') || name.includes('guy') || name.includes('alex') || name.includes('mark'));
+                                });
+                            }
+                            // Final fallback: use first English voice if no male voice found
+                            if (!selectedVoice) {
+                                selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                            }
+                        }
                         break;
                     case 'nova':
                     case 'shimmer':
@@ -164,8 +258,12 @@ export function useToolsSettings() {
             }
 
             // Use highlighting function
+            const isMobileForPitch = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                                     (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+            const isMaleVoiceForPitch = ['echo', 'fable', 'onyx', 'male'].includes(voiceName);
             return speakWithHighlighting(text, targetContainer, {
                 rate: ttsReadingSpeed,
+                pitch: (isMobileForPitch && isMaleVoiceForPitch && selectedVoice) ? 0.7 : undefined,
                 voice: selectedVoice,
                 isSelectedText: isSelected,
                 onEnd: () => {
@@ -258,6 +356,8 @@ export function useToolsSettings() {
             const voices = window.speechSynthesis.getVoices();
             if (voices.length > 0) {
                 const voiceName = ttsVoiceGender.toLowerCase();
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                                 (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
                 let selectedVoice: SpeechSynthesisVoice | undefined;
                 switch (voiceName) {
                     case 'alloy':
@@ -271,15 +371,106 @@ export function useToolsSettings() {
                     case 'fable':
                     case 'onyx':
                     case 'male':
-                        selectedVoice = voices.find(v =>
-                            v.name.toLowerCase().includes('male') || 
-                            v.name.toLowerCase().includes('david') || 
-                            v.name.toLowerCase().includes('guy') || 
-                            v.name.toLowerCase().includes('microsoft david') || 
-                            v.name.toLowerCase().includes('daniel') || 
-                            v.name.toLowerCase().includes('thomas') ||
-                            v.name.toLowerCase().includes('alex')
-                        );
+                        // Male voices - try multiple strategies
+                        if (isMobile) {
+                            // Mobile-specific voice detection
+                            // Strategy 1: Find by name
+                            selectedVoice = voices.find(v => {
+                                const name = v.name.toLowerCase();
+                                return name.includes('alex') || 
+                                       name.includes('male') ||
+                                       name.includes('david') ||
+                                       name.includes('guy') ||
+                                       name.includes('daniel') ||
+                                       name.includes('thomas') ||
+                                       name.includes('mark') ||
+                                       (name.includes('google') && name.includes('male')) ||
+                                       (name.includes('en-gb') && name.includes('male')) ||
+                                       (name.includes('en-us') && name.includes('male'));
+                            });
+                            
+                            // Strategy 2: Use voice index (mobile: usually index 1 or 2 is male)
+                            if (!selectedVoice && voices.length > 1) {
+                                const maleIndices = [1, 2, 3];
+                                for (const idx of maleIndices) {
+                                    if (idx < voices.length) {
+                                        const v = voices[idx];
+                                        const name = v.name.toLowerCase();
+                                        if (!name.includes('female') && 
+                                            !name.includes('zira') && 
+                                            !name.includes('samantha') && 
+                                            !name.includes('susan') &&
+                                            !name.includes('hazel') &&
+                                            !name.includes('karen') &&
+                                            !name.includes('victoria') &&
+                                            !name.includes('kate')) {
+                                            selectedVoice = v;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Strategy 3: Find any voice that's not the first one
+                            if (!selectedVoice && voices.length > 1) {
+                                for (let i = 1; i < Math.min(voices.length, 5); i++) {
+                                    const v = voices[i];
+                                    const name = v.name.toLowerCase();
+                                    if (!name.includes('female') && 
+                                        !name.includes('zira') && 
+                                        !name.includes('samantha') && 
+                                        !name.includes('susan') &&
+                                        !name.includes('hazel') &&
+                                        !name.includes('karen') &&
+                                        !name.includes('victoria') &&
+                                        !name.includes('kate')) {
+                                        selectedVoice = v;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            // Strategy 4: Force use index 1
+                            if (!selectedVoice && voices.length > 1) {
+                                selectedVoice = voices[1];
+                            }
+                            
+                            // Adjust pitch significantly for better male voice on mobile
+                            if (selectedVoice) {
+                                utterance.pitch = 0.7; // Much lower pitch for male voice
+                            }
+                        } else {
+                            // Desktop voice detection
+                            selectedVoice = voices.find(v =>
+                                v.name.toLowerCase().includes('male') || 
+                                v.name.toLowerCase().includes('david') || 
+                                v.name.toLowerCase().includes('guy') || 
+                                v.name.toLowerCase().includes('microsoft david') || 
+                                v.name.toLowerCase().includes('daniel') || 
+                                v.name.toLowerCase().includes('thomas') ||
+                                v.name.toLowerCase().includes('alex') ||
+                                v.name.toLowerCase().includes('mark') ||
+                                v.name.toLowerCase().includes('google uk english male') ||
+                                v.name.toLowerCase().includes('google us english male')
+                            );
+                            // Fallback: try to find any male voice by checking if it's not female
+                            if (!selectedVoice) {
+                                selectedVoice = voices.find(v => {
+                                    const name = v.name.toLowerCase();
+                                    return !name.includes('female') && 
+                                           !name.includes('zira') && 
+                                           !name.includes('samantha') && 
+                                           !name.includes('susan') &&
+                                           !name.includes('hazel') &&
+                                           !name.includes('karen') &&
+                                           (name.includes('male') || name.includes('david') || name.includes('guy') || name.includes('alex') || name.includes('mark'));
+                                });
+                            }
+                            // Final fallback: use first English voice if no male voice found
+                            if (!selectedVoice) {
+                                selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                            }
+                        }
                         break;
                     case 'nova':
                     case 'shimmer':
@@ -380,6 +571,8 @@ export function useToolsSettings() {
                     let selectedVoice: SpeechSynthesisVoice | undefined;
                     if (voices.length > 0) {
                         const voiceName = ttsVoiceGender.toLowerCase();
+                        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                                         (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
                         switch (voiceName) {
                             case 'alloy':
                                 selectedVoice = voices.find(v => 
@@ -392,15 +585,101 @@ export function useToolsSettings() {
                             case 'fable':
                             case 'onyx':
                             case 'male':
-                                selectedVoice = voices.find(v =>
-                                    v.name.toLowerCase().includes('male') || 
-                                    v.name.toLowerCase().includes('david') || 
-                                    v.name.toLowerCase().includes('guy') || 
-                                    v.name.toLowerCase().includes('microsoft david') || 
-                                    v.name.toLowerCase().includes('daniel') || 
-                                    v.name.toLowerCase().includes('thomas') ||
-                                    v.name.toLowerCase().includes('alex')
-                                );
+                                // Male voices - try multiple strategies
+                                if (isMobile) {
+                                    // Mobile-specific voice detection
+                                    // Strategy 1: Find by name
+                                    selectedVoice = voices.find(v => {
+                                        const name = v.name.toLowerCase();
+                                        return name.includes('alex') || 
+                                               name.includes('male') ||
+                                               name.includes('david') ||
+                                               name.includes('guy') ||
+                                               name.includes('daniel') ||
+                                               name.includes('thomas') ||
+                                               name.includes('mark') ||
+                                               (name.includes('google') && name.includes('male')) ||
+                                               (name.includes('en-gb') && name.includes('male')) ||
+                                               (name.includes('en-us') && name.includes('male'));
+                                    });
+                                    
+                                    // Strategy 2: Use voice index (mobile: usually index 1 or 2 is male)
+                                    if (!selectedVoice && voices.length > 1) {
+                                        const maleIndices = [1, 2, 3];
+                                        for (const idx of maleIndices) {
+                                            if (idx < voices.length) {
+                                                const v = voices[idx];
+                                                const name = v.name.toLowerCase();
+                                                if (!name.includes('female') && 
+                                                    !name.includes('zira') && 
+                                                    !name.includes('samantha') && 
+                                                    !name.includes('susan') &&
+                                                    !name.includes('hazel') &&
+                                                    !name.includes('karen') &&
+                                                    !name.includes('victoria') &&
+                                                    !name.includes('kate')) {
+                                                    selectedVoice = v;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Strategy 3: Find any voice that's not the first one
+                                    if (!selectedVoice && voices.length > 1) {
+                                        for (let i = 1; i < Math.min(voices.length, 5); i++) {
+                                            const v = voices[i];
+                                            const name = v.name.toLowerCase();
+                                            if (!name.includes('female') && 
+                                                !name.includes('zira') && 
+                                                !name.includes('samantha') && 
+                                                !name.includes('susan') &&
+                                                !name.includes('hazel') &&
+                                                !name.includes('karen') &&
+                                                !name.includes('victoria') &&
+                                                !name.includes('kate')) {
+                                                selectedVoice = v;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Strategy 4: Force use index 1
+                                    if (!selectedVoice && voices.length > 1) {
+                                        selectedVoice = voices[1];
+                                    }
+                                } else {
+                                    // Desktop voice detection
+                                    selectedVoice = voices.find(v =>
+                                        v.name.toLowerCase().includes('male') || 
+                                        v.name.toLowerCase().includes('david') || 
+                                        v.name.toLowerCase().includes('guy') || 
+                                        v.name.toLowerCase().includes('microsoft david') || 
+                                        v.name.toLowerCase().includes('daniel') || 
+                                        v.name.toLowerCase().includes('thomas') ||
+                                        v.name.toLowerCase().includes('alex') ||
+                                        v.name.toLowerCase().includes('mark') ||
+                                        v.name.toLowerCase().includes('google uk english male') ||
+                                        v.name.toLowerCase().includes('google us english male')
+                                    );
+                                    // Fallback: try to find any male voice by checking if it's not female
+                                    if (!selectedVoice) {
+                                        selectedVoice = voices.find(v => {
+                                            const name = v.name.toLowerCase();
+                                            return !name.includes('female') && 
+                                                   !name.includes('zira') && 
+                                                   !name.includes('samantha') && 
+                                                   !name.includes('susan') &&
+                                                   !name.includes('hazel') &&
+                                                   !name.includes('karen') &&
+                                                   (name.includes('male') || name.includes('david') || name.includes('guy') || name.includes('alex') || name.includes('mark'));
+                                        });
+                                    }
+                                    // Final fallback: use first English voice if no male voice found
+                                    if (!selectedVoice) {
+                                        selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                                    }
+                                }
                                 break;
                             case 'nova':
                             case 'shimmer':
@@ -419,8 +698,12 @@ export function useToolsSettings() {
                     }
 
                     const contentContainer = container.closest('#accessible-content') || container || document.body;
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                                     (window.matchMedia && window.matchMedia('(max-width: 768px)').matches);
+                    const isMaleVoice = ['echo', 'fable', 'onyx', 'male'].includes(voiceName);
                     speakWithHighlighting(text, contentContainer as HTMLElement, {
                         rate: ttsReadingSpeed,
+                        pitch: (isMobile && isMaleVoice && selectedVoice) ? 0.7 : undefined,
                         voice: selectedVoice,
                         isSelectedText: false, // Treat as whole element text
                         onEnd: () => {

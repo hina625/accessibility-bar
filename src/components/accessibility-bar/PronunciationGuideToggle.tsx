@@ -16,13 +16,13 @@ export default function PronunciationGuideToggle() {
 
     return (
         <div className="space-y-2">
-            <ToggleCheckbox
-                id="pronunciation-guide-toggle"
-                label="Pronunciation Guide"
+        <ToggleCheckbox
+            id="pronunciation-guide-toggle"
+            label="Pronunciation Guide"
                 description="Get pronunciation help for words. Highlight any word to hear an audio pronunciation of it"
-                checked={pronunciationGuide}
-                onChange={handleToggle}
-            />
+            checked={pronunciationGuide}
+            onChange={handleToggle}
+        />
             <p className="text-[14px] px-4" style={{ color: theme.text, opacity: 0.7 }}>
                 Highlight any word to hear an audio pronunciation of it
             </p>
