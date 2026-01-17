@@ -403,7 +403,7 @@ export default function AccessibilityBar() {
 
 
   useEffect(() => {
-    const isTopPosition = panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right';
+    const isTopPosition = panelPosition === 'top';
     const isHorizontal = panelPosition !== 'left' && panelPosition !== 'right';
 
     if (isOpen && isHorizontal && isTopPosition) {
@@ -959,7 +959,7 @@ export default function AccessibilityBar() {
   const categories = [
     { id: 'az', name: `A to Z\nLIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'reset', name: `RESET`, icon: resetIcon, colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
-    { id: 'move_ui', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
+    { id: 'position', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'font', name: `Font Tools`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'textSpacing', name: `Text\nAlignment`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
     { id: 'lineHeight', name: `Line Height`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
@@ -1005,8 +1005,8 @@ export default function AccessibilityBar() {
         return (
           <div className="space-y-4">
             <PositionControls />
-            <div className="border-b-4 -mx-6 my-4" style={{ borderColor: `${currentTheme.border}`, borderBottomWidth: '4px', boxShadow: 'none' }} />
-            <ThemeSelector />
+            {/* <div className="border-b-4 -mx-6 my-4" style={{ borderColor: `${currentTheme.border}`, borderBottomWidth: '4px', boxShadow: 'none' }} /> */}
+            {/* <ThemeSelector /> */}
           </div>
         );
       case 'font':
@@ -1240,7 +1240,7 @@ export default function AccessibilityBar() {
           <div className="space-y-4">
             <PageSummaryControl />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: `${currentTheme.border}`, borderBottomWidth: '3px', boxShadow: 'none' }} />
-            <h3 className="text-[14px] font-bold uppercase tracking-wider mb-2 px-1" style={{ color: currentTheme.text }}>
+            <h3 className="text-[18px] font-bold uppercase tracking-wider mb-2 px-1" style={{ color: currentTheme.text }}>
               AI Powered Tools
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -1290,10 +1290,10 @@ export default function AccessibilityBar() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-bold leading-tight" style={{ color: currentTheme.text }}>
+                    <div className="text-[19px] font-bold leading-tight" style={{ color: currentTheme.text }}>
                       {shortcut.name}
                     </div>
-                    <div className="text-[12px] opacity-70 truncate" style={{ color: currentTheme.text }}>
+                    <div className="text-[16px] opacity-70 truncate" style={{ color: currentTheme.text }}>
                       {shortcut.desc}
                     </div>
                   </div>
@@ -1320,7 +1320,7 @@ export default function AccessibilityBar() {
       case 'info':
         return (
           <div className="space-y-4">
-            <h3 className="text-[20px] font-bold mb-4 px-2" style={{ color: currentTheme.text }}>Feature Guide</h3>
+            <h3 className="text-[24px] font-bold mb-4 px-2" style={{ color: currentTheme.text }}>Feature Guide</h3>
             <div className="space-y-2">
               {Object.entries(t.info || {}).map(([key, data]: [string, any]) => {
                 const description = typeof data === 'string' ? data : data.description;
@@ -1385,14 +1385,14 @@ export default function AccessibilityBar() {
                       className={`transition-all duration-300 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}
                     >
                       <div className="p-4 pt-0 border-t" style={{ borderColor: `${currentTheme.border}66`, borderTopWidth: '4px' }}>
-                        <div className="text-[15px] opacity-80 mb-4 mt-4 leading-relaxed" style={{ color: currentTheme.text }}>{description}</div>
+                        <div className="text-[19px] opacity-80 mb-4 mt-4 leading-relaxed" style={{ color: currentTheme.text }}>{description}</div>
 
                         {features && (
                           <div className="grid gap-3 mb-4">
                             {Object.entries(features).map(([featureName, featureDesc]: [string, any]) => (
                               <div key={featureName} className="pl-3 border-l-2" style={{ borderColor: `${currentTheme.active}ff`, borderLeftWidth: '4px' }}>
-                                <span className="font-bold text-[14px] block" style={{ color: currentTheme.text }}>{featureName}</span>
-                                <span className="text-[13px] opacity-70 block leading-snug" style={{ color: currentTheme.text }}>{featureDesc}</span>
+                                <span className="font-bold text-[18px] block" style={{ color: currentTheme.text }}>{featureName}</span>
+                                <span className="text-[17px] opacity-70 block leading-snug" style={{ color: currentTheme.text }}>{featureDesc}</span>
                               </div>
                             ))}
                           </div>
@@ -1500,7 +1500,7 @@ export default function AccessibilityBar() {
               pointerEvents: 'auto',
               zoom: '1', // Prevent browser zoom influence
               transform: 'none', // Prevent transform scaling
-              fontSize: '16px' // Force base font size
+              fontSize: '20px' // Force base font size
             }}
             aria-label="Open accessibility menu"
             aria-expanded={isOpen}
@@ -1558,456 +1558,589 @@ export default function AccessibilityBar() {
             aria-label="Accessibility options"
           >
             {/* Plus Button - Truly Outside Positioning */}
+            {/* Plus Button Handle - Now containing 5 buttons */}
             <div
-              className="absolute z-[2147483650]"
+              className={`absolute z-[2147483650] pointer-events-auto transition-all duration-300`}
               style={{
                 ...(isVertical
                   ? {
                     [panelPosition === 'right' ? 'right' : 'left']: '100%',
                     top: '43.5%',
                     transform: 'translateY(-50%)',
-                    [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px'
+                    [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px',
+                    width: '36px',
+                    height: '240px',
                   }
                   : {
                     [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px'
+                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px',
+                    width: '240px',
+                    height: '36px',
                   })
               }}
             >
-              <button
-                ref={settingsButtonRef}
-                onClick={() => {
-                  if (audioPingEnabled) playAudioPing();
-                  setShowSettingsDropdown(!showSettingsDropdown);
-                }}
-                className={`relative flex items-center justify-center ${isVertical ? 'w-6 h-[220px]' : 'w-[220px] h-6'} rounded-none transition-all duration-300 hover:brightness-110 active:scale-95 shadow-xl`}
+              <div
+                className={`w-full h-full flex ${isVertical ? 'flex-col' : 'flex-row'} items-center justify-between shadow-xl backdrop-blur-md overflow-hidden`}
                 style={{
-                  zoom: '1', // Isolate from zoom
-                  fontSize: '16px', // Isolate from font size
-                  background: showSettingsDropdown
-                    ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
-                    : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
-                  border: 'none',
-                  boxShadow: `0 8px 32px ${currentTheme.border}4D`
+                  borderRadius: isVertical
+                    ? (panelPosition === 'right' ? '8px 0 0 8px' : '0 8px 8px 0')
+                    : (panelPosition === 'bottom' ? '8px 8px 0 0' : '0 0 8px 8px'),
+                  background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                  boxShadow: `0 8px 32px ${currentTheme.border}4D`,
+                  border: `1px solid ${currentTheme.border}4D`,
                 }}
-                aria-label="Customise"
-                title="Customise"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#FFFFFF"
-                  strokeWidth="4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="transition-transform duration-300"
-                  style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                {/* 1. AZ List */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (audioPingEnabled) playAudioPing();
+                    setSelectedCategory('az');
+                    setHighlightedFeature(null);
+                  }}
+                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
+                  title="A-Z List"
                 >
-                  <line x1="12" y1="5" x2="12" y2="19" />
-                  <line x1="5" y1="12" x2="19" y2="12" />
-                </svg>
-              </button>
+                  <Image
+                    src={azIcon}
+                    alt="A-Z"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                    style={{
+                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                      opacity: 0.9
+                    }}
+                  />
+                </button>
+
+                {/* 2. Position */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (audioPingEnabled) playAudioPing();
+                    setSelectedCategory('position');
+                  }}
+                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
+                  title="Sidebar Position"
+                >
+                  <Image
+                    src={moveUiIcon}
+                    alt="Position"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                    style={{
+                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                      transform: isVertical
+                        ? (panelPosition === 'right' ? 'rotate(-90deg)' : 'rotate(0deg)')
+                        : (panelPosition === 'bottom' ? 'rotate(180deg) scaleX(-1)' : 'rotate(90deg)'),
+                      opacity: 0.9
+                    }}
+                  />
+                </button>
+
+                {/* 3. Settings (Center) */}
+                <button
+                  ref={settingsButtonRef}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (audioPingEnabled) playAudioPing();
+                    setShowSettingsDropdown(!showSettingsDropdown);
+                  }}
+                  className={`flex-1 flex items-center justify-center w-full h-full p-0 border-0 focus:outline-none transition-all duration-300 hover:brightness-110 active:scale-95`}
+                  style={{
+                    background: showSettingsDropdown
+                      ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
+                      : 'transparent',
+                  }}
+                  aria-label="Customise"
+                  title="Customise"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={currentTheme.text === '#FFFFFF' ? '#FFFFFF' : '#000000'}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="transition-transform duration-300"
+                    style={{ transform: showSettingsDropdown ? 'rotate(45deg)' : 'rotate(0deg)' }}
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </button>
+
+                {/* 4. Feedback */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (audioPingEnabled) playAudioPing();
+                    setSelectedCategory('feedback');
+                  }}
+                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
+                  title="Feedback"
+                >
+                  <Image
+                    src={feedbackIcon}
+                    alt="Feedback"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                    style={{
+                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                      opacity: 0.9
+                    }}
+                  />
+                </button>
+
+                {/* 5. AI */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (audioPingEnabled) playAudioPing();
+                    setSelectedCategory('ai');
+                  }}
+                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
+                  title="AI Support"
+                >
+                  <Image
+                    src={generativeIcon}
+                    alt="AI"
+                    width={20}
+                    height={20}
+                    className="object-contain"
+                    style={{
+                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                      opacity: 0.9
+                    }}
+                  />
+                </button>
+              </div>
 
               {/* Settings Modal (2x5 Grid) */}
               {(() => {
                 const canRenderPortal = Boolean(showSettingsDropdown && isMobile && mounted && typeof window !== 'undefined' && document?.body);
                 return canRenderPortal ? createPortal(
-                <div
-                  ref={settingsModalRef}
-                  className="fixed z-[2147483651] rounded-none shadow-2xl border-4 flex flex-col"
-                  onMouseEnter={() => {
-                    if (textToSpeech) {
-                      speak('Customise', ttsVoiceGender);
-                    }
-                  }}
-                  style={{
-                    bottom: isVertical 
-                      ? 'auto' 
-                      : (panelPosition === 'bottom' ? '0' : 'auto'),
-                    top: isVertical 
-                      ? '50%' 
-                      : (panelPosition === 'top' ? '0' : 'auto'),
-                    left: isVertical ? '50%' : '50%',
-                    right: isVertical ? 'auto' : 'auto',
-                    transform: isVertical ? 'translate(-50%, -50%)' : 'translateX(-50%)',
-                    [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '0',
-                    [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: '0',
-                    backgroundColor: 'transparent',
-                    borderColor: 'transparent',
-                    width: 'calc(100vw - 10px)',
-                    maxWidth: '100%',
-                    maxHeight: '90vh',
-                    height: '90vh',
-                    position: 'fixed',
-                    color: currentTheme.text
-                  }}
-                >
-                  {/* Indicator Arrow for Settings Modal - hidden on mobile */}
-                  
-                  <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
-                    <style>{`
-                      #settings-modal-content * {
-                        color: ${currentTheme.text} !important;
+                  <div
+                    ref={settingsModalRef}
+                    className="fixed z-[2147483651] rounded-none shadow-2xl border-4 flex flex-col"
+                    onMouseEnter={() => {
+                      if (textToSpeech) {
+                        speak('Customise', ttsVoiceGender);
                       }
-                      #settings-modal-content button {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content span {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content h3 {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content h2 {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content div {
-                        color: ${currentTheme.text} !important;
-                      }
-                    `}</style>
-                    <div id="settings-modal-content" className="w-full h-full">
-                    {/* Compact Header */}
-                    <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
-                      <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
-                        <img
-                          src={logoIcon}
-                          alt=""
-                          className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} object-contain`}
-                          style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
-                        />
-                      </div>
-                      <h2
-                        className={`font-black tracking-tight text-center ${isMobile ? 'text-[16px] leading-snug px-8' : 'text-[18px] md:text-[22px] leading-[1.1]'
-                          }`}
-                        style={{ color: currentTheme.text }}
-                      >
-                        {isMobile ? 'Customise' : 'Customise Your Experience'}
-                      </h2>
-                      <button
-                        onClick={() => setShowSettingsDropdown(false)}
-                        className={`absolute ${isMobile ? 'right-2' : 'right-4 md:right-6'} flex items-center ${isMobile ? 'gap-1 px-1.5 py-1' : 'gap-2 px-2 py-1'} rounded-lg transition-all hover:brightness-110 active:scale-95`}
-                        style={{ backgroundColor: 'transparent', color: currentTheme.text }}
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                          <line x1="18" y1="6" x2="6" y2="18"></line>
-                          <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                        {!isMobile && <span className="text-base font-semibold" style={{ color: currentTheme.text }}>Close</span>}
-                      </button>
-                    </div>
+                    }}
+                    style={{
+                      bottom: isVertical
+                        ? 'auto'
+                        : (panelPosition === 'bottom' ? '0' : 'auto'),
+                      top: isVertical
+                        ? '50%'
+                        : (panelPosition === 'top' ? '0' : 'auto'),
+                      left: isVertical ? '50%' : '50%',
+                      right: isVertical ? 'auto' : 'auto',
+                      transform: isVertical ? 'translate(-50%, -50%)' : 'translateX(-50%)',
+                      [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '0',
+                      [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: '0',
+                      backgroundColor: 'transparent',
+                      borderColor: 'transparent',
+                      width: 'calc(100vw - 10px)',
+                      maxWidth: '100%',
+                      maxHeight: '90vh',
+                      height: '90vh',
+                      position: 'fixed',
+                      color: currentTheme.text
+                    }}
+                  >
+                    {/* Indicator Arrow for Settings Modal - hidden on mobile */}
 
-                    {/* Unified 2x6 Grid - Scrollable Content */}
-                    <div
-                      className="grid gap-0 overflow-y-auto custom-scrollbar flex-1"
-                      style={{
-                        gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
-                        maxHeight: '100%'
-                      }}
-                    >
-                      {/* Row 1, Cell 1: Language */}
-                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
-                        <div className="mb-2"></div>
-                        <LanguageSelector />
-                      </section>
-
-                      {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
-                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
-                        <div className="flex items-center justify-between mb-0.5">
-                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
-                          {accessibilityIcon && (
-                            <img
-                              src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
-                              alt=""
-                              width={45}
-                              height={45}
-                              className="object-contain"
-                              style={{ filter: 'none' }}
-                            />
-                          )}
-                        </div>
-                        <div className="mb-2"></div>
-                        <div className="grid grid-cols-2 gap-2">
-                          {[
-                            { id: 'top-left', label: 'Top Left' }, { id: 'top-right', label: 'Top Right' },
-                            { id: 'bottom-left', label: 'Bottom Left' }, { id: 'bottom-right', label: 'Bottom Right' },
-                            { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' },
-                            { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }
-                          ].slice(positionPage * 4, (positionPage + 1) * 4).map((pos) => (
-                            <button
-                              key={pos.id}
-                              onClick={() => setButtonPosition(pos.id as any)}
-                              className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
-                              style={{
-                                borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
-                                backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
-                                color: currentTheme.text,
-                                fontSize: '14px',
-                                whiteSpace: 'nowrap'
-                              }}
-                            >
-                              {pos.label}
-                            </button>
-                          ))}
-                          <button
-                            onClick={() => {
-                              if (audioPingEnabled) playAudioPing('menu');
-                              setPositionPage(p => p === 0 ? 1 : 0);
-                            }}
-                            className="col-span-2 p-1.5 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95 min-h-[36px]"
-                            style={{
-                              borderColor: `${currentTheme.border}4D`,
-                              backgroundColor: `${currentTheme.text}08`,
-                              color: currentTheme.text
-                            }}
-                            aria-label={positionPage === 0 ? "Show more" : "Show less"}
-                          >
-                            {positionPage === 0 ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                              </svg>
-                            ) : (
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                                <path d="M19 12H5M12 19l-7-7 7-7" />
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                      </section>
-
-                      {/* Row 1, Cell 3: Feature Indicators */}
-                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
-                        <div className="mb-1"></div>
-                        <ToggleCheckbox
-                          id="show-active-indicators"
-                          label={<span>Active Circle<br />(Red Dots)</span>}
-                          checked={showActiveIndicators}
-                          onChange={toggleShowActiveIndicators}
-                        />
-                        <div className="absolute bottom-2 right-2">
-                          <InfoPopupButton
-                            title="Feature Indicators"
-                            description="Displays red circles on menu icons to indicate which features are currently active."
+                    <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
+                      {/* Compact Header */}
+                      <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
+                        <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
+                          <img
+                            src={logoIcon}
+                            alt=""
+                            className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} object-contain`}
+                            style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
                           />
                         </div>
-                      </section>
+                        <h2
+                          className={`font-black tracking-tight text-center ${isMobile ? 'text-[24px] leading-snug px-8' : 'text-[26px] md:text-[26px] leading-[1.1]'
+                            }`}
+                          style={{ color: currentTheme.text }}
+                        >
+                          {isMobile ? 'Customise' : 'Customise Your Experience'}
+                        </h2>
+                        <button
+                          onClick={() => setShowSettingsDropdown(false)}
+                          className={`absolute ${isMobile ? 'right-2' : 'right-4 md:right-6'} flex items-center ${isMobile ? 'gap-1 px-1.5 py-1' : 'gap-2 px-2 py-1'} rounded-lg transition-all hover:brightness-110 active:scale-95`}
+                          style={{ backgroundColor: 'transparent', color: currentTheme.text }}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width={isMobile ? "16" : "20"} height={isMobile ? "16" : "20"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                          {!isMobile && <span className="text-base font-semibold" style={{ color: currentTheme.text }}>Close</span>}
+                        </button>
+                      </div>
 
-                      {/* Row 1, Cell 4: Icon Size */}
-                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
-                        <div className="mb-0.5"></div>
-                        <div className="grid grid-cols-2 gap-1.5">
-                          {[
-                            { id: 'standard', name: 'Standard', multiplier: 1 },
-                            { id: 'medium', name: 'Medium', multiplier: 1.15 },
-                            { id: 'large', name: 'Large', multiplier: 1.3 },
-                            { id: 'xl', name: 'XL', multiplier: 1.5 }
-                          ].map((opt) => (
-                            <button
-                              key={opt.id}
-                              onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                setSidebarIconSize(opt.multiplier);
-                              }}
-                              className={`flex flex-col items-center justify-center p-1.5 rounded-[12px] border-2 transition-all duration-300 gap-1 ${sidebarIconSize === opt.multiplier ? 'scale-105' : 'opacity-80 hover:opacity-100 hover:scale-[1.02]'} active:scale-95`}
-                              style={{
-                                borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : `${currentTheme.border}33`,
-                                backgroundColor: `${currentTheme.text}08`,
-                              }}
-                            >
-                              {/* Swatch-like Box */}
-                              <div
-                                className="w-10 h-10 rounded-[10px] border-2 shadow-sm flex items-center justify-center relative mb-1"
+                      {/* Unified 2x6 Grid - Scrollable Content */}
+                      <div
+                        className="grid gap-0 overflow-y-auto custom-scrollbar flex-1"
+                        style={{
+                          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
+                          maxHeight: '100%'
+                        }}
+                      >
+                        {/* Row 1, Cell 1: Language */}
+                        <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
+                          <div className="mb-2"></div>
+                          <LanguageSelector />
+                        </section>
+
+                        {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
+                        <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
+                            {accessibilityIcon && (
+                              <img
+                                src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
+                                alt=""
+                                width={45}
+                                height={45}
+                                className="object-contain"
+                                style={{ filter: 'none' }}
+                              />
+                            )}
+                          </div>
+                          <div className="mb-2"></div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {[
+                              { id: 'top-left', label: 'Top Left' }, { id: 'top-right', label: 'Top Right' },
+                              { id: 'bottom-left', label: 'Bottom Left' }, { id: 'bottom-right', label: 'Bottom Right' },
+                              { id: 'top', label: 'Top' }, { id: 'bottom', label: 'Bottom' },
+                              { id: 'left', label: 'Left' }, { id: 'right', label: 'Right' }
+                            ].slice(positionPage * 4, (positionPage + 1) * 4).map((pos) => (
+                              <button
+                                key={pos.id}
+                                onClick={() => setButtonPosition(pos.id as any)}
+                                className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
                                 style={{
-                                  backgroundColor: '#FFFFFF',
-                                  borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : 'rgba(0,0,0,0.1)'
+                                  borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
+                                  backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                                  color: currentTheme.text,
+                                  fontSize: '18px',
+                                  whiteSpace: 'nowrap'
                                 }}
                               >
-                                <img
-                                  src={typeof scalabilityIcon === 'string' ? scalabilityIcon : (scalabilityIcon as any).src || scalabilityIcon}
-                                  alt=""
-                                  style={{
-                                    width: `${18 * opt.multiplier}px`,
-                                    height: `${18 * opt.multiplier}px`,
-                                    filter: 'brightness(0)'
-                                  }}
-                                  className="object-contain"
-                                />
-
-                                {sidebarIconSize === opt.multiplier && (
-                                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-black/10">
-                                    <svg className="w-2.5 h-2.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={5}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Label */}
-                              <span
-                                className={`text-[11px] font-black uppercase tracking-wider text-center leading-tight`}
-                                style={{ color: currentTheme.text }}
-                              >
-                                {opt.name}
-                              </span>
+                                {pos.label}
+                              </button>
+                            ))}
+                            <button
+                              onClick={() => {
+                                if (audioPingEnabled) playAudioPing('menu');
+                                setPositionPage(p => p === 0 ? 1 : 0);
+                              }}
+                              className="col-span-2 p-1.5 rounded-md border transition-all duration-300 flex items-center justify-center hover:bg-black/5 hover:scale-[1.02] active:scale-95 min-h-[36px]"
+                              style={{
+                                borderColor: `${currentTheme.border}4D`,
+                                backgroundColor: `${currentTheme.text}08`,
+                                color: currentTheme.text
+                              }}
+                              aria-label={positionPage === 0 ? "Show more" : "Show less"}
+                            >
+                              {positionPage === 0 ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                              ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                                </svg>
+                              )}
                             </button>
-                          ))}
-                        </div>
-                      </section>
-
-                      {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
-                      <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
-
-                        {/* Dark Themes Section */}
-                        <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
-                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
-                          <div className="grid grid-cols-3 gap-2">
-                            {Object.entries(BAR_THEMES)
-                              .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
-                              .map(([key, theme]) => {
-                                const isSelected = barTheme === key;
-                                const label = key === 'grayscale' ? (
-                                  <span>Gray<br />Scale</span>
-                                ) : key === 'oceanBlue' ? (
-                                  <span>Ocean<br />Blue</span>
-                                ) : (
-                                  key.charAt(0).toUpperCase() + key.slice(1)
-                                );
-                                const labelText = typeof label === 'string' ? label : key === 'grayscale' ? 'Grayscale' : key === 'oceanBlue' ? 'Ocean Blue' : key.charAt(0).toUpperCase() + key.slice(1);
-                                return (
-                                  <button
-                                    key={key}
-                                    onClick={() => {
-                                      if (audioPingEnabled) playAudioPing('menu');
-                                      setBarTheme(key as BarTheme);
-                                    }}
-                                    className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
-                                    style={{
-                                      borderColor: isSelected ? theme.active : currentTheme.border,
-                                      backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
-                                    }}
-                                    title={labelText}
-                                  >
-                                    <div
-                                      className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
-                                      style={{
-                                        backgroundColor: theme.background,
-                                        borderColor: theme.border,
-                                        color: theme.text
-                                      }}
-                                    >
-                                      <span className="text-base font-bold">A</span>
-                                      {isSelected && (
-                                        <div
-                                          className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
-                                        >
-                                          <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                          </svg>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
-                                      {label}
-                                    </span>
-                                  </button>
-                                );
-                              })}
                           </div>
-                        </div>
+                        </section>
 
-                        {/* Light Themes Section */}
-                        <div className="space-y-1.5">
-                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
-                          <div className="grid grid-cols-3 gap-2">
-                            {Object.entries(BAR_THEMES)
-                              .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
-                              .map(([key, theme]) => {
-                                const isSelected = barTheme === key;
-                                const label = key === 'Turquoise' ? 'Turq' : key.charAt(0).toUpperCase() + key.slice(1);
-                                return (
-                                  <button
-                                    key={key}
-                                    onClick={() => {
-                                      if (audioPingEnabled) playAudioPing('menu');
-                                      setBarTheme(key as BarTheme);
-                                    }}
-                                    className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
-                                    style={{
-                                      borderColor: isSelected ? theme.active : currentTheme.border,
-                                      backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
-                                    }}
-                                    title={label}
-                                  >
-                                    <div
-                                      className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
-                                      style={{
-                                        backgroundColor: theme.background,
-                                        borderColor: theme.border,
-                                        color: theme.text
-                                      }}
-                                    >
-                                      <span className="text-base font-bold">A</span>
-                                      {isSelected && (
-                                        <div
-                                          className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
-                                        >
-                                          <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                          </svg>
-                                        </div>
-                                      )}
-                                    </div>
-                                    <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight whitespace-nowrap" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
-                                      {label}
-                                    </span>
-                                  </button>
-                                );
-                              })}
+                        {/* Row 1, Cell 3: Feature Indicators */}
+                        <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
+                          <div className="mb-1"></div>
+                          <ToggleCheckbox
+                            id="show-active-indicators"
+                            label={<span>Active Circle<br />(Red Dots)</span>}
+                            checked={showActiveIndicators}
+                            onChange={toggleShowActiveIndicators}
+                          />
+                          <div className="absolute bottom-2 right-2">
+                            <InfoPopupButton
+                              title="Feature Indicators"
+                              description="Displays red circles on menu icons to indicate which features are currently active."
+                            />
                           </div>
-                        </div>
-                      </section>
+                        </section>
 
-                      {/* Row 2, Cell 1: Scrolling Progress Bar */}
-                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
-                        <div className="mb-1"></div>
-                        <ToggleCheckbox
-                          id="reading-progress-bar"
-                          label="Active on Scrolling"
-                          checked={readingProgressBar}
-                          onChange={toggleReadingProgressBar}
-                        />
-                        {readingProgressBar && (
-                          <div className="mt-2 grid grid-cols-3 gap-2">
-                            {['#000000', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#17D1C6'].map(color => (
+                        {/* Row 1, Cell 4: Icon Size */}
+                        <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
+                          <div className="mb-0.5"></div>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {[
+                              { id: 'standard', name: 'Standard', multiplier: 1 },
+                              { id: 'medium', name: 'Medium', multiplier: 1.15 },
+                              { id: 'large', name: 'Large', multiplier: 1.3 },
+                              { id: 'xl', name: 'XL', multiplier: 1.5 }
+                            ].map((opt) => (
                               <button
-                                key={color}
+                                key={opt.id}
                                 onClick={() => {
                                   if (audioPingEnabled) playAudioPing('menu');
-                                  setReadingProgressBarColor(color);
+                                  setSidebarIconSize(opt.multiplier);
+                                }}
+                                className={`flex flex-col items-center justify-center p-1.5 rounded-[12px] border-2 transition-all duration-300 gap-1 ${sidebarIconSize === opt.multiplier ? 'scale-105' : 'opacity-80 hover:opacity-100 hover:scale-[1.02]'} active:scale-95`}
+                                style={{
+                                  borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : `${currentTheme.border}33`,
+                                  backgroundColor: `${currentTheme.text}08`,
+                                }}
+                              >
+                                {/* Swatch-like Box */}
+                                <div
+                                  className="w-10 h-10 rounded-[10px] border-2 shadow-sm flex items-center justify-center relative mb-1"
+                                  style={{
+                                    backgroundColor: '#FFFFFF',
+                                    borderColor: sidebarIconSize === opt.multiplier ? currentTheme.text : 'rgba(0,0,0,0.1)'
+                                  }}
+                                >
+                                  <img
+                                    src={typeof scalabilityIcon === 'string' ? scalabilityIcon : (scalabilityIcon as any).src || scalabilityIcon}
+                                    alt=""
+                                    style={{
+                                      width: `${18 * opt.multiplier}px`,
+                                      height: `${18 * opt.multiplier}px`,
+                                      filter: 'brightness(0)'
+                                    }}
+                                    className="object-contain"
+                                  />
+
+                                  {sidebarIconSize === opt.multiplier && (
+                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-black/10">
+                                      <svg className="w-2.5 h-2.5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={5}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Label */}
+                                <span
+                                  className={`text-[15px] font-black uppercase tracking-wider text-center leading-tight`}
+                                  style={{ color: currentTheme.text }}
+                                >
+                                  {opt.name}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+                        </section>
+
+                        {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
+                        <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
+
+                          {/* Dark Themes Section */}
+                          <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
+                            <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
+                            <div className="grid grid-cols-3 gap-2">
+                              {Object.entries(BAR_THEMES)
+                                .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
+                                .map(([key, theme]) => {
+                                  const isSelected = barTheme === key;
+                                  const label = key === 'grayscale' ? (
+                                    <span>Gray<br />Scale</span>
+                                  ) : key === 'oceanBlue' ? (
+                                    <span>Ocean<br />Blue</span>
+                                  ) : (
+                                    key.charAt(0).toUpperCase() + key.slice(1)
+                                  );
+                                  const labelText = typeof label === 'string' ? label : key === 'grayscale' ? 'Grayscale' : key === 'oceanBlue' ? 'Ocean Blue' : key.charAt(0).toUpperCase() + key.slice(1);
+                                  return (
+                                    <button
+                                      key={key}
+                                      onClick={() => {
+                                        if (audioPingEnabled) playAudioPing('menu');
+                                        setBarTheme(key as BarTheme);
+                                      }}
+                                      className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
+                                      style={{
+                                        borderColor: isSelected ? theme.active : currentTheme.border,
+                                        backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
+                                      }}
+                                      title={labelText}
+                                    >
+                                      <div
+                                        className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
+                                        style={{
+                                          backgroundColor: theme.background,
+                                          borderColor: theme.border,
+                                          color: theme.text
+                                        }}
+                                      >
+                                        <span className="text-base font-bold">A</span>
+                                        {isSelected && (
+                                          <div
+                                            className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
+                                          >
+                                            <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                                        {label}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                            </div>
+                          </div>
+
+                          {/* Light Themes Section */}
+                          <div className="space-y-1.5">
+                            <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
+                            <div className="grid grid-cols-3 gap-2">
+                              {Object.entries(BAR_THEMES)
+                                .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
+                                .map(([key, theme]) => {
+                                  const isSelected = barTheme === key;
+                                  const label = key === 'Turquoise' ? 'Turq' : key.charAt(0).toUpperCase() + key.slice(1);
+                                  return (
+                                    <button
+                                      key={key}
+                                      onClick={() => {
+                                        if (audioPingEnabled) playAudioPing('menu');
+                                        setBarTheme(key as BarTheme);
+                                      }}
+                                      className={`group relative flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all duration-300 ${isSelected ? 'scale-110 shadow-lg' : 'hover:scale-[1.03] shadow-sm'}`}
+                                      style={{
+                                        borderColor: isSelected ? theme.active : currentTheme.border,
+                                        backgroundColor: isSelected ? `${theme.active}30` : `${currentTheme.text}08`,
+                                      }}
+                                      title={label}
+                                    >
+                                      <div
+                                        className="w-10 h-10 rounded-full border-2 flex items-center justify-center shadow-sm transform transition-transform group-hover:rotate-12 mb-0.5"
+                                        style={{
+                                          backgroundColor: theme.background,
+                                          borderColor: theme.border,
+                                          color: theme.text
+                                        }}
+                                      >
+                                        <span className="text-base font-bold">A</span>
+                                        {isSelected && (
+                                          <div
+                                            className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
+                                          >
+                                            <svg className="w-6 h-6 text-white filter drop-shadow-sm" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                          </div>
+                                        )}
+                                      </div>
+                                      <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight whitespace-nowrap" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                                        {label}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        </section>
+
+                        {/* Row 2, Cell 1: Scrolling Progress Bar */}
+                        <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
+                          <div className="mb-1"></div>
+                          <ToggleCheckbox
+                            id="reading-progress-bar"
+                            label="Active on Scrolling"
+                            checked={readingProgressBar}
+                            onChange={toggleReadingProgressBar}
+                          />
+                          {readingProgressBar && (
+                            <div className="mt-2 grid grid-cols-3 gap-2">
+                              {['#000000', '#FF0000', '#FFFF00', '#00FF00', '#0000FF', '#17D1C6'].map(color => (
+                                <button
+                                  key={color}
+                                  onClick={() => {
+                                    if (audioPingEnabled) playAudioPing('menu');
+                                    setReadingProgressBarColor(color);
+                                  }}
+                                  className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
+                                  style={{
+                                    backgroundColor: color,
+                                    border: color === '#FFFFFF' ? '2px solid rgba(0,0,0,0.1)' : 'none',
+                                    boxShadow: readingProgressBarColor === color
+                                      ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
+                                      : 'none'
+                                  }}
+                                  aria-label={`Colour ${color}`}
+                                >
+                                  {readingProgressBarColor === color && (
+                                    <span className="absolute inset-0 flex items-center justify-center">
+                                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={['#FFFF00', '#00FF00', '#FFFFFF', '#17D1C6'].includes(color) ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    </span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </section>
+
+                        {/* Row 2, Cell 2: Reset Icon */}
+                        <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
+                          <div className="mb-4"></div>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { id: 'red-black', color: '#FF0000' },
+                              { id: 'yellow-black', color: '#FFD700' },
+                              { id: 'turquoise-black', color: '#17D1C6' },
+                              { id: 'white-black', color: '#FFFFFF' },
+                              { id: 'black-white', color: '#000000' },
+                              { id: 'pink-white', color: '#EC5DD6' }
+                            ].map((style) => (
+                              <button
+                                key={style.id}
+                                onClick={() => {
+                                  if (audioPingEnabled) playAudioPing('menu');
+                                  setResetIconStyle(style.id as any);
                                 }}
                                 className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
                                 style={{
-                                  backgroundColor: color,
-                                  border: color === '#FFFFFF' ? '2px solid rgba(0,0,0,0.1)' : 'none',
-                                  boxShadow: readingProgressBarColor === color
+                                  backgroundColor: style.color,
+                                  border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : (style.id === 'pink-white' && resetIconStyle === style.id ? '2px solid #FFFFFF' : 'none'),
+                                  boxShadow: resetIconStyle === style.id
                                     ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
                                     : 'none'
                                 }}
-                                aria-label={`Colour ${color}`}
+                                aria-label={`Reset Style ${style.id}`}
                               >
-                                {readingProgressBarColor === color && (
+                                {resetIconStyle === style.id && (
                                   <span className="absolute inset-0 flex items-center justify-center">
-                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={['#FFFF00', '#00FF00', '#FFFFFF', '#17D1C6'].includes(color) ? '#000000' : '#FFFFFF'} strokeWidth={4}>
+                                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                   </span>
@@ -2015,119 +2148,76 @@ export default function AccessibilityBar() {
                               </button>
                             ))}
                           </div>
-                        )}
-                      </section>
+                        </section>
 
-                      {/* Row 2, Cell 2: Reset Icon */}
-                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
-                        <div className="mb-4"></div>
-                        <div className="grid grid-cols-3 gap-2">
-                          {[
-                            { id: 'red-black', color: '#FF0000' },
-                            { id: 'yellow-black', color: '#FFD700' },
-                            { id: 'turquoise-black', color: '#17D1C6' },
-                            { id: 'white-black', color: '#FFFFFF' },
-                            { id: 'black-white', color: '#000000' },
-                            { id: 'pink-white', color: '#EC5DD6' }
-                          ].map((style) => (
-                            <button
-                              key={style.id}
-                              onClick={() => {
-                                if (audioPingEnabled) playAudioPing('menu');
-                                setResetIconStyle(style.id as any);
-                              }}
-                              className="w-full aspect-square rounded-md transition-all duration-300 relative shadow-sm hover:scale-105 active:scale-95 flex-shrink-0"
-                              style={{
-                                backgroundColor: style.color,
-                                border: style.id === 'white-black' ? '2px solid rgba(0,0,0,0.1)' : (style.id === 'pink-white' && resetIconStyle === style.id ? '2px solid #FFFFFF' : 'none'),
-                                boxShadow: resetIconStyle === style.id
-                                  ? `0 0 0 2px ${currentTheme.background}, 0 0 0 4px ${currentTheme.active}`
-                                  : 'none'
-                              }}
-                              aria-label={`Reset Style ${style.id}`}
-                            >
-                              {resetIconStyle === style.id && (
-                                <span className="absolute inset-0 flex items-center justify-center">
-                                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke={style.id === 'white-black' || style.id === 'yellow-black' || style.id === 'turquoise-black' ? '#000000' : '#FFFFFF'} strokeWidth={4}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                  </svg>
-                                </span>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      </section>
+                        {/* Row 2, Cell 3: Audio Ping */}
+                        <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
+                          <div className="mb-2"></div>
+                          <ToggleCheckbox
+                            id="audio-ping-enabled"
+                            label="Audio Ping on select or deselect features"
+                            checked={audioPingEnabled}
+                            onChange={toggleAudioPing}
+                          />
+                        </section>
 
-                      {/* Row 2, Cell 3: Audio Ping */}
-                      <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
-                        <div className="mb-2"></div>
-                        <ToggleCheckbox
-                          id="audio-ping-enabled"
-                          label="Audio Ping on select or deselect features"
-                          checked={audioPingEnabled}
-                          onChange={toggleAudioPing}
-                        />
-                      </section>
-
-                      {/* Row 2, Cell 4: Pick a Profile */}
-                      <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
-                        <div className="mb-2"></div>
-                        <div
-                          className="flex-1 overflow-y-auto custom-scrollbar pr-1"
-                          style={{ maxHeight: 'none' }}
-                        >
-                          <div className="grid grid-cols-1 gap-1 h-[160px] overflow-y-auto custom-scrollbar pr-1">
-                            {[
-                              { id: 'motor', name: 'Motor Impaired' },
-                              { id: 'blindness', name: 'Blindness' },
-                              { id: 'colorblind', name: 'Colour Blind' },
-                              { id: 'dyslexia', name: 'Dyslexia' },
-                              { id: 'lowvision', name: 'Visually Impaired' },
-                              { id: 'cognitive', name: 'Cognitive Disability' },
-                              { id: 'seizure', name: 'Seizure Safe' },
-                              { id: 'adhd', name: 'ADHD Friendly' },
-                              { id: 'photosensitive', name: 'Photosensitive' },
-                              { id: 'elderly', name: 'Elderly' },
-                              { id: 'hearing', name: 'Hearing Impaired' },
-                              { id: 'reading', name: 'Reading Support' }
-                            ].map((profile) => (
-                              <button
-                                key={profile.id}
-                                onClick={() => applyProfile(profile.id)}
-                                className={`w-full py-1.5 px-3 rounded-lg border text-[12px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
-                                style={{
-                                  borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
-                                  backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
-                                  color: currentTheme.text
-                                }}
-                              >
-                                <span className="flex-1">{profile.name}</span>
-                                <div
-                                  className="w-6 h-6 rounded flex items-center justify-center transition-all ml-3 flex-shrink-0"
+                        {/* Row 2, Cell 4: Pick a Profile */}
+                        <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
+                          <div className="mb-2"></div>
+                          <div
+                            className="flex-1 overflow-y-auto custom-scrollbar pr-1"
+                            style={{ maxHeight: 'none' }}
+                          >
+                            <div className="grid grid-cols-1 gap-1 h-[160px] overflow-y-auto custom-scrollbar pr-1">
+                              {[
+                                { id: 'motor', name: 'Motor Impaired' },
+                                { id: 'blindness', name: 'Blindness' },
+                                { id: 'colorblind', name: 'Colour Blind' },
+                                { id: 'dyslexia', name: 'Dyslexia' },
+                                { id: 'lowvision', name: 'Visually Impaired' },
+                                { id: 'cognitive', name: 'Cognitive Disability' },
+                                { id: 'seizure', name: 'Seizure Safe' },
+                                { id: 'adhd', name: 'ADHD Friendly' },
+                                { id: 'photosensitive', name: 'Photosensitive' },
+                                { id: 'elderly', name: 'Elderly' },
+                                { id: 'hearing', name: 'Hearing Impaired' },
+                                { id: 'reading', name: 'Reading Support' }
+                              ].map((profile) => (
+                                <button
+                                  key={profile.id}
+                                  onClick={() => applyProfile(profile.id)}
+                                  className={`w-full py-1.5 px-3 rounded-lg border text-[16px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
                                   style={{
-                                    backgroundColor: activeProfile === profile.id ? currentTheme.active : 'rgba(255, 255, 255, 0.9)',
-                                    border: activeProfile === profile.id ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+                                    borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
+                                    backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
+                                    color: currentTheme.text
                                   }}
                                 >
-                                  {activeProfile === profile.id && (
-                                    <svg className="w-4 h-4" style={{ color: currentTheme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
-                                </div>
-                              </button>
-                            ))}
+                                  <span className="flex-1">{profile.name}</span>
+                                  <div
+                                    className="w-6 h-6 rounded flex items-center justify-center transition-all ml-3 flex-shrink-0"
+                                    style={{
+                                      backgroundColor: activeProfile === profile.id ? currentTheme.active : 'rgba(255, 255, 255, 0.9)',
+                                      border: activeProfile === profile.id ? 'none' : '1px solid rgba(0, 0, 0, 0.1)'
+                                    }}
+                                  >
+                                    {activeProfile === profile.id && (
+                                      <svg className="w-4 h-4" style={{ color: currentTheme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      </section>
-                    </div>
+                        </section>
+                      </div>
                     </div>
                   </div>
-                </div>
-              , document.body) : null;
+                  , document.body) : null;
               })()}
               {showSettingsDropdown && !isMobile && (
                 <div
@@ -2157,63 +2247,42 @@ export default function AccessibilityBar() {
                 >
                   {/* Indicator Arrow for Settings Modal */}
                   {!isMobile && (
-                  <div
-                    className="absolute pointer-events-none z-[2147483653]"
-                    style={{
-                      left: isVertical ? (panelPosition === 'left' ? '-14px' : 'auto') : '50%',
-                      right: isVertical ? (panelPosition === 'right' ? '-14px' : 'auto') : 'auto',
-                      top: isVertical ? '50%' : (panelPosition === 'top' ? '-14px' : 'auto'),
-                      bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '-14px' : 'auto'),
-                      transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
-                      filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))'
-                    }}
-                  >
-                    <svg
-                      width="30"
-                      height="20"
-                      viewBox="0 0 30 20"
-                      fill="none"
+                    <div
+                      className="absolute pointer-events-none z-[2147483653]"
                       style={{
-                        transform: isVertical
-                          ? (panelPosition === 'left' ? 'rotate(-90deg)' : 'rotate(90deg)')
-                          : (panelPosition === 'top' ? 'rotate(0deg)' : 'rotate(180deg)')
+                        left: isVertical ? (panelPosition === 'left' ? '-14px' : 'auto') : '50%',
+                        right: isVertical ? (panelPosition === 'right' ? '-14px' : 'auto') : 'auto',
+                        top: isVertical ? '50%' : (panelPosition === 'top' ? '-14px' : 'auto'),
+                        bottom: isVertical ? 'auto' : (panelPosition === 'bottom' ? '-14px' : 'auto'),
+                        transform: isVertical ? 'translateY(-50%)' : 'translateX(-50%)',
+                        filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))'
                       }}
                     >
-                      <path
-                        d={isVertical
-                          ? (panelPosition === 'left' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
-                          : (panelPosition === 'top' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
-                        }
-                        fill={currentTheme.background}
-                        stroke={currentTheme.border}
-                        strokeWidth="4"
-                      />
-                    </svg>
-                  </div>
+                      <svg
+                        width="30"
+                        height="20"
+                        viewBox="0 0 30 20"
+                        fill="none"
+                        style={{
+                          transform: isVertical
+                            ? (panelPosition === 'left' ? 'rotate(-90deg)' : 'rotate(90deg)')
+                            : (panelPosition === 'top' ? 'rotate(0deg)' : 'rotate(180deg)')
+                        }}
+                      >
+                        <path
+                          d={isVertical
+                            ? (panelPosition === 'left' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
+                            : (panelPosition === 'top' ? "M0 20 L15 5 L30 20" : "M0 0 L15 15 L30 0")
+                          }
+                          fill={currentTheme.background}
+                          stroke={currentTheme.border}
+                          strokeWidth="4"
+                        />
+                      </svg>
+                    </div>
                   )}
 
                   <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
-                    <style>{`
-                      #settings-modal-content-desktop * {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content-desktop button {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content-desktop span {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content-desktop h3 {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content-desktop h2 {
-                        color: ${currentTheme.text} !important;
-                      }
-                      #settings-modal-content-desktop div {
-                        color: ${currentTheme.text} !important;
-                      }
-                    `}</style>
-                    <div id="settings-modal-content-desktop" className="w-full h-full flex flex-col">
                     {/* Compact Header */}
                     <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
                       <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
@@ -2225,7 +2294,7 @@ export default function AccessibilityBar() {
                         />
                       </div>
                       <h2
-                        className={`font-black tracking-tight text-center ${isMobile ? 'text-[16px] leading-snug px-8' : 'text-[18px] md:text-[22px] leading-[1.1]'
+                        className={`font-black tracking-tight text-center ${isMobile ? 'text-[24px] leading-snug px-8' : 'text-[26px] md:text-[26px] leading-[1.1]'
                           }`}
                         style={{ color: currentTheme.text }}
                       >
@@ -2255,7 +2324,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 1: Language */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
                         <div className="mb-2"></div>
                         <LanguageSelector />
                       </section>
@@ -2263,7 +2332,7 @@ export default function AccessibilityBar() {
                       {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
                         <div className="flex items-center justify-between mb-0.5">
-                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
+                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
                           {accessibilityIcon && (
                             <img
                               src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
@@ -2291,7 +2360,7 @@ export default function AccessibilityBar() {
                                 borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
                                 backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
                                 color: currentTheme.text,
-                                fontSize: '14px',
+                                fontSize: '18px',
                                 whiteSpace: 'nowrap'
                               }}
                             >
@@ -2327,7 +2396,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 3: Feature Indicators */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
                         <div className="mb-1"></div>
                         <ToggleCheckbox
                           id="show-active-indicators"
@@ -2345,7 +2414,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 4: Icon Size */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
                         <div className="mb-0.5"></div>
                         <div className="grid grid-cols-2 gap-1.5">
                           {[
@@ -2396,7 +2465,7 @@ export default function AccessibilityBar() {
 
                               {/* Label */}
                               <span
-                                className={`text-[11px] font-black uppercase tracking-wider text-center leading-tight`}
+                                className={`text-[15px] font-black uppercase tracking-wider text-center leading-tight`}
                                 style={{ color: currentTheme.text }}
                               >
                                 {opt.name}
@@ -2408,11 +2477,11 @@ export default function AccessibilityBar() {
 
                       {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
                       <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
 
                         {/* Dark Themes Section */}
                         <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
-                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
+                          <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
                           <div className="grid grid-cols-3 gap-2">
                             {Object.entries(BAR_THEMES)
                               .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
@@ -2470,7 +2539,7 @@ export default function AccessibilityBar() {
 
                         {/* Light Themes Section */}
                         <div className="space-y-1.5">
-                          <h4 className="text-[15px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
+                          <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
                           <div className="grid grid-cols-3 gap-2">
                             {Object.entries(BAR_THEMES)
                               .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
@@ -2522,7 +2591,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 1: Scrolling Progress Bar */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
                         <div className="mb-1"></div>
                         <ToggleCheckbox
                           id="reading-progress-bar"
@@ -2564,7 +2633,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 2: Reset Icon */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
                         <div className="mb-4"></div>
                         <div className="grid grid-cols-3 gap-2">
                           {[
@@ -2605,7 +2674,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 3: Audio Ping */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
                         <div className="mb-2"></div>
                         <ToggleCheckbox
                           id="audio-ping-enabled"
@@ -2617,7 +2686,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 4: Pick a Profile */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[17px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
+                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
                         <div className="mb-2"></div>
                         <div
                           className="flex-1 overflow-y-auto custom-scrollbar pr-1"
@@ -2641,7 +2710,7 @@ export default function AccessibilityBar() {
                               <button
                                 key={profile.id}
                                 onClick={() => applyProfile(profile.id)}
-                                className={`w-full py-1.5 px-3 rounded-lg border text-[12px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
+                                className={`w-full py-1.5 px-3 rounded-lg border text-[16px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
                                 style={{
                                   borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
                                   backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
@@ -2668,7 +2737,6 @@ export default function AccessibilityBar() {
                         </div>
                       </section>
                     </div>
-                    </div>
                   </div>
                 </div>
               )}
@@ -2680,7 +2748,7 @@ export default function AccessibilityBar() {
               <div
                 className={`flex items-center p-1.5 ${isVertical
                   ? `flex-col w-[100px] sm:w-[130px] gap-3 sm:gap-4 h-full overflow-y-auto custom-scrollbar`
-                  : `${(panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? 'flex-row items-center relative overflow-x-auto icons-scroll-hidden' : 'flex-row items-center overflow-x-auto custom-scrollbar'} h-full w-full justify-start gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
+                  : `${panelPosition === 'top' ? 'flex-row items-center relative overflow-x-auto icons-scroll-hidden' : 'flex-row items-center overflow-x-auto custom-scrollbar'} h-full w-full justify-start gap-2 ${panelPosition === 'bottom' ? 'border-t' : 'border-b'}`
                   }`}
                 style={{
                   background: isVertical
@@ -2772,8 +2840,8 @@ export default function AccessibilityBar() {
 
                 <div
                   ref={iconsContainerRef}
-                  className={`accessibility-bar pointer-events-auto flex relative ${isVertical ? 'flex-col space-y-3 sm:space-y-4 items-center flex-shrink-0' : `flex-row items-center flex-grow gap-2 ${(panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? 'icons-scroll-hidden' : ''}`}`}
-                  style={!isVertical && (panelPosition === 'top' || panelPosition === 'top-left' || panelPosition === 'top-right') ? {
+                  className={`accessibility-bar pointer-events-auto flex relative ${isVertical ? 'flex-col space-y-3 sm:space-y-4 items-center flex-shrink-0' : `flex-row items-center flex-grow gap-2 ${panelPosition === 'top' ? 'icons-scroll-hidden' : ''}`}`}
+                  style={!isVertical && panelPosition === 'top' ? {
                     overflowX: 'scroll', // Needed for programmatic scrolling
                     overflowY: 'hidden', // Prevent vertical scrolling
                     scrollBehavior: 'smooth',
@@ -2854,8 +2922,8 @@ export default function AccessibilityBar() {
                                         color: '#000000',
                                       }}
                                     >
-                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
-                                      <span style={{ fontSize: `${(isVertical ? 16 : 18) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
+                                      <span style={{ fontSize: `${(isVertical ? 20 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                      <span style={{ fontSize: `${(isVertical ? 20 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                     </div>
                                   </button>
                                 </div>
@@ -3035,8 +3103,8 @@ export default function AccessibilityBar() {
                                     color: '#000000',
                                   }}
                                 >
-                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
-                                  <span style={{ fontSize: `${(isVertical ? 14 : 12) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
+                                  <span style={{ fontSize: `${(isVertical ? 18 : 16) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                  <span style={{ fontSize: `${(isVertical ? 18 : 16) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                 </div>
                               ) : (
                                 <Image
@@ -3059,7 +3127,7 @@ export default function AccessibilityBar() {
                                         : (panelPosition === 'bottom' ? 'rotate(180deg) scaleX(-1)' : 'rotate(90deg)')
                                     } : {})
                                   }}
-                                  className={`transition-all duration-300 ${isVertical ? 'mb-0.5' : ''} ${selectedCategory === category.id
+                                  className={`transition-all duration-300 ${isVertical ? 'mb-3' : 'mb-2'} ${selectedCategory === category.id
                                     ? ''
                                     : 'opacity-70 group-hover:opacity-100'
                                     }`}
@@ -3072,9 +3140,9 @@ export default function AccessibilityBar() {
                                     color: '#000000',
                                     letterSpacing: '0.02em',
                                     fontSize: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)
-                                      ? `${7 * sidebarIconSize}px`
-                                      : (isVertical ? '9px' : undefined),
-                                    marginTop: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '2px' : undefined
+                                      ? `${11 * sidebarIconSize}px`
+                                      : (isVertical ? '13px' : undefined),
+                                    marginTop: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '8px' : (isVertical ? '6px' : undefined)
                                   }}
                                 >
                                   {category.name}
@@ -3124,7 +3192,7 @@ export default function AccessibilityBar() {
                             <div className="flex flex-col items-center">
                               {currentPage < totalPages && (
                                 <span
-                                  className="text-[15px] font-black uppercase mb-0.5 opacity-90"
+                                  className="text-[19px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
                                 >
                                   Next
@@ -3132,7 +3200,7 @@ export default function AccessibilityBar() {
                               )}
                               {currentPage === totalPages && (
                                 <span
-                                  className="text-[15px] font-black uppercase mb-0.5 opacity-90"
+                                  className="text-[19px] font-black uppercase mb-0.5 opacity-90"
                                   style={{ color: currentTheme.text }}
                                 >
                                   Previous
@@ -3197,10 +3265,10 @@ export default function AccessibilityBar() {
                   })()}
 
 
-                </div >
+                </div>
 
                 {/* Reset button area */}
-                < div className={`flex ${isVertical ? 'mt-auto flex-col space-y-2 sm:space-y-3' : 'ml-auto flex-row space-x-5'} items-center flex-shrink-0`
+                <div className={`flex ${isVertical ? 'mt-auto flex-col space-y-2 sm:space-y-3' : 'ml-auto flex-row space-x-5'} items-center flex-shrink-0`
                 }>
                 </div>
               </div>
@@ -3275,7 +3343,7 @@ export default function AccessibilityBar() {
                           </div>
                           <div className="flex flex-col pt-1">
                             <h2
-                              className={`${selectedCategory === 'az' ? 'text-[28px]' : 'text-[22px]'} font-extrabold tracking-tight leading-[1.1] mt-2 sm:mt-[12px] ${selectedCategory === 'az' ? 'whitespace-nowrap' : (['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
+                              className={`${selectedCategory === 'az' ? 'text-[32px]' : 'text-[26px]'} font-extrabold tracking-tight leading-[1.1] mt-2 sm:mt-[12px] ${selectedCategory === 'az' ? 'whitespace-nowrap' : (['font', 'layout', 'reading', 'ai'].includes(selectedCategory || '')
                                 ? 'whitespace-nowrap max-w-[180px] sm:max-w-[240px]'
                                 : 'whitespace-normal line-clamp-2 max-w-[180px] sm:max-w-[240px]'
                               )}`}
@@ -3365,56 +3433,10 @@ export default function AccessibilityBar() {
                 </>
               )}
             </div>
-          </div >
+          </div>
         </>
-      )
-      }
+      )}
 
-      {readingRuler && <ReadingRuler />}
-      {readingGuide && <ReadingGuideLine />}
-      {readingMask && <ReadingMaskOverlay />}
-      {readingSpotlight && <ReadingSpotlightOverlay />}
-      <ReadingProgressBar />
-      <DictionaryPopup />
-      <SelectionTranslator />
-      <PronunciationGuidePopup />
-      <GoogleTranslate />
-      <SmartSuggestions />
-      <TtsPlayer />
-      <SimplifiedLayoutOverlay />
-      <MagnifierOverlay />
-      <PageStructureOverlay />
-      <PageSummaryOverlay />
-      <style jsx global>{`
-        html.highlight-links a:not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-links body a:not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-links * a:not(.accessibility-bar *):not(.a11y-embed-host *) {
-          background-color: #FFD700 !important;
-          background: #FFD700 !important;
-          color: #000000 !important;
-          background-image: none !important;
-          text-decoration: underline !important;
-          padding: 2px 4px !important;
-          border-radius: 3px !important;
-          font-weight: bold !important;
-          opacity: 1 !important;
-                    box-shadow: none !important;
-        }
-        html.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-headings body :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-headings * :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *) {
-          background-color: #FFD700 !important;
-          background: #FFD700 !important;
-          color: #000000 !important;
-          background-image: none !important;
-          display: inline-block !important;
-          padding: 3px 6px !important;
-          border-radius: 3px !important;
-          opacity: 1 !important;
-                    box-shadow: none !important;
-          font-weight: bold !important;
-        }
-      `}</style>
 
       {/* Reset Popup Overlay */}
       {
@@ -3512,7 +3534,7 @@ export default function AccessibilityBar() {
               ) : (
                 <div className="p-4 sm:p-8 pt-0 flex flex-col gap-3 sm:gap-4 items-center">
                   <div className="flex flex-wrap gap-2 justify-center mb-0 max-h-[120px] sm:max-h-[150px] overflow-y-auto px-2 sm:px-4 w-full custom-scrollbar">
-                    {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'move_ui'].map((catId) => {
+                    {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'position'].map((catId) => {
                       const features = getActiveFeaturesWithActions(catId);
                       if (features.length === 0) return null;
                       return (
@@ -3520,7 +3542,7 @@ export default function AccessibilityBar() {
                           {features.map((feature, idx) => (
                             <div
                               key={`${catId}-${idx}`}
-                              className="px-3 py-1.5 rounded-full shadow-sm border font-bold text-[14px] whitespace-nowrap flex items-center gap-2 animate-in zoom-in-50 duration-200"
+                              className="px-3 py-1.5 rounded-full shadow-sm border font-bold text-[18px] whitespace-nowrap flex items-center gap-2 animate-in zoom-in-50 duration-200"
                               style={{
                                 backgroundColor: currentTheme.background,
                                 color: currentTheme.text,
@@ -3549,7 +3571,7 @@ export default function AccessibilityBar() {
                         </div>
                       );
                     })}
-                    {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'move_ui'].every(catId => getActiveFeaturesWithActions(catId).length === 0) && (
+                    {['font', 'contrast', 'reading', 'layout', 'cursor', 'images', 'speech', 'language', 'position'].every(catId => getActiveFeaturesWithActions(catId).length === 0) && (
                       <span className="text-sm opacity-60">No active features to reset.</span>
                     )}
                   </div>
@@ -3560,7 +3582,7 @@ export default function AccessibilityBar() {
                       setShowResetConfirm(false);
                       setTimeout(() => setShowActiveFeaturesList(false), 300);
                     }}
-                    className="mt-6 px-12 py-3.5 rounded-2xl text-[18px] font-black uppercase tracking-widest transition-all border-2"
+                    className="mt-6 px-12 py-3.5 rounded-2xl text-[26px] font-black uppercase tracking-widest transition-all border-2"
                     style={{
                       background: `linear-gradient(135deg, ${barTheme === 'yellow' ? '#87CEEB' : '#FFD700'}, ${barTheme === 'yellow' ? '#6BB6D6' : '#E6C200'})`,
                       backdropFilter: 'blur(10px) saturate(180%)',
@@ -3624,6 +3646,54 @@ export default function AccessibilityBar() {
           />
         )
       }
+
+      {readingRuler && <ReadingRuler />}
+      {readingGuide && <ReadingGuideLine />}
+      {readingMask && <ReadingMaskOverlay />}
+      {readingSpotlight && <ReadingSpotlightOverlay />}
+      <ReadingProgressBar />
+      <DictionaryPopup />
+      <SelectionTranslator />
+      <PronunciationGuidePopup />
+      <GoogleTranslate />
+      <SmartSuggestions />
+      <TtsPlayer />
+      <SimplifiedLayoutOverlay />
+      <MagnifierOverlay />
+      <PageStructureOverlay />
+      <PageSummaryOverlay />
+      <style jsx global>{`
+        html.highlight-links a:not(.accessibility-bar *):not(.a11y-embed-host *),
+        html.highlight-links body a:not(.accessibility-bar *):not(.a11y-embed-host *),
+        html.highlight-links * a:not(.accessibility-bar *):not(.a11y-embed-host *) {
+          background-color: #FFD700 !important;
+          background: #FFD700 !important;
+          color: #000000 !important;
+          background-image: none !important;
+          text-decoration: underline !important;
+          padding: 2px 4px !important;
+          border-radius: 3px !important;
+          font-weight: bold !important;
+          opacity: 1 !important;
+                    box-shadow: none !important;
+        }
+        html.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
+        html.highlight-headings body :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
+        html.highlight-headings * :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *) {
+          background-color: #FFD700 !important;
+          background: #FFD700 !important;
+          color: #000000 !important;
+          background-image: none !important;
+          display: inline-block !important;
+          padding: 3px 6px !important;
+          border-radius: 3px !important;
+          opacity: 1 !important;
+                    box-shadow: none !important;
+          font-weight: bold !important;
+        }
+      `}</style>
+
+
 
       {/* First Time Text to Speech Popup */}
       {
@@ -3723,36 +3793,7 @@ export default function AccessibilityBar() {
         )
       }
 
-      <style jsx>{`
-        html.highlight-links a:not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-links body a:not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-links * a:not(.accessibility-bar *):not(.a11y-embed-host *) {
-          background-color: #FFFF00 !important;
-          background: #FFFF00 !important;
-          color: #000000 !important;
-          background-image: none !important;
-          display: inline-block !important;
-          padding: 2px 4px !important;
-          border-radius: 3px !important;
-          font-weight: bold !important;
-          opacity: 1 !important;
-                    box-shadow: none !important;
-        }
-        html.highlight-headings :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-headings body :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *),
-        html.highlight-headings * :is(h1, h2, h3, h4, h5, h6):not(.accessibility-bar *):not(.a11y-embed-host *) {
-          background-color: ${currentTheme.background} !important;
-          background: ${currentTheme.background} !important;
-          color: ${currentTheme.text} !important;
-          background-image: none !important;
-          display: inline-block !important;
-          padding: 3px 6px !important;
-          border-radius: 3px !important;
-          opacity: 1 !important;
-                    box-shadow: none !important;
-          font-weight: bold !important;
-        }
-      `}</style>
+
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
           width: 5px !important;

@@ -71,7 +71,8 @@ export default function FeedbackControl() {
                     setComment('');
                 }, 5000);
             } else {
-                console.error('Failed to submit feedback');
+                const errorText = await response.text();
+                console.error(`Failed to submit feedback: ${response.status} ${response.statusText}`, errorText);
             }
         } catch (error) {
             console.error('Error submitting feedback:', error);
@@ -152,10 +153,10 @@ export default function FeedbackControl() {
                         <div
                             key={num}
                             className="py-3 last:border-b-0"
-                            style={{ 
+                            style={{
                                 borderBottomWidth: borderWidth,
                                 borderBottomStyle: 'solid',
-                                borderColor: borderColor 
+                                borderColor: borderColor
                             }}
                         >
                             <div className="space-y-3">
@@ -178,7 +179,7 @@ export default function FeedbackControl() {
                         </div>
                     ))}
 
-                 
+
                     <div className="space-y-3 pt-2">
                         <label className="text-[16px] font-bold tracking-tight block" style={{ color: theme.text }}>
                             4. {t.controls.rating}
@@ -245,10 +246,10 @@ export default function FeedbackControl() {
                     </div>
 
                     {/* Optional Section - Name and Email */}
-                    <div className="pt-6 mt-6" style={{ 
+                    <div className="pt-6 mt-6" style={{
                         borderTopWidth: borderWidth,
                         borderTopStyle: 'solid',
-                        borderColor: borderColor 
+                        borderColor: borderColor
                     }}>
                         <h3 className="text-[16px] font-bold mb-4 uppercase tracking-wide" style={{ color: theme.text }}>
                             Optional
@@ -294,7 +295,7 @@ export default function FeedbackControl() {
                         </div>
                     </div>
 
-                
+
                     <button
                         type="submit"
                         disabled={rating === 0 || Object.values(answers).some(val => val === null) || isSubmitting}

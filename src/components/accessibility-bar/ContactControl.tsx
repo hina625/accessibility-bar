@@ -45,7 +45,8 @@ export default function ContactControl() {
                     setMessage('');
                 }, 5000);
             } else {
-                console.error('Failed to submit contact form');
+                const errorText = await response.text();
+                console.error(`Failed to submit contact form: ${response.status} ${response.statusText}`, errorText);
             }
         } catch (error) {
             console.error('Error submitting contact form:', error);
