@@ -15,8 +15,8 @@ export function useVisualSettings() {
     const [colorBlindFilter, setColorBlindFilter] = useState<ColorBlindFilter>('none');
     const [pageZoom, setPageZoom] = useState<number>(DEFAULT_PAGE_ZOOM);
     const [backgroundColor, setBackgroundColor] = useState<string>('');
-    const [textColor, setTextColor] = useState<string>('#000000');
-    const [headingColor, setHeadingColor] = useState<string>('#000000');
+    const [textColor, setTextColor] = useState<string>('');
+    const [headingColor, setHeadingColor] = useState<string>('');
     const [magnifier, setMagnifier] = useState<boolean>(false);
     const [magnifierScale, setMagnifierScale] = useState<number>(2);
 
@@ -37,25 +37,25 @@ export function useVisualSettings() {
             if (host) roots.push(host);
 
             roots.forEach(root => {
-                
+
                 if (highContrast) root.classList.add('high-contrast');
                 else root.classList.remove('high-contrast');
 
-              
+
                 if (grayscale) root.classList.add('grayscale-mode');
                 else root.classList.remove('grayscale-mode');
 
                 if (invertColors) root.classList.add('invert-colors');
                 else root.classList.remove('invert-colors');
 
-              
+
                 if (darkMode) root.classList.add('dark-mode');
                 else root.classList.remove('dark-mode');
 
-                
+
                 root.setAttribute('data-color-blind', colorBlindFilter);
 
-             
+
                 if (backgroundColor) {
                     root.style.setProperty('--page-bg-color', backgroundColor, 'important');
                     if (root === document.documentElement) document.body.style.setProperty('background-color', backgroundColor, 'important');
@@ -63,8 +63,17 @@ export function useVisualSettings() {
                     root.style.removeProperty('--page-bg-color');
                     if (root === document.documentElement) document.body.style.removeProperty('background-color');
                 }
-                root.style.setProperty('--text-color', textColor, 'important');
-                root.style.setProperty('--heading-color', headingColor, 'important');
+                if (textColor) {
+                    root.style.setProperty('--text-color', textColor, 'important');
+                } else {
+                    root.style.removeProperty('--text-color');
+                }
+
+                if (headingColor) {
+                    root.style.setProperty('--heading-color', headingColor, 'important');
+                } else {
+                    root.style.removeProperty('--heading-color');
+                }
             });
         };
 

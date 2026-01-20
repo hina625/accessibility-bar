@@ -1,22 +1,11 @@
 import type { Metadata } from "next";
-// Temporarily disabled next/font/google due to Turbopack compatibility issue
-// import { Lexend, Open_Sans } from "next/font/google";
+
 import "./globals.css";
-import "./accessibility-responsive.css";
+
 import Script from 'next/script';
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import AccessibilityBar from "@/components/accessibility-bar/AccessibilityBar";
 
-// Using CSS variables for fonts instead to avoid Turbopack font module issue
-// const lexend = Lexend({
-//   variable: "--font-lexend",
-//   subsets: ["latin"],
-// });
-
-// const openSans = Open_Sans({
-//   variable: "--font-open-sans",
-//   subsets: ["latin"],
-// });
 
 export const metadata: Metadata = {
   title: "Accessibility Bar",

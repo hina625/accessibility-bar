@@ -67,21 +67,21 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
             >
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl"
+                    className="absolute top-2 right-2 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl z-20"
                     style={{ color: 'white' }}
                 >
-                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
 
                 <div className="text-center w-full">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 sm:mb-10 px-4 leading-tight">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black mb-6 sm:mb-10 px-6 sm:px-4 leading-tight mt-12 sm:mt-0">
                         How likely are you to recommend our Accessibility Bar to a friend?
                     </h2>
 
                     <div
-                        className="flex justify-center gap-2 md:gap-3 mb-4 overflow-x-auto pb-4 px-2"
+                        className="flex justify-start md:justify-center gap-2 md:gap-3 mb-4 overflow-x-auto pb-4 px-2"
                         style={{
                             scrollbarWidth: 'none',
                             msOverflowStyle: 'none',
@@ -131,7 +131,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                     <button
                         onClick={handleSubmit}
                         disabled={rating === null}
-                        className="w-full sm:w-auto px-10 sm:px-16 py-4 sm:py-5 rounded-2xl font-black uppercase tracking-widest text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
+                        className="w-full sm:w-auto px-6 py-4 sm:px-16 sm:py-5 rounded-2xl font-black uppercase tracking-widest text-base sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
                         style={{
                             backgroundColor: currentTheme.text,
                             color: currentTheme.background

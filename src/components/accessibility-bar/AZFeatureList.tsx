@@ -18,13 +18,15 @@ interface AZFeatureListProps {
     onCloseBar: () => void;
     onOpenFeedback: () => void;
     onOpenPosition: () => void;
+    onOpenSettings: () => void;
 }
 
 const AZFeatureList: React.FC<AZFeatureListProps> = ({
     onNavigate,
     onCloseBar,
     onOpenFeedback,
-    onOpenPosition
+    onOpenPosition,
+    onOpenSettings
 }) => {
     const context = useAccessibility();
     const {
@@ -103,10 +105,10 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Accessibility Button (Website Position)', category: 'position', highlightId: 'position-controls' },
         { label: 'Alignment (Text- Left, Right, Centre, Justify)', category: 'textSpacing', highlightId: 'text-align' },
         { label: 'Animations (Pause or Stop)', category: 'images', highlightId: 'pause-animations', isActive: pauseAnimations },
-        { label: 'Audio Ping (Switch On/Off)', category: 'position', isActive: audioPingEnabled, highlightId: 'audio-ping' },
+        { label: 'Audio Ping (Switch On/Off)', action: onOpenSettings, isActive: audioPingEnabled },
         { label: 'Background Page Colours (Dark or Light Options)', category: 'contrast', highlightId: 'page-background' },
         { label: 'Colour Blind Tools/Options', category: 'contrast', highlightId: 'color-blind' },
-        { label: 'Colour Theme (for Sidebar)', category: 'position', highlightId: 'theme-selector' },
+        { label: 'Colour Theme (for Sidebar)', action: onOpenSettings },
         { label: 'Contrast Controls (Menu Icon)', category: 'contrast', highlightId: 'contrast-toggle', isActive: highContrast },
         { label: 'Cursor Colours', category: 'cursor', highlightId: 'cursor-color' },
         { label: 'Cursor Options (Menu Icon)', category: 'cursor' },
@@ -139,7 +141,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Letter Spacing (Tracking)', category: 'letterSpacing', highlightId: 'letter-spacing' },
         { label: 'Line Height', category: 'lineHeight', isActive: context.lineHeight !== 1 },
         { label: 'Magnifier', category: 'reading', highlightId: 'magnifier', isActive: magnifier },
-        { label: 'Menu Icon Colours (Customise)', category: 'position', highlightId: 'theme-selector' },
+        { label: 'Menu Icon Colours (Customise)', action: onOpenSettings },
         { label: 'More Help', action: () => onNavigate('info') },
         { label: 'Open Dyslexic Font', category: 'font', highlightId: 'font-style', isActive: fontStyle === 'dyslexic' },
         { label: 'Page Layout (Menu Icon)', category: 'layout' },
@@ -200,7 +202,9 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         toggleTextToSpeech, textToSpeech,
         toggleStopVideos, stopVideos,
         toggleSpeechToText, speechToText,
-        onNavigate, onOpenFeedback
+        toggleStopVideos, stopVideos,
+        toggleSpeechToText, speechToText,
+        onNavigate, onOpenFeedback, onOpenSettings
     ]);
 
     const filteredFeatures = useMemo(() => {
@@ -298,7 +302,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
             {/* Panel 2: Feature List (50% Width) */}
             <div
                 ref={scrollContainerRef}
-                className="w-full sm:w-1/2 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
+                className="w-full sm:w-1/2 flex-1 min-h-0 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
                 onScroll={(e) => {
                     const container = e.currentTarget;
                     const sections = container.querySelectorAll('[id^="section-"]');

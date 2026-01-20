@@ -26,7 +26,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
     } = useAccessibility();
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
-    
+
     const [expandedCategory, setExpandedCategory] = useState<'male' | 'female' | null>(null);
 
     // When "Read whole page" is turned off, stop TTS
@@ -109,7 +109,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                 onClick={() => setExpandedCategory(expandedCategory === 'male' ? null : 'male')}
                             >
                                 <span className="text-[16px] font-semibold" style={{ color: theme.text }}>
-                                    {t.controls.male} Voices
+                                    {t.controls.male}
                                 </span>
                                 <svg
                                     className={`w-5 h-5 transition-transform ${expandedCategory === 'male' ? 'rotate-180' : ''}`}
@@ -122,10 +122,10 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            
+
                             {expandedCategory === 'male' && (
                                 <div className="space-y-1 pl-2 pt-1">
-                                    {(['echo', 'fable', 'onyx'] as const).map((voice) => (
+                                    {(['jfIS2w2yJi0grJZPyEsk', 'dAcds2QMcvmv86jQMC3Y', 'G17SuINrv2H9FC6nvetn'] as const).map((voice) => (
                                         <div
                                             key={voice}
                                             className="flex items-center justify-between cursor-pointer group py-1.5 px-3 rounded transition-all"
@@ -145,7 +145,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                             onClick={() => setTtsVoiceGender(voice)}
                                         >
                                             <span className="text-[15px]" style={{ color: theme.text }}>
-                                                {t.controls[voice] || voice.charAt(0).toUpperCase() + voice.slice(1)}
+                                                {voice === 'jfIS2w2yJi0grJZPyEsk' ? 'Oliver' : voice === 'dAcds2QMcvmv86jQMC3Y' ? 'Joyce' : 'Christopher'}
                                             </span>
                                             <div
                                                 className="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all"
@@ -184,7 +184,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                 onClick={() => setExpandedCategory(expandedCategory === 'female' ? null : 'female')}
                             >
                                 <span className="text-[16px] font-semibold" style={{ color: theme.text }}>
-                                    {t.controls.female} Voices
+                                    {t.controls.female}
                                 </span>
                                 <svg
                                     className={`w-5 h-5 transition-transform ${expandedCategory === 'female' ? 'rotate-180' : ''}`}
@@ -197,10 +197,10 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </div>
-                            
+
                             {expandedCategory === 'female' && (
                                 <div className="space-y-1 pl-2 pt-1">
-                                    {(['nova', 'shimmer'] as const).map((voice) => (
+                                    {(['BpjGufoPiobT79j2vtj4', 'ZF6FPAbjXT4488VcRRnw', 'jB2lPb5DhAX6l1TLkKXy'] as const).map((voice) => (
                                         <div
                                             key={voice}
                                             className="flex items-center justify-between cursor-pointer group py-1.5 px-3 rounded transition-all"
@@ -220,7 +220,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                             onClick={() => setTtsVoiceGender(voice)}
                                         >
                                             <span className="text-[15px]" style={{ color: theme.text }}>
-                                                {t.controls[voice] || voice.charAt(0).toUpperCase() + voice.slice(1)}
+                                                {voice === 'BpjGufoPiobT79j2vtj4' ? 'Priyanka' : voice === 'ZF6FPAbjXT4488VcRRnw' ? 'Ameela' : 'Sophia'}
                                             </span>
                                             <div
                                                 className="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all"

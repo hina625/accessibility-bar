@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Bar - Embed Example</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            padding: 40px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f8fafc;
+        }
+        h1 {
+            color: #1e293b;
+        }
+        p {
+            color: #334155;
+            margin-bottom: 20px;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .code-block code {
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Accessibility Bar Embed</h1>
+    <p>To embed the Accessibility Bar on your website, add this script tag before the closing &lt;/body&gt; tag:</p>
+    
+    <div class="code-block">
+        <code>
+&lt;!-- Accessibility Bar Embed --&gt;<br>
+&lt;script src="https://your-domain.com/embed-standalone.js"&gt;&lt;/script&gt;
+        </code>
+    </div>
+
+    <p><strong>Or use the local file:</strong></p>
+    
+    <div class="code-block">
+        <code>
+&lt;!-- Accessibility Bar Embed (Local) --&gt;<br>
+&lt;script src="./public/embed-standalone.js"&gt;&lt;/script&gt;
+        </code>
+    </div>
+
+    <h2>Example Usage:</h2>
+    <div class="code-block">
+        <code>
+&lt;!DOCTYPE html&gt;<br>
+&lt;html lang="en"&gt;<br>
+&lt;head&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;meta charset="UTF-8"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;title&gt;My Website&lt;/title&gt;<br>
+&lt;/head&gt;<br>
+&lt;body&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;h1&gt;Welcome to My Website&lt;/h1&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Your content here...&lt;/p&gt;<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;!-- Embed Accessibility Bar --&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;script src="./public/embed-standalone.js"&gt;&lt;/script&gt;<br>
+&lt;/body&gt;<br>
+&lt;/html&gt;
+        </code>
+    </div>
+
+    <h2>Build the Embed:</h2>
+    <p>First, build the embed bundle by running:</p>
+    <div class="code-block">
+        <code>npm run build:embed</code>
+    </div>
+    <p>This will create the <code>embed-standalone.js</code> file in the <code>public</code> folder.</p>
+
+    <!-- Embed the Accessibility Bar -->
+    <script src="./public/embed-standalone.js"></script>
+</body>
+</html>

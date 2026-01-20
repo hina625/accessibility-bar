@@ -22,7 +22,7 @@ export function useUISettings() {
     const [cursorColor, setCursorColor] = useState<string>('#000000');
     const [primaryButton, setPrimaryButton] = useState<'left' | 'right'>(DEFAULT_PRIMARY_BUTTON);
     const [buttonPosition, setButtonPosition] = useState<ButtonPosition>('bottom-right');
-    const [panelPosition, setPanelPosition] = useState<PanelPosition>('left');
+    const [panelPosition, setPanelPosition] = useState<PanelPosition>('top');
     const [barTheme, setBarTheme] = useState<BarTheme>('purple');
     const [isMobile, setIsMobile] = useState(false);
     const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(true);

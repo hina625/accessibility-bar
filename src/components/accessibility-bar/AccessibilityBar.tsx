@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
 
@@ -125,6 +125,7 @@ export default function AccessibilityBar() {
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const iconsContainerRef = useRef<HTMLDivElement>(null);
+  const justOpenedRef = useRef<boolean>(false);
   const [categoryStartIndex, setCategoryStartIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
@@ -141,7 +142,45 @@ export default function AccessibilityBar() {
   const [showFirstTimeTtsPopup, setShowFirstTimeTtsPopup] = useState(false);
   const [hasShownTtsPopupThisSession, setHasShownTtsPopupThisSession] = useState(false);
   const [positionPage, setPositionPage] = useState(0);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const categoryContentRef = useRef<HTMLDivElement>(null);
+  const settingsContentRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
+
+  const handleScrollShowHint = useCallback((e: any) => {
+    const el = e.target;
+    if (!el) return;
+    const isScrollable = el.scrollHeight > el.clientHeight;
+    const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+    setShowScrollHint(isScrollable && !atBottom);
+  }, []);
+
+  useEffect(() => {
+    const catEl = categoryContentRef.current;
+    const setEl = settingsContentRef.current;
+
+    const checkInitial = (el: HTMLElement | null) => {
+      if (el) {
+        const isScrollable = el.scrollHeight > el.clientHeight;
+        const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 20;
+        setShowScrollHint(isScrollable && !atBottom);
+      }
+    };
+
+    if (selectedCategory) {
+      setTimeout(() => checkInitial(categoryContentRef.current), 100);
+      const el = categoryContentRef.current;
+      el?.addEventListener('scroll', handleScrollShowHint);
+      return () => el?.removeEventListener('scroll', handleScrollShowHint);
+    } else if (showSettingsDropdown) {
+      setTimeout(() => checkInitial(settingsContentRef.current), 100);
+      const el = settingsContentRef.current;
+      el?.addEventListener('scroll', handleScrollShowHint);
+      return () => el?.removeEventListener('scroll', handleScrollShowHint);
+    } else {
+      setShowScrollHint(false);
+    }
+  }, [selectedCategory, showSettingsDropdown, handleScrollShowHint]);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
   const context = useAccessibility();
@@ -307,7 +346,7 @@ export default function AccessibilityBar() {
         setGrayscale?.(true);
         setPauseAnimations?.(true);
         setReduceMotion?.(true);
-        setStopVideos?.(true); // Added as per user request
+        setStopVideos?.(true);
         break;
       case 'adhd':
         setReadingMask?.(true);
@@ -317,7 +356,7 @@ export default function AccessibilityBar() {
         setReadingSpotlight?.(true);
         break;
       case 'photosensitive':
-        toggleDarkMode?.(); // Or setBackgroundColor('#333'); setTextColor('#fff');
+        toggleDarkMode?.();
         setPauseAnimations?.(true);
         setReduceMotion?.(true);
         break;
@@ -354,13 +393,17 @@ export default function AccessibilityBar() {
 
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
 
   useEffect(() => {
     setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    const checkSize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setWindowWidth(window.innerWidth);
+    };
+    checkSize();
+    window.addEventListener('resize', checkSize);
+    return () => window.removeEventListener('resize', checkSize);
   }, []);
 
   useEffect(() => {
@@ -368,8 +411,7 @@ export default function AccessibilityBar() {
     const isPanelTop = panelPosition === 'top';
 
     if ((isOpen && isTopPosition) || (isOpen && isPanelTop)) {
-      // Calculate height based on icon size multiplier
-      // Base height approx 70px + padding
+
       const baseHeight = isMobile ? 80 : 90;
       const calculatedHeight = baseHeight * (isPanelTop ? sidebarIconSize : 1);
       const paddingTop = `${calculatedHeight}px`;
@@ -417,7 +459,7 @@ export default function AccessibilityBar() {
         container.addEventListener('scroll', checkScrollState);
         window.addEventListener('resize', checkScrollState);
 
-        // Also check scroll state when icons might change (DOM updates)
+
         const observer = new MutationObserver(() => {
           setTimeout(() => checkScrollState(), 50);
         });
@@ -437,18 +479,17 @@ export default function AccessibilityBar() {
       if (isVertical) {
         setItemsPerPage(5);
       } else {
-        // Horizontal: Top or Bottom
+
         if (sidebarIconSize === 1.3) {
           setItemsPerPage(15);
         } else if (sidebarIconSize === 1.5) {
           setItemsPerPage(14);
         } else {
-          // Standard or Medium or other
-          // Account for page zoom when calculating available space
+
           const zoomFactor = pageZoom ? pageZoom / 100 : 1;
           const iconWidth = 58 * sidebarIconSize;
           const gap = 8;
-          // Adjust container width based on zoom - when zoomed in, less space is available
+
           const containerWidth = window.innerWidth / zoomFactor;
           const closeBtnWidth = isMobile ? 60 : 63;
           const azWidth = 58 * sidebarIconSize;
@@ -474,7 +515,7 @@ export default function AccessibilityBar() {
     setShowActiveFeaturesList(true);
   };
 
-  // Use refs to store latest function references to avoid dependency array issues
+
   const functionsRef = useRef({
     decreaseFontSize,
     increaseFontSize,
@@ -497,7 +538,6 @@ export default function AccessibilityBar() {
     toggleTextToSpeech,
   });
 
-  // Update refs when functions change
   useEffect(() => {
     functionsRef.current = {
       decreaseFontSize,
@@ -549,27 +589,18 @@ export default function AccessibilityBar() {
 
 
   useEffect(() => {
-    if (selectedCategory) {
-      // We don't want to auto-unpin here since it's a dedicated tool now
-      // setIsPanelPinned(false);
-    }
-  }, [selectedCategory]);
-
-  // Recalculate selectedOffset when panel position changes and category is selected
-  useEffect(() => {
     if (selectedCategory && !isVertical && isOpen) {
       const updateOffset = () => {
-        // Find the button that corresponds to the selected category
+
         let selectedButton: HTMLElement | null = null;
 
-        // 1. Try finding within the component (Ref) - Primary method, works in Shadow DOM
+
         if (iconsContainerRef.current) {
           selectedButton = iconsContainerRef.current.querySelector(
             `[data-category-btn][data-category-id="${selectedCategory}"]`
           ) as HTMLElement;
         }
 
-        // 2. Global fallback (for backward compatibility or odd rendering cases)
         if (!selectedButton) {
           selectedButton = document.querySelector(
             `.a11y-embed-host [data-category-btn][data-category-id="${selectedCategory}"]`
@@ -583,16 +614,15 @@ export default function AccessibilityBar() {
         }
 
         if (selectedButton) {
-          // Scroll button into view if it's in a scrollable container
+
           const scrollContainer = selectedButton.closest('.overflow-x-auto, .custom-scrollbar');
           if (scrollContainer) {
             selectedButton.scrollIntoView({ behavior: 'instant', block: 'nearest', inline: 'center' });
           }
 
-          // Use requestAnimationFrame to ensure layout has settled
           requestAnimationFrame(() => {
             const rect = selectedButton.getBoundingClientRect();
-            // Only update if button is visible (has dimensions)
+
             if (rect.width > 0 && rect.height > 0) {
               const offset = rect.left + rect.width / 2;
               setSelectedOffset(offset);
@@ -603,17 +633,12 @@ export default function AccessibilityBar() {
         return false;
       };
 
-      // 1. Try immediately (synchronously)
-      if (updateOffset()) return;
 
-      // 2. Try with fallbacks to handle layout transitions (upto 400ms)
       const timeouts: NodeJS.Timeout[] = [];
 
       const rafId = requestAnimationFrame(() => {
         if (updateOffset()) return;
 
-        // Retry at intervals to catch end of layout transitions
-        // 50ms (fast), 150ms (mid), 350ms (end of standard transition), 500ms (safety)
         [50, 150, 350, 500].forEach(delay => {
           timeouts.push(setTimeout(() => updateOffset(), delay));
         });
@@ -624,15 +649,15 @@ export default function AccessibilityBar() {
         timeouts.forEach(clearTimeout);
       };
     }
-  }, [panelPosition, selectedCategory, isVertical, isOpen]);
+  }, [panelPosition, selectedCategory, isVertical, isOpen, windowWidth]);
 
   useEffect(() => {
-    // Handler for clicking outside the panel
+
     const handleClickOutside = (event: MouseEvent) => {
-      // If panel is closed or pinned, do nothing
+
       if (!isOpen || isPanelPinned) return;
 
-      // Don't close the main panel if settings modal is open (let settings modal handler handle it)
+
       if (showSettingsDropdown) return;
 
       const target = event.target as Node;
@@ -652,17 +677,13 @@ export default function AccessibilityBar() {
       if (isEmbedHost) return;
 
       if (isOutsidePanel && isOutsideTrigger) {
-        // Close only the category panel, keep the main bar open
+
         if (selectedCategory) {
           if (selectedCategory === 'info') return;
-          // Close category panel but keep main bar open
+
           setSelectedCategory(null);
         }
-        // Removed: Panel should only close when Exit button is clicked, not on outside click
-        // else {
-        //   // If no category is open, close the entire panel
-        //   setIsOpen(false);
-        // }
+
       }
     };
 
@@ -679,7 +700,7 @@ export default function AccessibilityBar() {
     }
   }, [isOpen, isPanelPinned, selectedCategory, showSettingsDropdown]);
 
-  // Handle click outside settings modal
+
   useEffect(() => {
     if (!showSettingsDropdown) return;
 
@@ -818,7 +839,7 @@ export default function AccessibilityBar() {
       }
 
       if (e.key === 'Escape' && isOpen) {
-        // Prevent immediate close on Escape if just opened
+
         if (Date.now() - lastOpenTimeRef.current < 300) return;
         e.preventDefault();
         setIsOpen(false);
@@ -957,29 +978,28 @@ export default function AccessibilityBar() {
   };
 
   const categories = [
-    { id: 'az', name: `A to Z\nLIST`, icon: azIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
     { id: 'reset', name: `RESET`, icon: resetIcon, colorClass: 'from-red-500 to-red-600', indicatorClass: 'bg-red-500' },
-    { id: 'position', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-slate-500 to-slate-600', indicatorClass: 'bg-slate-500' },
     { id: 'font', name: `Font Tools`, icon: fontSizeIcon, colorClass: 'from-blue-500 to-blue-600', indicatorClass: 'bg-blue-500' },
-    { id: 'textSpacing', name: `Text\nAlignment`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
+    { id: 'textSpacing', name: `Text Align`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
     { id: 'lineHeight', name: `Line Height`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
-    { id: 'letterSpacing', name: `Letter/Word\nSpacing`, icon: letterSpacingIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
+    { id: 'letterSpacing', name: `Letter\nSpacing`, icon: letterSpacingIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
     { id: 'contrast', name: `Contrast`, icon: contrastIcon, colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
     { id: 'reading', name: `Reading Tools`, icon: bookIcon, colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
     { id: 'cursor', name: `Cursor Options`, icon: cursorIcon, colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
     { id: 'navigation', name: `Keyboard\nShortcuts`, icon: navigationIcon, colorClass: 'from-violet-500 to-violet-600', indicatorClass: 'bg-violet-500' },
     { id: 'layout', name: `Page Layout`, icon: layoutIcon, colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
     {
-      id: 'quick_zoom', name: `Quick Page\nZoom`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
+      id: 'quick_zoom', name: `Quick Zoom`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
     },
     {
-      id: 'images', name: `Images And\nAnimation`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
+      id: 'images', name: `Images/ Animations`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
     },
     { id: 'speech', name: `Text To\nSpeech`, icon: speakIcon, colorClass: 'from-yellow-400 to-yellow-500', indicatorClass: 'bg-yellow-400' },
     { id: 'language', name: `Language\nTools`, icon: translateIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
     { id: 'ai', name: `AI Support`, icon: generativeIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500' },
-    { id: 'feedback', name: `Feedback`, icon: feedbackIcon, colorClass: 'from-pink-500 to-rose-500', indicatorClass: 'bg-pink-500' },
-
+    { id: 'az', name: `A-Z List`, icon: azIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
+    { id: 'position', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
+    { id: 'feedback', name: `Feedback`, icon: feedbackIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
     { id: 'info', name: `Info`, icon: infoIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
 
   ];
@@ -998,6 +1018,7 @@ export default function AccessibilityBar() {
               onCloseBar={() => setIsOpen(false)}
               onOpenFeedback={() => setSelectedCategory('feedback')}
               onOpenPosition={() => setSelectedCategory('position')}
+              onOpenSettings={() => setShowSettingsDropdown(true)}
             />
           </div>
         );
@@ -1240,7 +1261,7 @@ export default function AccessibilityBar() {
           <div className="space-y-4">
             <PageSummaryControl />
             <div className="border-b-4 -mx-6 my-4" style={{ borderColor: `${currentTheme.border}`, borderBottomWidth: '3px', boxShadow: 'none' }} />
-            <h3 className="text-[18px] font-bold uppercase tracking-wider mb-2 px-1" style={{ color: currentTheme.text }}>
+            <h3 className="text-[15px] font-normal uppercase tracking-wider mb-2 px-1" style={{ color: currentTheme.text }}>
               AI Powered Tools
             </h3>
             <div className="grid grid-cols-1 gap-3">
@@ -1290,10 +1311,10 @@ export default function AccessibilityBar() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-[19px] font-bold leading-tight" style={{ color: currentTheme.text }}>
+                    <div className="text-[17px] font-normal leading-tight" style={{ color: currentTheme.text }}>
                       {shortcut.name}
                     </div>
-                    <div className="text-[16px] opacity-70 truncate" style={{ color: currentTheme.text }}>
+                    <div className="text-[15px] opacity-70 truncate" style={{ color: currentTheme.text }}>
                       {shortcut.desc}
                     </div>
                   </div>
@@ -1480,6 +1501,15 @@ export default function AccessibilityBar() {
                 setHasShownTtsPopupThisSession(true);
               }
 
+              // Speak once on open and prevent other speech for a moment
+              if (textToSpeech) {
+                speak('Accessibility Options', ttsVoiceGender);
+              }
+              justOpenedRef.current = true;
+              setTimeout(() => {
+                justOpenedRef.current = false;
+              }, 500);
+
               setIsOpen(true);
             }}
             className={`accessibility-bar a11y-embed-host fixed z-[2147483647] flex h-20 w-20 items-center justify-center rounded-full text-white transition-all duration-300 ease-out hover:scale-110 focus:outline-none focus:ring-4 focus:ring-offset-2 overflow-hidden cursor-pointer ${getButtonPositionClasses()}`}
@@ -1557,73 +1587,101 @@ export default function AccessibilityBar() {
             aria-modal="true"
             aria-label="Accessibility options"
           >
-            {/* Plus Button - Truly Outside Positioning */}
-            {/* Plus Button Handle - Now containing 5 buttons */}
+
             <div
               className={`absolute z-[2147483650] pointer-events-auto transition-all duration-300`}
               style={{
                 ...(isVertical
                   ? {
                     [panelPosition === 'right' ? 'right' : 'left']: '100%',
-                    top: '43.5%',
+                    top: '50%',
                     transform: 'translateY(-50%)',
                     [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px',
                     width: '36px',
-                    height: '240px',
+                    height: '333px',
                   }
                   : {
                     [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0px',
-                    width: '240px',
+                    width: isMobile ? 'calc(100vw - 20px)' : '800px',
+                    maxWidth: '800px',
                     height: '36px',
                   })
               }}
             >
               <div
-                className={`w-full h-full flex ${isVertical ? 'flex-col' : 'flex-row'} items-center justify-between shadow-xl backdrop-blur-md overflow-hidden`}
+                className={`w-full h-full flex ${isVertical ? 'flex-col' : 'flex-row overflow-x-auto custom-scrollbar'} items-center justify-between pointer-events-auto`}
                 style={{
-                  borderRadius: isVertical
-                    ? (panelPosition === 'right' ? '8px 0 0 8px' : '0 8px 8px 0')
-                    : (panelPosition === 'bottom' ? '8px 8px 0 0' : '0 0 8px 8px'),
-                  background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
-                  boxShadow: `0 8px 32px ${currentTheme.border}4D`,
-                  border: `1px solid ${currentTheme.border}4D`,
+                  gap: '5px'
                 }}
               >
                 {/* 1. AZ List */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (audioPingEnabled) playAudioPing();
-                    setSelectedCategory('az');
-                    setHighlightedFeature(null);
-                  }}
-                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
-                  title="A-Z List"
-                >
-                  <Image
-                    src={azIcon}
-                    alt="A-Z"
-                    width={20}
-                    height={20}
-                    className="object-contain"
-                    style={{
-                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
-                      opacity: 0.9
+                {!isVertical && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (audioPingEnabled) playAudioPing();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setSelectedOffset(rect.left + rect.width / 2);
+                      setSelectedCategoryRect(rect);
+                      setSelectedCategory('az');
+                      setShowSettingsDropdown(false); // Close settings when selecting category
+                      setHighlightedFeature(null);
                     }}
-                  />
-                </button>
+                    onMouseEnter={() => {
+                      if (textToSpeech && !justOpenedRef.current) {
+                        speak('A to Z List', ttsVoiceGender);
+                      }
+                    }}
+                    className="flex-[7] flex items-center justify-center pointer-events-auto transition-all duration-300 w-full h-full p-0 border-0 focus:outline-none ease-out"
+                    style={{
+                      borderRadius: '0px',
+                      background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                      boxShadow: `0 4px 12px ${currentTheme.border}33`,
+                      border: `1px solid ${currentTheme.border}4D`,
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
+                      filter: 'brightness(1)',
+                      minWidth: isMobile && !isVertical ? '140px' : 'auto'
+                    }}
+                    title="A-Z List"
+                  >
+                    <div className={`flex ${isVertical ? 'flex-col gap-0.5' : 'flex-row gap-1'} items-center justify-center leading-none h-full p-0 m-0`}>
+                      <span className={`${isVertical ? 'text-base' : 'text-base'} font-normal`} style={{ color: currentTheme.text }}>A-Z</span>
+                      <span className={`${isVertical ? 'text-base' : 'text-base'} font-normal`} style={{ color: currentTheme.text }}>List</span>
+                    </div>
+                  </button>
+                )}
 
                 {/* 2. Position */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     if (audioPingEnabled) playAudioPing();
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setSelectedOffset(rect.left + rect.width / 2);
+                    setSelectedCategoryRect(rect);
                     setSelectedCategory('position');
+                    setShowSettingsDropdown(false);
                   }}
-                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
+                  onMouseEnter={() => {
+                    if (textToSpeech && !justOpenedRef.current) {
+                      speak('Sidebar Position', ttsVoiceGender);
+                    }
+                  }}
+                  className="flex-[7] flex items-center justify-center pointer-events-auto transition-all duration-300 w-full h-full p-0 border-0 focus:outline-none ease-out"
+                  style={{
+                    borderRadius: '0px',
+                    background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                    boxShadow: `0 4px 12px ${currentTheme.border}33`,
+                    border: `1px solid ${currentTheme.border}4D`,
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    filter: 'brightness(1)',
+                    minWidth: isMobile && !isVertical ? '140px' : 'auto'
+                  }}
                   title="Sidebar Position"
                 >
                   <Image
@@ -1649,13 +1707,29 @@ export default function AccessibilityBar() {
                     e.preventDefault();
                     e.stopPropagation();
                     if (audioPingEnabled) playAudioPing();
-                    setShowSettingsDropdown(!showSettingsDropdown);
+                    const newShowSettings = !showSettingsDropdown;
+                    setShowSettingsDropdown(newShowSettings);
+                    if (newShowSettings) {
+                      setSelectedCategory(null); // Close any open category panel when opening settings
+                    }
                   }}
-                  className={`flex-1 flex items-center justify-center w-full h-full p-0 border-0 focus:outline-none transition-all duration-300 hover:brightness-110 active:scale-95`}
+                  onMouseEnter={() => {
+                    if (textToSpeech && !justOpenedRef.current) {
+                      speak('Customise', ttsVoiceGender);
+                    }
+                  }}
+                  className={`flex-[8] flex items-center justify-center pointer-events-auto transition-all duration-300 w-full h-full p-0 border-0 focus:outline-none ease-out`}
                   style={{
+                    borderRadius: '0px',
                     background: showSettingsDropdown
                       ? `linear-gradient(135deg, ${currentTheme.active}, ${currentTheme.active}dd)`
-                      : 'transparent',
+                      : `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                    boxShadow: `0 4px 12px ${currentTheme.border}33`,
+                    border: `1px solid ${currentTheme.border}4D`,
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    filter: 'brightness(1)',
+                    minWidth: isMobile && !isVertical ? '140px' : 'auto'
                   }}
                   aria-label="Customise"
                   title="Customise"
@@ -1679,50 +1753,92 @@ export default function AccessibilityBar() {
                 </button>
 
                 {/* 4. Feedback */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (audioPingEnabled) playAudioPing();
-                    setSelectedCategory('feedback');
-                  }}
-                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
-                  title="Feedback"
-                >
-                  <Image
-                    src={feedbackIcon}
-                    alt="Feedback"
-                    width={20}
-                    height={20}
-                    className="object-contain"
-                    style={{
-                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
-                      opacity: 0.9
+                {!isVertical && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (audioPingEnabled) playAudioPing();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setSelectedOffset(rect.left + rect.width / 2);
+                      setSelectedCategoryRect(rect);
+                      setSelectedCategory('feedback');
+                      setShowSettingsDropdown(false); // Close settings when selecting category
                     }}
-                  />
-                </button>
+                    onMouseEnter={() => {
+                      if (textToSpeech && !justOpenedRef.current) {
+                        speak('Feedback', ttsVoiceGender);
+                      }
+                    }}
+                    className="flex-[7] flex items-center justify-center pointer-events-auto transition-all duration-300 w-full h-full p-0 border-0 focus:outline-none ease-out"
+                    style={{
+                      borderRadius: '0px',
+                      background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                      boxShadow: `0 4px 12px ${currentTheme.border}33`,
+                      border: `1px solid ${currentTheme.border}4D`,
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
+                      filter: 'brightness(1)',
+                      minWidth: isMobile && !isVertical ? '140px' : 'auto'
+                    }}
+                    title="Toolbar Feedback"
+                  >
+                    <Image
+                      src={feedbackIcon}
+                      alt="Toolbar Feedback"
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                      style={{
+                        filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                        opacity: 0.9
+                      }}
+                    />
+                  </button>
+                )}
 
-                {/* 5. AI */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (audioPingEnabled) playAudioPing();
-                    setSelectedCategory('ai');
-                  }}
-                  className="flex-1 flex items-center justify-center hover:bg-black/10 transition-colors w-full h-full p-0 border-0 focus:outline-none"
-                  title="AI Support"
-                >
-                  <Image
-                    src={generativeIcon}
-                    alt="AI"
-                    width={20}
-                    height={20}
-                    className="object-contain"
-                    style={{
-                      filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
-                      opacity: 0.9
+                {/* 5. Info */}
+                {!isVertical && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (audioPingEnabled) playAudioPing();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setSelectedOffset(rect.left + rect.width / 2);
+                      setSelectedCategoryRect(rect);
+                      setSelectedCategory('info');
+                      setShowSettingsDropdown(false); // Close settings when selecting category
                     }}
-                  />
-                </button>
+                    onMouseEnter={() => {
+                      if (textToSpeech && !justOpenedRef.current) {
+                        speak('Information', ttsVoiceGender);
+                      }
+                    }}
+                    className="flex-[7] flex items-center justify-center pointer-events-auto transition-all duration-300 w-full h-full p-0 border-0 focus:outline-none ease-out"
+                    style={{
+                      borderRadius: '0px',
+                      background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                      boxShadow: `0 4px 12px ${currentTheme.border}33`,
+                      border: `1px solid ${currentTheme.border}4D`,
+                      backdropFilter: 'blur(10px)',
+                      WebkitBackdropFilter: 'blur(10px)',
+                      filter: 'brightness(1)',
+                      minWidth: isMobile && !isVertical ? '140px' : 'auto'
+                    }}
+                    title="Information"
+                  >
+                    <Image
+                      src={infoIcon}
+                      alt="Information"
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                      style={{
+                        filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
+                        opacity: 0.9
+                      }}
+                    />
+                  </button>
+                )}
               </div>
 
               {/* Settings Modal (2x5 Grid) */}
@@ -1731,37 +1847,41 @@ export default function AccessibilityBar() {
                 return canRenderPortal ? createPortal(
                   <div
                     ref={settingsModalRef}
-                    className="fixed z-[2147483651] rounded-none shadow-2xl border-4 flex flex-col"
+                    className="fixed z-[2147483651] rounded-none shadow-2xl border-4 flex flex-col pointer-events-auto"
                     onMouseEnter={() => {
-                      if (textToSpeech) {
+                      if (textToSpeech && !justOpenedRef.current) {
                         speak('Customise', ttsVoiceGender);
                       }
                     }}
                     style={{
                       bottom: isVertical
-                        ? 'auto'
-                        : (panelPosition === 'bottom' ? '0' : 'auto'),
+                        ? '0'
+                        : (panelPosition === 'bottom' ? `${85 * sidebarIconSize}px` : 'auto'),
                       top: isVertical
-                        ? '50%'
-                        : (panelPosition === 'top' ? '0' : 'auto'),
-                      left: isVertical ? '50%' : '50%',
-                      right: isVertical ? 'auto' : 'auto',
-                      transform: isVertical ? 'translate(-50%, -50%)' : 'translateX(-50%)',
-                      [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: isVertical ? '0' : '0',
+                        ? '0'
+                        : (panelPosition === 'top' ? `${85 * sidebarIconSize}px` : 'auto'),
+                      left: isVertical
+                        ? (panelPosition === 'left' ? `${85 * sidebarIconSize}px` : 'auto')
+                        : '50%',
+                      right: isVertical
+                        ? (panelPosition === 'right' ? `${85 * sidebarIconSize}px` : 'auto')
+                        : 'auto',
+                      transform: isVertical ? 'none' : 'translateX(-50%)',
+                      [panelPosition === 'bottom' ? 'marginBottom' : 'marginTop']: '0',
                       [panelPosition === 'left' ? 'marginLeft' : 'marginRight']: '0',
                       backgroundColor: 'transparent',
                       borderColor: 'transparent',
-                      width: 'calc(100vw - 10px)',
-                      maxWidth: '100%',
-                      maxHeight: '90vh',
-                      height: '90vh',
+                      width: isVertical ? `calc(100vw - ${95 * sidebarIconSize}px)` : 'calc(100vw - 20px)',
+                      maxWidth: '1200px',
+                      maxHeight: isVertical ? '100vh' : `calc(100vh - ${100 * sidebarIconSize}px)`,
+                      height: 'auto',
                       position: 'fixed',
                       color: currentTheme.text
                     }}
                   >
                     {/* Indicator Arrow for Settings Modal - hidden on mobile */}
 
-                    <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
+                    <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0 relative" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
                       {/* Compact Header */}
                       <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
                         <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
@@ -1773,7 +1893,7 @@ export default function AccessibilityBar() {
                           />
                         </div>
                         <h2
-                          className={`font-black tracking-tight text-center ${isMobile ? 'text-[24px] leading-snug px-8' : 'text-[26px] md:text-[26px] leading-[1.1]'
+                          className={`font-normal tracking-tight text-center ${isMobile ? 'text-[18px] leading-snug px-8' : 'text-[20px] md:text-[20px] leading-[1.1]'
                             }`}
                           style={{ color: currentTheme.text }}
                         >
@@ -1788,29 +1908,32 @@ export default function AccessibilityBar() {
                             <line x1="18" y1="6" x2="6" y2="18"></line>
                             <line x1="6" y1="6" x2="18" y2="18"></line>
                           </svg>
-                          {!isMobile && <span className="text-base font-semibold" style={{ color: currentTheme.text }}>Close</span>}
+                          {!isMobile && <span className="text-sm font-normal" style={{ color: currentTheme.text }}>Close</span>}
                         </button>
                       </div>
 
                       {/* Unified 2x6 Grid - Scrollable Content */}
                       <div
-                        className="grid gap-0 overflow-y-auto custom-scrollbar flex-1"
+                        ref={settingsContentRef}
+                        className="grid gap-0 overflow-y-auto icons-scroll-hidden flex-1 min-h-0"
                         style={{
+                          WebkitOverflowScrolling: 'touch',
+                          overscrollBehavior: 'contain',
+                          touchAction: 'pan-y',
                           gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
                           maxHeight: '100%'
                         }}
                       >
                         {/* Row 1, Cell 1: Language */}
                         <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
-                          <div className="mb-2"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>1. Select Language:</h3>
                           <LanguageSelector />
                         </section>
 
                         {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
                         <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
                           <div className="flex items-center justify-between mb-0.5">
-                            <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
+                            <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>2. Accessibility Position Button:</h3>
                             {accessibilityIcon && (
                               <img
                                 src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
@@ -1833,12 +1956,12 @@ export default function AccessibilityBar() {
                               <button
                                 key={pos.id}
                                 onClick={() => setButtonPosition(pos.id as any)}
-                                className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
+                                className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] font-normal hover:scale-105 active:scale-95`}
                                 style={{
                                   borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
                                   backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
                                   color: currentTheme.text,
-                                  fontSize: '18px',
+                                  fontSize: '11px',
                                   whiteSpace: 'nowrap'
                                 }}
                               >
@@ -1874,15 +1997,14 @@ export default function AccessibilityBar() {
 
                         {/* Row 1, Cell 3: Feature Indicators */}
                         <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
-                          <div className="mb-1"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
                           <ToggleCheckbox
                             id="show-active-indicators"
                             label={<span>Active Circle<br />(Red Dots)</span>}
                             checked={showActiveIndicators}
                             onChange={toggleShowActiveIndicators}
                           />
-                          <div className="absolute bottom-2 right-2">
+                          <div className="absolute top-2 right-2">
                             <InfoPopupButton
                               title="Feature Indicators"
                               description="Displays red circles on menu icons to indicate which features are currently active."
@@ -1892,8 +2014,7 @@ export default function AccessibilityBar() {
 
                         {/* Row 1, Cell 4: Icon Size */}
                         <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
-                          <div className="mb-0.5"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>4. Choose Sidebar Icon Size:</h3>
                           <div className="grid grid-cols-2 gap-1.5">
                             {[
                               { id: 'standard', name: 'Standard', multiplier: 1 },
@@ -1943,7 +2064,7 @@ export default function AccessibilityBar() {
 
                                 {/* Label */}
                                 <span
-                                  className={`text-[15px] font-black uppercase tracking-wider text-center leading-tight`}
+                                  className={`text-[13px] font-normal uppercase tracking-wider text-center leading-tight`}
                                   style={{ color: currentTheme.text }}
                                 >
                                   {opt.name}
@@ -1955,11 +2076,11 @@ export default function AccessibilityBar() {
 
                         {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
                         <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
 
                           {/* Dark Themes Section */}
                           <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
-                            <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
+                            <h4 className="text-[14px] font-normal tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
                             <div className="grid grid-cols-3 gap-2">
                               {Object.entries(BAR_THEMES)
                                 .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
@@ -1995,7 +2116,7 @@ export default function AccessibilityBar() {
                                           color: theme.text
                                         }}
                                       >
-                                        <span className="text-base font-bold">A</span>
+                                        <span className="text-base font-normal">A</span>
                                         {isSelected && (
                                           <div
                                             className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
@@ -2006,7 +2127,7 @@ export default function AccessibilityBar() {
                                           </div>
                                         )}
                                       </div>
-                                      <span className="text-[10px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                                      <span className="text-[10px] font-normal uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
                                         {label}
                                       </span>
                                     </button>
@@ -2017,7 +2138,7 @@ export default function AccessibilityBar() {
 
                           {/* Light Themes Section */}
                           <div className="space-y-1.5">
-                            <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
+                            <h4 className="text-[14px] font-normal tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
                             <div className="grid grid-cols-3 gap-2">
                               {Object.entries(BAR_THEMES)
                                 .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
@@ -2046,7 +2167,7 @@ export default function AccessibilityBar() {
                                           color: theme.text
                                         }}
                                       >
-                                        <span className="text-base font-bold">A</span>
+                                        <span className="text-base font-normal">A</span>
                                         {isSelected && (
                                           <div
                                             className="absolute inset-0 rounded-full flex items-center justify-center bg-black/10 animate-in fade-in duration-300"
@@ -2069,8 +2190,7 @@ export default function AccessibilityBar() {
 
                         {/* Row 2, Cell 1: Scrolling Progress Bar */}
                         <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
-                          <div className="mb-1"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>5. Scrolling Progress Bar:</h3>
                           <ToggleCheckbox
                             id="reading-progress-bar"
                             label="Active on Scrolling"
@@ -2111,8 +2231,7 @@ export default function AccessibilityBar() {
 
                         {/* Row 2, Cell 2: Reset Icon */}
                         <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
-                          <div className="mb-4"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>6. Select 'Reset' Icon Button Colour:</h3>
                           <div className="grid grid-cols-3 gap-2">
                             {[
                               { id: 'red-black', color: '#FF0000' },
@@ -2152,8 +2271,7 @@ export default function AccessibilityBar() {
 
                         {/* Row 2, Cell 3: Audio Ping */}
                         <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
-                          <div className="mb-2"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>7. Apply Audio Ping:</h3>
                           <ToggleCheckbox
                             id="audio-ping-enabled"
                             label="Audio Ping on select or deselect features"
@@ -2164,8 +2282,7 @@ export default function AccessibilityBar() {
 
                         {/* Row 2, Cell 4: Pick a Profile */}
                         <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
-                          <div className="mb-2"></div>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
                           <div
                             className="flex-1 overflow-y-auto custom-scrollbar pr-1"
                             style={{ maxHeight: 'none' }}
@@ -2188,7 +2305,7 @@ export default function AccessibilityBar() {
                                 <button
                                   key={profile.id}
                                   onClick={() => applyProfile(profile.id)}
-                                  className={`w-full py-1.5 px-3 rounded-lg border text-[16px] font-black transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
+                                  className={`w-full py-1.5 px-3 rounded-lg border text-[14px] font-normal transition-all text-left flex items-center justify-between leading-relaxed ${activeProfile === profile.id ? 'shadow-inner' : 'opacity-90 hover:opacity-100 hover:scale-[1.01]'}`}
                                   style={{
                                     borderColor: activeProfile === profile.id ? currentTheme.text : `${currentTheme.border}4D`,
                                     backgroundColor: activeProfile === profile.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
@@ -2215,6 +2332,24 @@ export default function AccessibilityBar() {
                           </div>
                         </section>
                       </div>
+
+                      {/* Scroll Hint */}
+                      {showScrollHint && (
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 animate-bounce pointer-events-none z-50 flex flex-col items-center">
+                          <div
+                            className="backdrop-blur-md px-3 py-1 rounded-full shadow-lg border flex items-center gap-2"
+                            style={{
+                              backgroundColor: `${currentTheme.background}CC`,
+                              borderColor: `${currentTheme.border}4D`
+                            }}
+                          >
+                            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: currentTheme.text }}>Scroll down</span>
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: currentTheme.text }}>
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M5 15l7-7 7 7" />
+                            </svg>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   , document.body) : null;
@@ -2240,7 +2375,7 @@ export default function AccessibilityBar() {
                     borderColor: 'transparent',
                     width: isVertical ? 'min(calc(100vw - 200px), 1200px)' : 'calc(100vw - 40px)',
                     maxWidth: '1200px',
-                    maxHeight: '85vh',
+                    maxHeight: 'min(800px, 85vh)',
                     height: 'auto',
                     color: currentTheme.text
                   }}
@@ -2282,7 +2417,7 @@ export default function AccessibilityBar() {
                     </div>
                   )}
 
-                  <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
+                  <div className="flex flex-col overflow-hidden rounded-none h-full flex-1 flex-shrink-0 relative" style={{ backgroundColor: currentTheme.background, borderColor: modalBorderColor, borderWidth: '4px', borderStyle: 'solid', color: currentTheme.text }}>
                     {/* Compact Header */}
                     <div className="px-3 sm:px-4 md:px-5 py-2 border-b flex items-center justify-center relative flex-shrink-0" style={{ borderColor: modalBorderColor }}>
                       <div className={`absolute ${isMobile ? 'left-2' : 'left-4 md:left-6'} flex items-center`}>
@@ -2294,7 +2429,7 @@ export default function AccessibilityBar() {
                         />
                       </div>
                       <h2
-                        className={`font-black tracking-tight text-center ${isMobile ? 'text-[24px] leading-snug px-8' : 'text-[26px] md:text-[26px] leading-[1.1]'
+                        className={`font-normal tracking-tight text-center ${isMobile ? 'text-[18px] leading-snug px-8' : 'text-[20px] md:text-[20px] leading-[1.1]'
                           }`}
                         style={{ color: currentTheme.text }}
                       >
@@ -2309,30 +2444,36 @@ export default function AccessibilityBar() {
                           <line x1="18" y1="6" x2="6" y2="18"></line>
                           <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
-                        {!isMobile && <span className="text-base font-semibold" style={{ color: currentTheme.text }}>Close</span>}
+                        {!isMobile && <span className="text-sm font-normal" style={{ color: currentTheme.text }}>Close</span>}
                       </button>
                     </div>
 
                     {/* Unified 2x6 Grid - Scrollable Content */}
                     <div
+                      ref={settingsContentRef}
                       className="grid gap-0 overflow-y-auto custom-scrollbar flex-1"
                       style={{
-                        gridTemplateColumns: isMobile ? '1fr' : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
+                        gridTemplateColumns: isMobile
+                          ? '1fr'
+                          : windowWidth < 1024
+                            ? '1fr 1fr'
+                            : windowWidth < 1400
+                              ? '1.2fr 1.2fr 1.2fr 1.2fr'
+                              : '1.2fr 1.2fr 1.2fr 1.2fr 0.6fr 0.6fr',
                         maxHeight: '100%'
                       }}
                     >
 
                       {/* Row 1, Cell 1: Language */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>1. Select Language:</h3>
-                        <div className="mb-2"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>1. Select Language:</h3>
                         <LanguageSelector />
                       </section>
 
                       {/* Row 1, Cell 2: Accessibility Setting (Paginated) */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'}`} style={{ borderColor: modalBorderColor }}>
                         <div className="flex items-center justify-between mb-0.5">
-                          <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold leading-relaxed`} style={{ color: currentTheme.text }}>2. Accessibility Position Button:</h3>
+                          <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>2. Accessibility Position Button:</h3>
                           {accessibilityIcon && (
                             <img
                               src={typeof accessibilityIcon === 'string' ? accessibilityIcon : (accessibilityIcon as any).src || accessibilityIcon}
@@ -2355,12 +2496,12 @@ export default function AccessibilityBar() {
                             <button
                               key={pos.id}
                               onClick={() => setButtonPosition(pos.id as any)}
-                              className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] ${pos.id === buttonPosition ? 'font-black' : 'font-bold'} hover:scale-105 active:scale-95`}
+                              className={`px-1 py-1.5 rounded-md border transition-all duration-300 flex items-center justify-center text-center leading-tight min-h-[44px] font-normal hover:scale-105 active:scale-95`}
                               style={{
                                 borderColor: buttonPosition === pos.id ? currentTheme.text : `${currentTheme.border}4D`,
                                 backgroundColor: buttonPosition === pos.id ? `${currentTheme.active}40` : `${currentTheme.text}08`,
                                 color: currentTheme.text,
-                                fontSize: '18px',
+                                fontSize: '14px',
                                 whiteSpace: 'nowrap'
                               }}
                             >
@@ -2396,8 +2537,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 3: Feature Indicators */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold`} style={{ color: currentTheme.text, lineHeight: '1.3' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
-                        <div className="mb-1"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
                         <ToggleCheckbox
                           id="show-active-indicators"
                           label={<span>Active Circle<br />(Red Dots)</span>}
@@ -2414,8 +2554,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 4: Icon Size */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-2'} pb-0 border-b`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5`} style={{ color: currentTheme.text }}>4. Choose Sidebar Icon Size:</h3>
-                        <div className="mb-0.5"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>4. Choose Sidebar Icon Size:</h3>
                         <div className="grid grid-cols-2 gap-1.5">
                           {[
                             { id: 'standard', name: 'Standard', multiplier: 1 },
@@ -2465,7 +2604,7 @@ export default function AccessibilityBar() {
 
                               {/* Label */}
                               <span
-                                className={`text-[15px] font-black uppercase tracking-wider text-center leading-tight`}
+                                className={`text-[13px] font-normal uppercase tracking-wider text-center leading-tight`}
                                 style={{ color: currentTheme.text }}
                               >
                                 {opt.name}
@@ -2477,11 +2616,11 @@ export default function AccessibilityBar() {
 
                       {/* Row 1 & 2, Cell 5/6: Colour (Themes) */}
                       <section className={`${isMobile ? '' : 'col-span-2 row-span-2'} ${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-l' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>9. Choose a Colour Theme for the Sidebar Menu:</h3>
 
                         {/* Dark Themes Section */}
                         <div className="space-y-1.5 mb-2" style={{ marginTop: '0.75rem' }}>
-                          <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
+                          <h4 className="text-[14px] font-normal tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Dark Modes:</h4>
                           <div className="grid grid-cols-3 gap-2">
                             {Object.entries(BAR_THEMES)
                               .filter(([key]) => ['black', 'navy', 'grayscale', 'purple', 'oceanBlue'].includes(key))
@@ -2539,7 +2678,7 @@ export default function AccessibilityBar() {
 
                         {/* Light Themes Section */}
                         <div className="space-y-1.5">
-                          <h4 className="text-[19px] font-bold tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
+                          <h4 className="text-[14px] font-normal tracking-wide mb-1.5" style={{ color: currentTheme.text }}>Light Modes:</h4>
                           <div className="grid grid-cols-3 gap-2">
                             {Object.entries(BAR_THEMES)
                               .filter(([key]) => ['white', 'yellow', 'Turquoise', 'pink'].includes(key))
@@ -2591,8 +2730,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 1: Scrolling Progress Bar */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>5. Scrolling Progress Bar:</h3>
-                        <div className="mb-1"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>5. Scrolling Progress Bar:</h3>
                         <ToggleCheckbox
                           id="reading-progress-bar"
                           label="Active on Scrolling"
@@ -2633,8 +2771,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 2: Reset Icon */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>6. Select 'Reset' Icon Button Colour:</h3>
-                        <div className="mb-4"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>6. Select 'Reset' Icon Button Colour:</h3>
                         <div className="grid grid-cols-3 gap-2">
                           {[
                             { id: 'red-black', color: '#FF0000' },
@@ -2674,8 +2811,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 3: Audio Ping */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} ${!isMobile ? 'border-r' : 'border-t'}`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>7. Apply Audio Ping:</h3>
-                        <div className="mb-2"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>7. Apply Audio Ping:</h3>
                         <ToggleCheckbox
                           id="audio-ping-enabled"
                           label="Audio Ping on select or deselect features"
@@ -2686,8 +2822,7 @@ export default function AccessibilityBar() {
 
                       {/* Row 2, Cell 4: Pick a Profile */}
                       <section className={`${isMobile ? 'p-3' : 'p-2'} flex flex-col border-t`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[19px]' : 'text-[21px]'} font-bold mb-0.5 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
-                        <div className="mb-2"></div>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4 leading-relaxed`} style={{ color: currentTheme.text }}>8. Pick a Profile:</h3>
                         <div
                           className="flex-1 overflow-y-auto custom-scrollbar pr-1"
                           style={{ maxHeight: 'none' }}
@@ -2737,10 +2872,28 @@ export default function AccessibilityBar() {
                         </div>
                       </section>
                     </div>
+
+                    {/* Scroll Hint */}
+                    {showScrollHint && (
+                      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-bounce pointer-events-none z-50 flex flex-col items-center">
+                        <div
+                          className="backdrop-blur-md px-3 py-1 rounded-full shadow-lg border flex items-center gap-2"
+                          style={{
+                            backgroundColor: `${currentTheme.background}CC`,
+                            borderColor: `${currentTheme.border}4D`
+                          }}
+                        >
+                          <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: currentTheme.text }}>Scroll for more</span>
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: currentTheme.text }}>
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={4} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
-            </div>
+            </div >
             <div className={`flex h-full w-full ${isVertical
               ? (panelPosition === 'right' ? 'flex-row-reverse' : 'flex-row')
               : 'flex-row'
@@ -2865,7 +3018,7 @@ export default function AccessibilityBar() {
                   {(() => {
                     // Exclude constant categories from paginated list
                     const constantCategoryIds = ['reset', 'az', 'move_ui_extra']; // reset and az are handled separately
-                    const paginatedCategories = categories.filter(c => c.id !== 'reset' && c.id !== 'az');
+                    const paginatedCategories = categories.filter(c => !['reset', 'az', 'position', 'feedback', 'info'].includes(c.id));
                     // Disable pagination for all sizes (Standard, Medium, Large, XL) to show all icons
                     // This prevents icons from disappearing when zooming - all sizes behave like Large/XL
                     const shouldPaginate = !isVertical ? false : true;
@@ -2884,50 +3037,7 @@ export default function AccessibilityBar() {
 
                           return (
                             <>
-                              {/* A-Z Button - Rendered FIRST */}
-                              {azCategory && (
-                                <div key="az-constant" className="relative group/category">
-                                  <button
-                                    data-category-btn
-                                    data-category-id="az"
-                                    onClick={() => {
-                                      if (audioPingEnabled) playAudioPing('menu');
-                                      setSelectedCategory('az');
-                                      setIsOpen(true);
-                                    }}
-                                    onMouseEnter={() => {
-                                      if (textToSpeech) {
-                                        speak('A to Z List', ttsVoiceGender);
-                                      }
-                                    }}
-                                    onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
-                                    className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
-                                    style={{
-                                      background: '#FFFFFF',
-                                      backdropFilter: 'none',
-                                      WebkitBackdropFilter: 'none',
-                                      border: '2px solid rgba(0,0,0,0.2)',
-                                      width: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
-                                      height: (isVertical ? 55 : 58) * sidebarIconSize + 'px',
-                                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                                    }}
-                                    aria-label={azCategory.name}
-                                    title={azCategory.name}
-                                  >
-                                    <div
-                                      className="flex flex-col items-center justify-center leading-none gap-0.5"
-                                      style={{
-                                        width: 32 * sidebarIconSize,
-                                        height: 32 * sidebarIconSize,
-                                        color: '#000000',
-                                      }}
-                                    >
-                                      <span style={{ fontSize: `${(isVertical ? 20 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
-                                      <span style={{ fontSize: `${(isVertical ? 20 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
-                                    </div>
-                                  </button>
-                                </div>
-                              )}
+                              {/* A-Z Button Removed */}
 
                               {resetCategory && (
                                 <div key="reset-constant" className="relative group/category">
@@ -2942,7 +3052,7 @@ export default function AccessibilityBar() {
                                       setShowResetConfirm(true);
                                     }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
-                                    onMouseEnter={() => textToSpeech && speak(resetCategory.name.replace(/\n/g, ' '), ttsVoiceGender)}
+                                    onMouseEnter={() => textToSpeech && !justOpenedRef.current && speak(resetCategory.name.replace(/\n/g, ' '), ttsVoiceGender)}
                                     className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden hover:scale-105`}
                                     style={{
                                       background: resetIconStyle === 'red-black'
@@ -2999,16 +3109,10 @@ export default function AccessibilityBar() {
                                   return;
                                 }
                                 if (category.id === 'move_ui') {
-                                  // Show tutorial popup once per page load (after refresh, it will show again)
-                                  if (!hasSeenSidebarTutorialThisSession) {
-                                    setTutorialIcon(category.icon);
-                                    setShowSidebarTutorial(true);
-                                    setHasSeenSidebarTutorialThisSession(true);
-                                    return;
-                                  }
+                                  // Sidebar tutorial removed - directly cycle through positions
                                   // After showing once in this session, cycle through positions
-                                  const positions = ['left', 'right', 'top', 'bottom'];
-                                  const currentIndex = positions.indexOf(panelPosition || 'left');
+                                  const positions = ['top', 'bottom', 'left', 'right'];
+                                  const currentIndex = positions.indexOf(panelPosition || 'top');
                                   const nextIndex = (currentIndex + 1) % positions.length;
                                   (context as any).setPanelPosition(positions[nextIndex]);
                                   return;
@@ -3019,14 +3123,17 @@ export default function AccessibilityBar() {
                                 setSelectedCategory(
                                   selectedCategory === category.id ? null : category.id
                                 );
+                                if (selectedCategory !== category.id) {
+                                  setShowSettingsDropdown(false); // Close settings when selecting a new category
+                                }
                               }}
                               onMouseEnter={() => {
-                                if (textToSpeech) {
+                                if (textToSpeech && !justOpenedRef.current) {
                                   const textToSpeak = category.id === 'az' ? 'A to Z List' : category.name.replace(/\n/g, ' ');
                                   speak(textToSpeak, ttsVoiceGender);
                                 }
                               }}
-                              className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-hidden ${selectedCategory === category.id
+                              className={`group relative flex flex-col items-center justify-center rounded-xl transition-all duration-300 overflow-visible px-1 py-1 ${selectedCategory === category.id
                                 ? 'text-black scale-105'
                                 : 'hover:scale-105'
                                 }`}
@@ -3048,8 +3155,8 @@ export default function AccessibilityBar() {
                                     WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                     border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
                                     boxShadow: 'none',
-                                    width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
-                                    height: (isVertical ? 80 : 58) * sidebarIconSize + 'px'
+                                    width: (isVertical ? 78 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px',
+                                    height: (isVertical ? 80 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px'
                                   }
                                   : category.id === 'az' // A-Z button always white background
                                     ? {
@@ -3059,11 +3166,11 @@ export default function AccessibilityBar() {
                                       border: '2px solid rgba(0,0,0,0.2)',
                                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                                       width: selectedCategory === category.id
-                                        ? (isVertical ? 78 : 58) * sidebarIconSize + 'px'
-                                        : (isVertical ? 55 : 58) * sidebarIconSize + 'px',
+                                        ? (isVertical ? 78 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px'
+                                        : (isVertical ? 55 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 64 : 58) * sidebarIconSize + 'px',
                                       height: selectedCategory === category.id
-                                        ? (isVertical ? 80 : 58) * sidebarIconSize + 'px'
-                                        : (isVertical ? 55 : 58) * sidebarIconSize + 'px'
+                                        ? (isVertical ? 80 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px'
+                                        : (isVertical ? 55 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 64 : 58) * sidebarIconSize + 'px'
                                     }
                                     : selectedCategory === category.id
                                       ? {
@@ -3072,8 +3179,8 @@ export default function AccessibilityBar() {
                                         WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                         border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.4)' : '4px solid rgba(255,255,255,0.4)',
                                         boxShadow: 'none',
-                                        width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
-                                        height: (isVertical ? 80 : 58) * sidebarIconSize + 'px'
+                                        width: (isVertical ? 78 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px',
+                                        height: (isVertical ? 80 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px'
                                       }
                                       : {
                                         background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85))',
@@ -3081,9 +3188,9 @@ export default function AccessibilityBar() {
                                         WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                         border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.25)' : '4px solid rgba(255,255,255,0.25)',
                                         boxShadow: 'none',
-                                        width: (isVertical ? 78 : 58) * sidebarIconSize + 'px',
+                                        width: (isVertical ? 78 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px',
                                         height: (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5))
-                                          ? (58 * sidebarIconSize + 15) + 'px'
+                                          ? (64 * sidebarIconSize + 10) + 'px'
                                           : (isVertical ? 80 : 58) * sidebarIconSize + 'px'
                                       }
                                 )
@@ -3093,7 +3200,7 @@ export default function AccessibilityBar() {
                             >
                               {category.id === 'az' ? (
                                 <div
-                                  className={`flex flex-col items-center justify-center leading-none gap-0.5 transition-all duration-300 ${selectedCategory === category.id
+                                  className={`flex flex-col items-center justify-center leading-none gap-2.5 transition-all duration-300 ${selectedCategory === category.id
                                     ? ''
                                     : 'opacity-70 group-hover:opacity-100'
                                     }`}
@@ -3103,46 +3210,49 @@ export default function AccessibilityBar() {
                                     color: '#000000',
                                   }}
                                 >
-                                  <span style={{ fontSize: `${(isVertical ? 18 : 16) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
-                                  <span style={{ fontSize: `${(isVertical ? 18 : 16) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
+                                  <span style={{ fontSize: `${(isVertical ? 16 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 11 : 15) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                  <span style={{ fontSize: `${(isVertical ? 16 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 11 : 15) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                 </div>
                               ) : (
-                                <Image
-                                  src={
-                                    category.id === 'move_ui'
-                                      ? (panelPosition === 'left' ? sidebarShowIcon : panelPosition === 'right' ? sidebarShowIcon : panelPosition === 'bottom' ? sidebarHideIcon : sidebarShowIcon)
-                                      : category.icon || ''
-                                  }
-                                  alt=""
-                                  width={(isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))) * sidebarIconSize}
-                                  height={(isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))) * sidebarIconSize}
-                                  style={{
-                                    filter: category.id === 'reset'
-                                      ? (resetIconStyle === 'black-white' ? 'brightness(0) invert(1)' : 'brightness(0)')
-                                      : (category.id === 'info' ? 'none' : 'brightness(0)'),
-                                    ...(category.id === 'reset' ? {} : {}),
-                                    ...(category.id === 'move_ui' ? {
-                                      transform: isVertical
-                                        ? (panelPosition === 'right' ? 'rotate(-90deg)' : 'rotate(0deg)')
-                                        : (panelPosition === 'bottom' ? 'rotate(180deg) scaleX(-1)' : 'rotate(90deg)')
-                                    } : {})
-                                  }}
-                                  className={`transition-all duration-300 ${isVertical ? 'mb-3' : 'mb-2'} ${selectedCategory === category.id
-                                    ? ''
-                                    : 'opacity-70 group-hover:opacity-100'
-                                    }`}
-                                />
+                                <div className="flex items-center justify-center" style={{ paddingTop: (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? '16px' : (isVertical ? '4px' : '2px') }}>
+                                  <Image
+                                    src={
+                                      category.id === 'move_ui'
+                                        ? (panelPosition === 'left' ? sidebarShowIcon : panelPosition === 'right' ? sidebarShowIcon : panelPosition === 'bottom' ? sidebarHideIcon : sidebarShowIcon)
+                                        : category.icon || ''
+                                    }
+                                    alt=""
+                                    width={(isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? (category.id === 'reset' ? 38 : (category.id === 'images' ? 34 : (category.id === 'info' ? 34 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))) * sidebarIconSize}
+                                    height={(isVertical ? (category.id === 'reset' ? 50 : (category.id === 'images' ? 38 : (category.id === 'info' ? 36 : 30))) : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? (category.id === 'reset' ? 38 : (category.id === 'images' ? 34 : (category.id === 'info' ? 34 : 30))) : (category.id === 'reset' ? 40 : (category.id === 'images' ? 36 : (category.id === 'info' ? 36 : 30)))) * sidebarIconSize}
+                                    style={{
+                                      filter: category.id === 'reset'
+                                        ? (resetIconStyle === 'black-white' ? 'brightness(0) invert(1)' : 'brightness(0)')
+                                        : (category.id === 'info' ? 'none' : 'brightness(0)'),
+                                      ...(category.id === 'reset' ? {} : {}),
+                                      ...(category.id === 'move_ui' ? {
+                                        transform: isVertical
+                                          ? (panelPosition === 'right' ? 'rotate(-90deg)' : 'rotate(0deg)')
+                                          : (panelPosition === 'bottom' ? 'rotate(180deg) scaleX(-1)' : 'rotate(90deg)')
+                                      } : {})
+                                    }}
+                                    className={`transition-all duration-300 ${selectedCategory === category.id
+                                      ? ''
+                                      : 'opacity-70 group-hover:opacity-100'
+                                      }`}
+                                  />
+                                </div>
                               )}
                               {((isVertical || (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5))) && category.id !== 'reset') && (
                                 <span
-                                  className={`font-medium leading-tight text-center px-0.5 whitespace-pre-line opacity-100 ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
+                                  className={`font-normal leading-tight text-center px-0.5 whitespace-pre-line opacity-100 break-words ${category.id === 'images' ? 'translate-y-[-2px]' : 'translate-y-0'}`}
                                   style={{
                                     color: '#000000',
                                     letterSpacing: '0.02em',
                                     fontSize: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)
                                       ? `${11 * sidebarIconSize}px`
                                       : (isVertical ? '13px' : undefined),
-                                    marginTop: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '8px' : (isVertical ? '6px' : undefined)
+                                    marginTop: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '10px' : (isVertical ? '2px' : undefined),
+                                    paddingBottom: !isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? '16px' : '2px'
                                   }}
                                 >
                                   {category.name}
@@ -3159,7 +3269,7 @@ export default function AccessibilityBar() {
 
                                 return (
                                   <div
-                                    className={`absolute bottom-0.5 flex gap-0.5 z-10 ${linesToShow <= 3 ? 'left-1/2 -translate-x-1/2' : 'left-1'}`}
+                                    className={`absolute top-0.5 right-0.5 flex gap-0.5 z-10`}
                                   >
                                     {Array.from({ length: linesToShow }).map((_, i) => (
                                       <div
@@ -3280,19 +3390,19 @@ export default function AccessibilityBar() {
                   <div
                     className={`accessibility-bar pointer-events-auto flex flex-col min-w-0 ${isVertical
                       ? 'relative flex-1 h-full'
-                      : `fixed z-[2147483647] ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[680px]' : 'w-[350px]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
+                      : `fixed z-[2147483647] ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[min(680px,calc(100vw-40px))]' : 'w-[min(350px,calc(100vw-40px))]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
                       }`}
                     style={!isVertical ? {
                       left: isMobile ? '10px' : selectedCategory === 'az'
-                        ? `${Math.max(10, Math.min(window.innerWidth - 690, selectedOffset - 340))}px`
-                        : `${Math.max(10, Math.min(window.innerWidth - 360, selectedOffset - 175))}px`,
-                      [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + (isMobile ? 10 : 14)}px`,
+                        ? `${Math.max(10, Math.min(window.innerWidth - Math.min(690, window.innerWidth - 10), selectedOffset - 340))}px`
+                        : `${Math.max(10, Math.min(window.innerWidth - Math.min(360, window.innerWidth - 10), selectedOffset - 175))}px`,
+                      [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + 36 + (isMobile ? 10 : 20)}px`,
                       background: `linear-gradient(135deg, ${currentTheme.background}F2, ${currentTheme.background}E6)`, // Increased opacity slightly since blur is gone
                       borderTop: `4px solid ${currentTheme.border}4D`,
                       borderBottom: `4px solid ${currentTheme.border}4D`,
                       borderLeft: `4px solid ${currentTheme.border}4D`,
                       borderRight: `4px solid ${currentTheme.border}4D`,
-                      maxHeight: isMobile ? '70vh' : '80vh',
+                      maxHeight: isMobile ? '70vh' : 'min(700px, 75vh)',
                       boxShadow: 'none'
                     } : {
                       background: 'transparent',
@@ -3313,7 +3423,7 @@ export default function AccessibilityBar() {
                       <div className="flex items-center justify-between mb-4 pt-2">
                         <div className="flex items-center gap-3 pt-1">
                           <div
-                            className={`flex ${selectedCategory === 'az' ? 'h-10 w-10' : 'h-12 w-12'} flex-shrink-0 items-center justify-center rounded-xl overflow-hidden`}
+                            className={`flex ${selectedCategory === 'az' ? 'h-9 w-9' : 'h-10 w-10'} flex-shrink-0 items-center justify-center rounded-xl overflow-hidden`}
                             style={{
                               background: `linear-gradient(135deg, #FFD700, #E6C200)`,
                               backdropFilter: 'blur(10px) saturate(180%)',
@@ -3335,9 +3445,9 @@ export default function AccessibilityBar() {
                                     ?.icon || ''
                                 }
                                 alt=""
-                                width={selectedCategory === 'position' ? 40 : 36}
-                                height={selectedCategory === 'position' ? 40 : 36}
-                                className={`${selectedCategory === 'speech' ? '' : 'brightness-0'} translate-y-1`}
+                                width={selectedCategory === 'position' ? 22 : 28}
+                                height={selectedCategory === 'position' ? 22 : 28}
+                                className={`${selectedCategory === 'speech' ? '' : 'brightness-0'} ${selectedCategory === 'position' ? '' : 'translate-y-1'}`}
                               />
                             )}
                           </div>
@@ -3349,7 +3459,17 @@ export default function AccessibilityBar() {
                               )}`}
                               style={{ color: currentTheme.text }}
                             >
-                              {selectedCategory === 'az' ? 'A to Z List' : categories.find((c) => c.id === selectedCategory)?.name?.replace(/\n/g, ' ').toLowerCase().split(' ').map(word => word.split('/').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('/')).join(' ')}
+                              {selectedCategory === 'az' ? 'A to Z List' : selectedCategory === 'feedback' ? 'Toolbar Feedback' : selectedCategory === 'info' ? 'Information' : (() => {
+                                const categoryName = categories.find((c) => c.id === selectedCategory)?.name || '';
+                                // Split camelCase words (e.g., KeyboardShortcuts -> Keyboard Shortcuts)
+                                const withSpaces = categoryName.replace(/([a-z])([A-Z])/g, '$1 $2');
+                                return withSpaces.replace(/\n/g, ' ').toLowerCase().split(' ').map(word => {
+                                  // Handle AI specifically
+                                  if (word === 'ai') return 'AI';
+                                  // Handle words with slashes
+                                  return word.split('/').map(part => part.charAt(0).toUpperCase() + part.slice(1)).join('/');
+                                }).join(' ');
+                              })()}
                             </h2>
                           </div>
                         </div>
@@ -3392,12 +3512,16 @@ export default function AccessibilityBar() {
                     </div>
 
                     <div
+                      ref={categoryContentRef}
                       data-category-content
-                      className={`${isVertical ? 'flex-1' : (isMobile ? 'h-[350px]' : 'h-[420px]')} overflow-y-auto overflow-x-hidden p-4 sm:p-6 custom-scrollbar min-w-0 break-words`}
-                      style={{ marginTop: 0, paddingTop: selectedCategory === 'az' ? '0.5rem' : undefined }}
+                      className={`${isVertical ? 'flex-1' : (selectedCategory === 'az' ? 'h-[70vh] sm:h-[600px] max-h-[80vh]' : 'h-auto max-h-full')} ${selectedCategory === 'az' ? 'overflow-hidden p-0' : 'overflow-y-auto p-4 sm:p-6'} overflow-x-hidden custom-scrollbar min-w-0 break-words`}
+                      style={{ marginTop: 0, paddingTop: selectedCategory === 'az' ? '0' : undefined }}
                     >
                       {renderCategoryContent()}
                     </div>
+
+                    {/* Scroll Hint */}
+
                   </div>
 
                   {/* Indicator Arrow */}
@@ -3406,7 +3530,7 @@ export default function AccessibilityBar() {
                       className="fixed pointer-events-none"
                       style={{
                         left: `${selectedOffset - 15}px`,
-                        [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + (isMobile ? 10 : 14) + (panelPosition === 'bottom' ? 14 : -5)}px`,
+                        [panelPosition === 'bottom' ? 'bottom' : 'top']: `${80 * sidebarIconSize + 36 + (isMobile ? 10 : 20) + (panelPosition === 'bottom' ? 14 : -5)}px`,
                         zIndex: 2147483651,
                         filter: 'drop-shadow(0px 2px 2px rgba(0,0,0,0.1))'
                       }}
@@ -3433,9 +3557,10 @@ export default function AccessibilityBar() {
                 </>
               )}
             </div>
-          </div>
+          </div >
         </>
-      )}
+      )
+      }
 
 
       {/* Reset Popup Overlay */}
@@ -3602,7 +3727,7 @@ export default function AccessibilityBar() {
                   setShowResetConfirm(false);
                   setTimeout(() => setShowActiveFeaturesList(false), 300);
                 }}
-                className="absolute top-6 right-6 p-2 rounded-xl hover:bg-black/5 transition-colors opacity-40 hover:opacity-100"
+                className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-xl hover:bg-black/5 transition-colors opacity-40 hover:opacity-100 z-10"
                 aria-label="Close"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -3621,15 +3746,7 @@ export default function AccessibilityBar() {
         )
       }
 
-      {/* Sidebar Tutorial Popup */}
-      {
-        showSidebarTutorial && (
-          <SidebarTutorial
-            onClose={() => setShowSidebarTutorial(false)}
-            icon={tutorialIcon || moveUiIcon}
-          />
-        )
-      }
+      {/* Sidebar Tutorial Popup - Removed as per user request */}
 
       {/* Feedback Popup */}
       {
@@ -3741,17 +3858,8 @@ export default function AccessibilityBar() {
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6">
                   <button
                     onClick={() => {
-                      // Keep it on - close the popup and show sidebar tutorial
+                      // Keep it on - close the popup
                       setShowFirstTimeTtsPopup(false);
-
-                      // Show sidebar tutorial after TTS popup closes (once per page load)
-                      if (!hasSeenSidebarTutorialThisSession) {
-                        setTimeout(() => {
-                          setTutorialIcon(moveUiIcon);
-                          setShowSidebarTutorial(true);
-                          setHasSeenSidebarTutorialThisSession(true);
-                        }, 300);
-                      }
                     }}
                     className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
                     style={{
@@ -3764,18 +3872,9 @@ export default function AccessibilityBar() {
                   </button>
                   <button
                     onClick={() => {
-                      // Switch off Text to Speech - close the popup and show sidebar tutorial
+                      // Switch off Text to Speech - close the popup
                       setTextToSpeech?.(false);
                       setShowFirstTimeTtsPopup(false);
-
-                      // Show sidebar tutorial after TTS popup closes (once per page load)
-                      if (!hasSeenSidebarTutorialThisSession) {
-                        setTimeout(() => {
-                          setTutorialIcon(moveUiIcon);
-                          setShowSidebarTutorial(true);
-                          setHasSeenSidebarTutorialThisSession(true);
-                        }, 300);
-                      }
                     }}
                     className="flex-1 px-6 py-4 rounded-2xl font-black text-lg sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
                     style={{
