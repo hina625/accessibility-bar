@@ -125,36 +125,40 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
 
                             {expandedCategory === 'male' && (
                                 <div className="space-y-1 pl-2 pt-1">
-                                    {(['jfIS2w2yJi0grJZPyEsk', 'dAcds2QMcvmv86jQMC3Y', 'G17SuINrv2H9FC6nvetn'] as const).map((voice) => (
+                                    {([
+                                        { id: 'qJXPML3QGhCJ3NLe2sEw', name: 'Andrew' },
+                                        { id: '2EVscXwJhGYuLiX1PgKA', name: 'David' },
+                                        { id: 'j66dKaoQRV6l59TsWZKv', name: 'Saeed' }
+                                    ] as const).map((voice) => (
                                         <div
-                                            key={voice}
+                                            key={voice.id}
                                             className="flex items-center justify-between cursor-pointer group py-1.5 px-3 rounded transition-all"
                                             style={{
-                                                backgroundColor: ttsVoiceGender === voice ? theme.hover : 'transparent'
+                                                backgroundColor: ttsVoiceGender === voice.id ? theme.hover : 'transparent'
                                             }}
                                             onMouseEnter={(e) => {
-                                                if (ttsVoiceGender !== voice) {
+                                                if (ttsVoiceGender !== voice.id) {
                                                     e.currentTarget.style.backgroundColor = theme.hover;
                                                 }
                                             }}
                                             onMouseLeave={(e) => {
-                                                if (ttsVoiceGender !== voice) {
+                                                if (ttsVoiceGender !== voice.id) {
                                                     e.currentTarget.style.backgroundColor = 'transparent';
                                                 }
                                             }}
-                                            onClick={() => setTtsVoiceGender(voice)}
+                                            onClick={() => setTtsVoiceGender(voice.id)}
                                         >
                                             <span className="text-[15px]" style={{ color: theme.text }}>
-                                                {voice === 'jfIS2w2yJi0grJZPyEsk' ? 'Oliver' : voice === 'dAcds2QMcvmv86jQMC3Y' ? 'Joyce' : 'Christopher'}
+                                                {voice.name}
                                             </span>
                                             <div
                                                 className="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all"
                                                 style={{
-                                                    borderColor: ttsVoiceGender === voice ? theme.active : `${theme.text}44`,
-                                                    backgroundColor: ttsVoiceGender === voice ? theme.active : 'transparent'
+                                                    borderColor: ttsVoiceGender === voice.id ? theme.active : `${theme.text}44`,
+                                                    backgroundColor: ttsVoiceGender === voice.id ? theme.active : 'transparent'
                                                 }}
                                             >
-                                                {ttsVoiceGender === voice && (
+                                                {ttsVoiceGender === voice.id && (
                                                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.text }} />
                                                 )}
                                             </div>
@@ -200,36 +204,40 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
 
                             {expandedCategory === 'female' && (
                                 <div className="space-y-1 pl-2 pt-1">
-                                    {(['BpjGufoPiobT79j2vtj4', 'ZF6FPAbjXT4488VcRRnw', 'jB2lPb5DhAX6l1TLkKXy'] as const).map((voice) => (
+                                    {([
+                                        { id: 'LcfcDJNUP1GQjkzn1xUU', name: 'Anika' },
+                                        { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Karla' },
+                                        { id: 'ThT5KcBeYPX3keUQqHPh', name: 'Sharon' }
+                                    ] as const).map((voice) => (
                                         <div
-                                            key={voice}
+                                            key={voice.id}
                                             className="flex items-center justify-between cursor-pointer group py-1.5 px-3 rounded transition-all"
                                             style={{
-                                                backgroundColor: ttsVoiceGender === voice ? theme.hover : 'transparent'
+                                                backgroundColor: ttsVoiceGender === voice.id ? theme.hover : 'transparent'
                                             }}
                                             onMouseEnter={(e) => {
-                                                if (ttsVoiceGender !== voice) {
+                                                if (ttsVoiceGender !== voice.id) {
                                                     e.currentTarget.style.backgroundColor = theme.hover;
                                                 }
                                             }}
                                             onMouseLeave={(e) => {
-                                                if (ttsVoiceGender !== voice) {
+                                                if (ttsVoiceGender !== voice.id) {
                                                     e.currentTarget.style.backgroundColor = 'transparent';
                                                 }
                                             }}
-                                            onClick={() => setTtsVoiceGender(voice)}
+                                            onClick={() => setTtsVoiceGender(voice.id)}
                                         >
                                             <span className="text-[15px]" style={{ color: theme.text }}>
-                                                {voice === 'BpjGufoPiobT79j2vtj4' ? 'Priyanka' : voice === 'ZF6FPAbjXT4488VcRRnw' ? 'Ameela' : 'Sophia'}
+                                                {voice.name}
                                             </span>
                                             <div
                                                 className="w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all"
                                                 style={{
-                                                    borderColor: ttsVoiceGender === voice ? theme.active : `${theme.text}44`,
-                                                    backgroundColor: ttsVoiceGender === voice ? theme.active : 'transparent'
+                                                    borderColor: ttsVoiceGender === voice.id ? theme.active : `${theme.text}44`,
+                                                    backgroundColor: ttsVoiceGender === voice.id ? theme.active : 'transparent'
                                                 }}
                                             >
-                                                {ttsVoiceGender === voice && (
+                                                {ttsVoiceGender === voice.id && (
                                                     <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: theme.text }} />
                                                 )}
                                             </div>

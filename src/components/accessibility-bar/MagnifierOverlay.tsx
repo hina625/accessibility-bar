@@ -117,9 +117,36 @@ export default function MagnifierOverlay() {
                             }
 
                             // Get the phrase (1-2 words)
-                            extractedText = text.substring(phraseStart, phraseEnd).trim();
+                            const candidateText = text.substring(phraseStart, phraseEnd).trim();
 
+                            // Geometric check: Ensure mouse is actually OVER this text
+                            if (candidateText) {
+                                try {
+                                    const wordRange = document.createRange();
+                                    wordRange.setStart(textNode, phraseStart);
+                                    wordRange.setEnd(textNode, phraseEnd);
+                                    const rect = wordRange.getBoundingClientRect();
 
+                                    // Check if cursor is near the text rect
+                                    // Horizontal padding: 5px (tight to avoid grabbing neighbor words)
+                                    // Vertical padding: 15px (loose for line-height)
+                                    const hPad = 5;
+                                    const vPad = 15;
+
+                                    const isOver =
+                                        e.clientX >= rect.left - hPad &&
+                                        e.clientX <= rect.right + hPad &&
+                                        e.clientY >= rect.top - vPad &&
+                                        e.clientY <= rect.bottom + vPad;
+
+                                    if (isOver) {
+                                        extractedText = candidateText;
+                                    }
+                                } catch (rangeErr) {
+                                    // Fallback if range creation fails
+                                    extractedText = candidateText;
+                                }
+                            }
 
                             // Limit length
                             if (extractedText.length > 100) {
@@ -130,21 +157,17 @@ export default function MagnifierOverlay() {
                         console.error('Magnifier text extraction error:', err);
                     }
 
-                    // Fallback to element text if exact position failed
+                    // Fallback to accessibility attributes only (avoid innerText generic capture)
                     if (!extractedText) {
-                        const text = target.innerText || target.textContent || target.getAttribute('aria-label') || target.getAttribute('alt') || '';
+                        const text = target.getAttribute('aria-label') || target.getAttribute('alt') || target.getAttribute('title') || '';
                         extractedText = text.trim().substring(0, 100);
                     }
 
-                    // Only show if meaningful text
-                    if (extractedText.length > 0) {
-                        if (content !== extractedText) {
-                            setContent(extractedText);
-                        }
-                        setIsVisible(true);
-                    } else {
-                        setIsVisible(false);
+                    // Always show lens if we are moving mouse (unless disabled)
+                    if (content !== extractedText) {
+                        setContent(extractedText);
                     }
+                    setIsVisible(true);
                 }
             });
         };
@@ -156,7 +179,7 @@ export default function MagnifierOverlay() {
         };
     }, [magnifier, content]);
 
-    if (!magnifier || !isVisible || !content) return null;
+    if (!magnifier || !isVisible) return null;
 
     return (
         <div

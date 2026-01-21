@@ -1,7 +1,4 @@
-/**
- * Safe storage utility that wraps localStorage with error handling
- * Prevents crashes when localStorage is not available (SSR, private browsing, etc.)
- */
+
 
 export const safeStorage = {
     getItem: (key: string): string | null => {

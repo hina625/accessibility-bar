@@ -66,7 +66,7 @@ export interface AccessibilityState {
     ttsAutoPlay: boolean;
     ttsReadWholePage: boolean;
     ttsMovableControls: boolean;
-    ttsVoiceGender: 'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
+    ttsVoiceGender: string;
     ttsReadingSpeed: number;
     ttsReadSelectedText: boolean;
     summarizationHistory: any[];
@@ -145,7 +145,7 @@ export interface AccessibilityState {
     ttsAutoPlay: boolean;
     ttsReadWholePage: boolean;
     ttsMovableControls: boolean;
-    ttsVoiceGender: 'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
+    ttsVoiceGender: string;
     ttsReadingSpeed: number;
     ttsReadSelectedText: boolean;
     summarizationHistory: any[];

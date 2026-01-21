@@ -1,9 +1,8 @@
-// TTS Highlighting Utility - Sentence/Word highlighting
+
 
 let currentHighlightSpan: HTMLSpanElement | null = null;
 let selectedTextRange: Range | null = null;
 
-// Check if we're in embed mode (accessibility bar is embedded)
 const isEmbedMode = (): boolean => {
     try {
         return !!(
@@ -16,9 +15,6 @@ const isEmbedMode = (): boolean => {
     }
 };
 
-// Check if an element is within the allowed scope for modification
-// In embed mode, we should only modify elements within #accessible-content
-// This prevents modifying the actual website's DOM structure
 const isElementAllowedForModification = (element: Node | HTMLElement): boolean => {
     if (!element) return false;
     
@@ -28,18 +24,17 @@ const isElementAllowedForModification = (element: Node | HTMLElement): boolean =
     
     if (!htmlElement) return false;
     
-    // Never allow modification within accessibility bar or embed host
+   
     if (htmlElement.closest('.accessibility-bar') || htmlElement.closest('.a11y-embed-host')) {
         return false;
     }
     
-    // If we're in embed mode, only allow modification within #accessible-content
-    // This ensures we don't modify the actual website's DOM
+
     if (isEmbedMode()) {
-        // Check if element is within #accessible-content
+        
         const accessibleContent = htmlElement.closest('#accessible-content');
         if (!accessibleContent) {
-            // Not within #accessible-content, don't allow modification to prevent changing actual website
+            
             return false;
         }
     }
@@ -56,12 +51,11 @@ export function clearAllHighlights(immediate: boolean = false) {
             }
             currentHighlightSpan = null;
         } catch (e) {
-            // Ignore errors
+        
         }
     }
 
-    // Clear all highlight spans - use fade out animation instead of immediate removal
-    // Also check in shadow DOM/embed contexts
+  
     const clearHighlights = () => {
         const clearInDocument = (doc: Document | ShadowRoot) => {
             const allHighlights = (doc as any).querySelectorAll
@@ -69,7 +63,7 @@ export function clearAllHighlights(immediate: boolean = false) {
                 : [];
             allHighlights.forEach((span: HTMLElement) => {
                 const element = span as HTMLElement;
-                // Fade out before removing
+              
                 element.style.transition = 'opacity 0.3s ease-out';
                 element.style.opacity = '0';
 
@@ -77,8 +71,7 @@ export function clearAllHighlights(immediate: boolean = false) {
                     const parent = element.parentNode;
                     if (parent && element.textContent) {
                         const textNode = document.createTextNode(element.textContent);
-                        // Use correct document for creating text node if possible, though document works generally
-                        // Ideally: const textNode = (doc.ownerDocument || document).createTextNode(...)
+                    
                         parent.replaceChild(textNode, element);
                         parent.normalize();
                     }
@@ -86,10 +79,10 @@ export function clearAllHighlights(immediate: boolean = false) {
             });
         };
 
-        // Clear in main document
+        
         clearInDocument(document);
 
-        // Clear in shadow roots
+   
         document.querySelectorAll('*').forEach(el => {
             const root = el.getRootNode();
             if (root instanceof ShadowRoot) {
@@ -97,8 +90,6 @@ export function clearAllHighlights(immediate: boolean = false) {
             }
         });
 
-        // Don't clear in parent document if in embed mode (to avoid affecting parent website)
-        // Only clear in current document
     };
 
     if (immediate) {
@@ -451,18 +442,18 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
         const index = lowerText.indexOf(sentenceWords);
 
         if (index !== -1) {
-            // Check if we're allowed to modify this element
+            
             if (!isElementAllowedForModification(node)) {
-                // Skip this node if it's not within allowed scope
+            
                 continue;
             }
             
             try {
-                // Try to find the full sentence by looking ahead
+              
                 let endIndex = index + sentenceWords.length;
                 let sentenceEnd = endIndex;
 
-                // Look for sentence ending
+              
                 for (let i = endIndex; i < Math.min(endIndex + 200, nodeText.length); i++) {
                     if (/[.!?]/.test(nodeText[i])) {
                         sentenceEnd = i + 1;
@@ -470,17 +461,17 @@ export function highlightSentence(text: string, container: HTMLElement, sentence
                     }
                 }
 
-                // If we found a likely sentence end, use it; otherwise use the original sentence length
-                const range = doc.createRange(); // Use correct doc
+              
+                const range = doc.createRange(); 
                 range.setStart(node, index);
                 range.setEnd(node, Math.min(sentenceEnd, index + targetSentence.length));
 
                 const contents = range.extractContents();
-                const span = doc.createElement('span'); // Use correct doc
+                const span = doc.createElement('span'); 
                 span.className = 'tts-highlight-current';
-                applyHighlightStyles(span, true); // Inline styles
+                applyHighlightStyles(span, true); 
 
-                const fragment = doc.createDocumentFragment(); // Use correct doc
+                const fragment = doc.createDocumentFragment(); 
                 while (contents.firstChild) {
                     fragment.appendChild(contents.firstChild);
                 }
@@ -520,11 +511,11 @@ export function speakWithHighlighting(
 
     clearAllHighlights();
 
-    // If it's selected text, highlight the entire selection
+    
     if (options.isSelectedText) {
         const highlightSpan = highlightSelectedText();
         if (!highlightSpan) {
-            // Fallback: highlight first sentence
+            
             highlightSentence(text, container, 0);
         }
     }
@@ -536,22 +527,22 @@ export function speakWithHighlighting(
         utterance.voice = options.voice;
     }
 
-    // Track sentence by sentence for whole page reading
+    
     const sentences = text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || [text];
     let currentSentenceIndex = 0;
     let accumulatedText = '';
     
-    // Track last processed charIndex to avoid re-highlighting words that have already passed
+    
     let lastProcessedCharIndex = -1;
 
     utterance.onboundary = (event: SpeechSynthesisEvent) => {
         if (options.isSelectedText) {
-            // For selected text, highlight word by word within the selection
+            
             if (event.name === 'word' && event.charIndex !== undefined) {
-                // Only highlight if moving forward (not repeating backwards)
+                
                 if (event.charIndex >= lastProcessedCharIndex) {
                     lastProcessedCharIndex = event.charIndex;
-                // Remove the initial selection highlight before highlighting individual words
+                
                 if (currentHighlightSpan) {
                     try {
                         const parent = currentHighlightSpan.parentNode;
@@ -571,19 +562,19 @@ export function speakWithHighlighting(
                 scrollIntoViewSafely(currentHighlightSpan);
             }
         } else if (event.name === 'word' || event.name === 'sentence') {
-            // For whole page reading, highlight word by word
+            
             if (!options.isSelectedText && event.charIndex !== undefined) {
                 const charIndex = event.charIndex;
 
-                // Only highlight if moving forward (not repeating backwards)
+                
                 if (charIndex >= lastProcessedCharIndex) {
                     lastProcessedCharIndex = charIndex;
 
-                // Highlight word for word-by-word
+                
                 if (event.name === 'word') {
                     highlightWord(text, container, charIndex);
                 } else if (event.name === 'sentence') {
-                    // Fallback to sentence highlighting if word highlighting fails
+                    
                     accumulatedText = text.substring(0, charIndex);
 
                     let currentSentenceEnd = 0;
@@ -603,7 +594,7 @@ export function speakWithHighlighting(
         }
     };
 
-    // Start by highlighting the first sentence
+        
     if (!options.isSelectedText && sentences.length > 0) {
         highlightSentence(text, container, 0);
     }

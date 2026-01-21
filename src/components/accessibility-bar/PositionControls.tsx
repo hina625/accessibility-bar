@@ -11,13 +11,15 @@ interface PositionControlsProps {
     hideProgressBar?: boolean;
     hideIndicators?: boolean;
     hidePositioning?: boolean;
+    onPositionSelected?: () => void;
 }
 
 export default function PositionControls({
     hideLanguage = false,
     hideProgressBar = false,
     hideIndicators = false,
-    hidePositioning = false
+    hidePositioning = false,
+    onPositionSelected
 }: PositionControlsProps) {
     const {
         panelPosition, setPanelPosition,
@@ -55,7 +57,10 @@ export default function PositionControls({
                     {panelPositions.map((pos) => (
                         <button
                             key={pos.id}
-                            onClick={() => setPanelPosition(pos.id as PanelPosition)}
+                            onClick={() => {
+                                setPanelPosition(pos.id as PanelPosition);
+                                onPositionSelected?.();
+                            }}
                             className="p-3 flex flex-col items-center justify-center gap-2 rounded-xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-sm"
                             style={getButtonStyle(pos.id)}
                             aria-label={`${pos.label} Position`}

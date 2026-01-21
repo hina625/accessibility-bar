@@ -62,7 +62,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         toggleTextToSpeech,
         toggleStopVideos,
         toggleSpeechToText,
-        // State for indicators
+        
         pauseAnimations,
         highContrast,
         grayscale,
@@ -164,7 +164,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Scrolling Progress Bar', category: 'reading', highlightId: 'reading-progress', isActive: readingProgressBar },
         { label: 'Translation', category: 'language', highlightId: 'real-time-translation' },
         { label: 'Translate Website', category: 'language', highlightId: 'real-time-translation' },
-        { label: 'Text Alignment', category: 'textSpacing' },
+        { label: 'Text Align', category: 'textSpacing' },
         { label: 'Text to Speech (TTS)', category: 'speech', highlightId: 'text-to-speech', isActive: textToSpeech },
         { label: 'Video Controls (Pause or Stop)', category: 'images', highlightId: 'stop-videos', isActive: stopVideos },
         { label: 'Voice Control', category: 'speech', highlightId: 'voice-navigation', isActive: speechToText },
@@ -237,7 +237,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
 
     return (
         <div className="flex flex-col sm:flex-row h-full animate-in fade-in slide-in-from-bottom-4 duration-300 overflow-hidden">
-            {/* Panel 1: Search & Alphabets (50% Width) */}
+          
             <div
                 className="w-full sm:w-1/2 flex flex-col p-6 border-b sm:border-b-0 sm:border-r"
                 style={{
@@ -245,7 +245,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     background: `${currentTheme.background}0D`
                 }}
             >
-                {/* Search Bar */}
+                
                 <div className="mb-8">
                     <div className="relative group">
                         <input
@@ -273,7 +273,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     </div>
                 </div>
 
-                {/* Alphabet Navigation Grid */}
+                
                 <div className="mb-8">
                     <div className="grid grid-cols-9 sm:grid-cols-6 lg:grid-cols-8 gap-y-4 gap-x-2">
                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(letter => (
@@ -283,12 +283,12 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                     if (audioPingEnabled) playAudioPing('menu');
                                     scrollToSection(letter);
                                 }}
-                                className="w-full flex items-center justify-center text-[20px] font-black hover:scale-125 transition-all"
+                                className="w-full flex items-center justify-center text-[22px] font-black transition-transform"
                                 style={{
                                     color: currentTheme.text,
                                     cursor: groupedFeatures[letter] ? 'pointer' : 'default',
                                     opacity: groupedFeatures[letter] ? (currentLetter === letter ? 1 : 0.6) : 0.2,
-                                    transform: currentLetter === letter ? 'scale(1.3)' : 'scale(1)'
+                                    transform: currentLetter === letter ? 'scale(1.35)' : 'scale(1.25)'
                                 }}
                                 disabled={!groupedFeatures[letter]}
                             >
@@ -299,10 +299,10 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 </div>
             </div>
 
-            {/* Panel 2: Feature List (50% Width) */}
+           
             <div
                 ref={scrollContainerRef}
-                className="w-full sm:w-1/2 flex-1 min-h-0 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
+                className="w-full sm:w-1/2 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
                 onScroll={(e) => {
                     const container = e.currentTarget;
                     const sections = container.querySelectorAll('[id^="section-"]');
@@ -328,7 +328,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 ) : (
                     Object.entries(groupedFeatures).map(([letter, items]) => (
                         <div key={letter} id={`section-${letter}`} className="space-y-8 scroll-mt-6">
-                            {/* Letter Block Header (Matching Image) */}
+                           
                             <div className="flex items-center gap-4">
                                 <div
                                     className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] font-black border-4 shadow-sm"
@@ -368,7 +368,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                             }}
                                             className="group flex items-start gap-4 text-left transition-all duration-300"
                                         >
-                                            {/* Dot Indicator */}
+
                                             <div
                                                 className="w-2.5 h-2.5 rounded-full mt-2 transition-all duration-300 shadow-sm flex-shrink-0"
                                                 style={{

@@ -281,8 +281,21 @@ export default function PageStructureOverlay() {
                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                                 >
-                                    <span className="text-sm font-medium" style={{ color: theme.active === theme.background ? theme.text : theme.active }}>{link.text}</span>
-                                    <span className="text-xs opacity-50 truncate" style={{ color: theme.text }}>{link.href}</span>
+                                    {/* Link text – always use theme.text (white/black based on theme) */}
+                                    <span
+                                        className="text-sm font-medium"
+                                        style={{ color: theme.text }}
+                                    >
+                                        {link.text}
+                                    </span>
+
+                                    {/* Link href – slightly faded but still using theme.text for contrast */}
+                                    <span
+                                        className="text-xs opacity-70 truncate"
+                                        style={{ color: theme.text }}
+                                    >
+                                        {link.href}
+                                    </span>
                                 </button>
                             ))
                         )}

@@ -1,10 +1,12 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import ToggleCheckbox from './ToggleCheckbox';
 
 export default function SimplifyLayoutControl() {
-    const { simplifiedLayout, toggleSimplifiedLayout } = useAccessibility();
+    const { simplifiedLayout, toggleSimplifiedLayout, barTheme } = useAccessibility();
+    const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
     return (
         <div className="space-y-4">
@@ -16,7 +18,10 @@ export default function SimplifyLayoutControl() {
                 onChange={toggleSimplifiedLayout}
             />
             {simplifiedLayout && (
-                <p className="text-[16px] text-gray-500 dark:text-gray-400 italic pl-2">
+                <p
+                    className="text-[16px] italic pl-2"
+                    style={{ color: theme.text }}
+                >
                     Layout has been simplified for easier reading.
                 </p>
             )}

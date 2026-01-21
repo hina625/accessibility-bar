@@ -18,7 +18,7 @@ export function useToolsSettings() {
     const [ttsAutoPlay, setTtsAutoPlay] = useState<boolean>(false);
     const [ttsReadWholePage, setTtsReadWholePage] = useState<boolean>(false);
     const [ttsMovableControls, setTtsMovableControls] = useState<boolean>(false);
-    const [ttsVoiceGender, setTtsVoiceGender] = useState<'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>('nova');
+    const [ttsVoiceGender, setTtsVoiceGender] = useState<string>('nova');
     const [ttsReadingSpeed, setTtsReadingSpeed] = useState<number>(1);
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
     const [ttsReadHoveredText, setTtsHoverToSpeak] = useState<boolean>(false);
@@ -57,7 +57,22 @@ export function useToolsSettings() {
         localStorage.setItem('accessibility-pageSummary', pageSummary.toString());
     }, [pageSummary]);
 
-    useEffect(() => localStorage.setItem('accessibility-textToSpeech', textToSpeech.toString()), [textToSpeech]);
+    const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
+    // Initial load for TTS settings
+    useEffect(() => {
+        const savedTTS = localStorage.getItem('accessibility-textToSpeech');
+        if (savedTTS !== null) {
+            setTextToSpeech(savedTTS === 'true');
+        }
+        setIsLoaded(true);
+    }, []);
+
+    useEffect(() => {
+        if (isLoaded) {
+            localStorage.setItem('accessibility-textToSpeech', textToSpeech.toString());
+        }
+    }, [textToSpeech, isLoaded]);
     useEffect(() => localStorage.setItem('accessibility-ttsAutoPlay', ttsAutoPlay.toString()), [ttsAutoPlay]);
     useEffect(() => localStorage.setItem('accessibility-ttsReadWholePage', ttsReadWholePage.toString()), [ttsReadWholePage]);
     useEffect(() => localStorage.setItem('accessibility-ttsMovableControls', ttsMovableControls.toString()), [ttsMovableControls]);
@@ -86,7 +101,7 @@ export function useToolsSettings() {
 
         const speak = async (text: string) => {
             if (!text) return;
-            await apiSpeak(text, ttsVoiceGender, ttsReadingSpeed);
+            await apiSpeak(text, ttsVoiceGender as any, ttsReadingSpeed);
         };
 
         const handleMouseUp = () => {
