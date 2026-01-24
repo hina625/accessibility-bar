@@ -19,7 +19,7 @@ function mount() {
         (window as any).AccessibilityBarEmbed = (window as any).AccessibilityBarEmbed || {}
     }
 
- 
+
     if (document.getElementById('a11y-embed-host-react')) return
 
     if (!document.getElementById('a11y-global-styles')) {
@@ -29,7 +29,7 @@ function mount() {
         document.head.appendChild(docStyle)
     }
 
-  
+
     const fontUrls = [
         'https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Lexend:wght@100..900&family=Andika:ital,wght@0,400;0,700;1,400;1,700&display=swap',
         'https://cdn.jsdelivr.net/npm/open-dyslexic@1.0.3/dist/external/open-dyslexic.css'
@@ -99,19 +99,17 @@ function mount() {
     shadow.appendChild(container)
     document.documentElement.appendChild(host)
 
-  
+
     try {
         const root = createRoot(container)
 
-        
+
         root.render(
-            <React.StrictMode>
-                <AccessibilityProvider>
-                    <div className="a11y-embed-host">
-                        <AccessibilityBar />
-                    </div>
-                </AccessibilityProvider>
-            </React.StrictMode>
+            <AccessibilityProvider>
+                <div className="a11y-embed-host">
+                    <AccessibilityBar />
+                </div>
+            </AccessibilityProvider>
         )
     } catch (err) {
         console.error('AccessibilityBar mount error:', err)

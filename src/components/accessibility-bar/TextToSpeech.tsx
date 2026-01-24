@@ -69,14 +69,14 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                     <span className="text-[14px]" style={{ color: theme.text, opacity: 0.7 }}>{t.info?.speech?.features?.["Text to Speech"] || "Read the page content aloud."}</span>
                 </div>
                 <div
-                    className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                    className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                     style={{
                         backgroundColor: textToSpeech ? theme.active : 'rgba(255, 255, 255, 0.9)',
                         border: textToSpeech ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                     }}
                 >
                     {textToSpeech && (
-                        <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     )}
@@ -128,6 +128,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                     {([
                                         { id: 'qJXPML3QGhCJ3NLe2sEw', name: 'Andrew' },
                                         { id: '2EVscXwJhGYuLiX1PgKA', name: 'David' },
+                                        { id: 'Ix8C14HEHgIQkJswik2o', name: 'Peter' },
                                         { id: 'j66dKaoQRV6l59TsWZKv', name: 'Saeed' }
                                     ] as const).map((voice) => (
                                         <div
@@ -294,14 +295,14 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                     >
                         <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.readPageContent}</span>
                         <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                             style={{
                                 backgroundColor: ttsReadWholePage ? theme.active : 'rgba(255, 255, 255, 0.9)',
                                 border: ttsReadWholePage ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                             }}
                         >
                             {ttsReadWholePage && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             )}
@@ -318,14 +319,14 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                     >
                         <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.autoPlay}</span>
                         <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                             style={{
                                 backgroundColor: ttsAutoPlay ? theme.active : 'rgba(255, 255, 255, 0.9)',
                                 border: ttsAutoPlay ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                             }}
                         >
                             {ttsAutoPlay && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             )}
@@ -342,14 +343,14 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                     >
                         <span className="text-[16px]" style={{ color: theme.text }}>{t.controls.movableControls}</span>
                         <div
-                            className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                            className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                             style={{
                                 backgroundColor: ttsMovableControls ? theme.active : 'rgba(255, 255, 255, 0.9)',
                                 border: ttsMovableControls ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                             }}
                         >
                             {ttsMovableControls && (
-                                <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                 </svg>
                             )}

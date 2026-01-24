@@ -135,10 +135,10 @@
     --page-bg-color: transparent;
     --text-color: inherit;
     --heading-color: inherit;
-   
+
     --text-align: left;
     --font-size: 100%;
-  
+
     --line-height: normal;
     --letter-spacing: normal;
     --word-spacing: normal;
@@ -152,31 +152,20 @@ html[style*="--font-size"] body *:not(.a11y-embed-host):not(.a11y-embed-host *):
 }
 
 
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) p,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) div,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) span,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h1,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h2,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h3,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h4,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h5,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) h6,
-html[style*="--text-align"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) li {
+html[style*="--text-align"] body :is(p, h1, h2, h3, h4, h5, h6, li, a, span, label, td, th):not(.a11y-embed-host *):not(.accessibility-bar *) {
     text-align: var(--text-align) !important;
 }
 
 
-html[style*="--line-height"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *),
-html[style*="--line-height"] :is(p, h1, h2, h3, h4, h5, h6, li, td, th, div, span):not(.a11y-embed-host *):not(.accessibility-bar *) {
+html[style*="--line-height"] body :is(p, h1, h2, h3, h4, h5, h6, li, td, th, span, a):not(.a11y-embed-host *):not(.accessibility-bar *) {
     line-height: var(--line-height) !important;
 }
 
-html[style*="--letter-spacing"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+html[style*="--letter-spacing"] body :is(p, h1, h2, h3, h4, h5, h6, li, td, th, span, a):not(.a11y-embed-host *):not(.accessibility-bar *) {
     letter-spacing: var(--letter-spacing) !important;
 }
 
-html[style*="--word-spacing"] body :not(.a11y-embed-host):not(.a11y-embed-host *):not(.accessibility-bar):not(.accessibility-bar *) {
+html[style*="--word-spacing"] body :is(p, h1, h2, h3, h4, h5, h6, li, td, th, span, a):not(.a11y-embed-host *):not(.accessibility-bar *) {
     word-spacing: var(--word-spacing) !important;
 }
 

@@ -38,6 +38,16 @@ export default function TtsPlayer() {
         };
     };
 
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 0) return;
+        setIsDragging(true);
+        dragRef.current = {
+            startX: e.touches[0].clientX,
+            startY: e.touches[0].clientY,
+            startPos: { ...position }
+        };
+    };
+
     const handleStop = () => {
         if (window.speechSynthesis) window.speechSynthesis.cancel();
     };
@@ -45,10 +55,13 @@ export default function TtsPlayer() {
     useEffect(() => {
         if (!isDragging) return;
 
-        const handleMouseMove = (e: MouseEvent) => {
+        const handleMove = (e: MouseEvent | TouchEvent) => {
             if (!dragRef.current) return;
-            const deltaX = e.clientX - dragRef.current.startX;
-            const deltaY = e.clientY - dragRef.current.startY;
+            const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+            const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+            const deltaX = clientX - dragRef.current.startX;
+            const deltaY = clientY - dragRef.current.startY;
 
             setPosition({
                 x: Math.max(0, Math.min(window.innerWidth - 220, dragRef.current.startPos.x + deltaX)),
@@ -56,15 +69,20 @@ export default function TtsPlayer() {
             });
         };
 
-        const handleMouseUp = () => {
+        const handleEnd = () => {
             setIsDragging(false);
         };
 
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleEnd);
+
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleEnd);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
         };
     }, [isDragging]);
 
@@ -87,6 +105,7 @@ export default function TtsPlayer() {
             <div
                 className="relative flex items-center justify-between cursor-grab active:cursor-grabbing border-b pb-2 mb-1"
                 onMouseDown={handleMouseDown}
+                onTouchStart={handleTouchStart}
                 style={{ borderColor: `${theme.text}22` }}
             >
                 <div className="flex items-center gap-2">

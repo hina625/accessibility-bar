@@ -23,18 +23,22 @@ export default function DictionaryPopup() {
             return;
         }
 
-        const handleMouseUp = async () => {
+        const handleSelection = async () => {
             setTimeout(async () => {
                 const selection = window.getSelection();
                 const selectedText = selection?.toString().trim();
                 if (selectedText && selectedText.length > 1 && selectedText.length < 50) {
                     fetchDefinition(selectedText);
                 }
-            }, 10);
+            }, 100);
         };
 
-        window.addEventListener('mouseup', handleMouseUp);
-        return () => window.removeEventListener('mouseup', handleMouseUp);
+        window.addEventListener('mouseup', handleSelection);
+        window.addEventListener('touchend', handleSelection);
+        return () => {
+            window.removeEventListener('mouseup', handleSelection);
+            window.removeEventListener('touchend', handleSelection);
+        };
     }, [onPageDictionary]);
 
     const fetchDefinition = async (word: string) => {

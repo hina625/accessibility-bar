@@ -102,7 +102,7 @@ export default function VoiceNavigation() {
 
         // Handle legacy string actions (backward compatibility)
         if (typeof actionData === 'string') {
-        
+
             actionData = { action: actionData };
         }
 
@@ -198,43 +198,43 @@ export default function VoiceNavigation() {
     // Local fuzzy command matching (fallback when AI fails)
     const matchCommandLocally = useCallback((text: string): string | null => {
         const normalized = text.toLowerCase().trim();
-        
+
         // Extract keywords
         const keywords = normalized.split(/\s+/);
-        
+
         // Command patterns with fuzzy matching
         const patterns: { keywords: string[]; action: string; priority: number }[] = [
             // Font/Size commands
             { keywords: ['increase', 'font', 'size', 'bigger', 'larger', 'zoom', 'in'], action: 'increase_font', priority: 10 },
             { keywords: ['decrease', 'font', 'size', 'smaller', 'zoom', 'out'], action: 'decrease_font', priority: 10 },
             { keywords: ['reset', 'font', 'normal', 'default'], action: 'reset_font', priority: 8 },
-            
+
             // Mode commands
             { keywords: ['dark', 'mode', 'night'], action: 'dark_mode', priority: 9 },
             { keywords: ['light', 'mode', 'day'], action: 'light_mode', priority: 9 },
             { keywords: ['contrast', 'high'], action: 'high_contrast', priority: 8 },
             { keywords: ['grayscale', 'grey', 'gray'], action: 'grayscale', priority: 7 },
             { keywords: ['invert', 'inverse', 'reverse'], action: 'invert', priority: 7 },
-            
+
             // Reading tools
             { keywords: ['ruler', 'reading', 'ruler'], action: 'toggle_ruler', priority: 8 },
             { keywords: ['guide', 'reading', 'guide'], action: 'toggle_guide', priority: 8 },
             { keywords: ['mask', 'reading', 'mask'], action: 'toggle_mask', priority: 7 },
             { keywords: ['spotlight', 'reading', 'spotlight'], action: 'toggle_spotlight', priority: 7 },
             { keywords: ['magnifier', 'magnify', 'zoom'], action: 'toggle_magnifier', priority: 7 },
-            
+
             // Highlight commands
             { keywords: ['link', 'links', 'highlight'], action: 'toggle_links', priority: 6 },
             { keywords: ['heading', 'headings', 'highlight'], action: 'toggle_headings', priority: 6 },
-            
+
             // UI commands
             { keywords: ['button', 'buttons', 'large', 'big'], action: 'toggle_buttons', priority: 6 },
             { keywords: ['image', 'images', 'hide', 'show'], action: 'toggle_images', priority: 5 },
             { keywords: ['animation', 'animations', 'pause', 'stop'], action: 'toggle_animations', priority: 5 },
-            
+
             // Speech
             { keywords: ['speech', 'text', 'to', 'speech', 'read'], action: 'toggle_tts', priority: 6 },
-            
+
             // Navigation
             { keywords: ['scroll', 'down'], action: 'scroll_down', priority: 8 },
             { keywords: ['scroll', 'up'], action: 'scroll_up', priority: 8 },
@@ -243,40 +243,40 @@ export default function VoiceNavigation() {
             { keywords: ['back', 'go', 'back'], action: 'go_back', priority: 6 },
             { keywords: ['forward', 'go', 'forward'], action: 'go_forward', priority: 6 },
             { keywords: ['refresh', 'reload'], action: 'refresh', priority: 5 },
-            
+
             // Reset
             { keywords: ['reset', 'all', 'everything', 'clear'], action: 'reset_all', priority: 9 },
         ];
-        
+
         // Score each pattern based on keyword matches
         let bestMatch: { action: string; score: number } | null = null;
-        
+
         for (const pattern of patterns) {
             let score = 0;
             let matchedKeywords = 0;
-            
+
             for (const keyword of pattern.keywords) {
                 if (normalized.includes(keyword)) {
                     score += pattern.priority;
                     matchedKeywords++;
                 }
             }
-            
+
             // Bonus for matching multiple keywords
             if (matchedKeywords >= 2) {
                 score *= 1.5;
             }
-            
+
             if (score > 0 && (!bestMatch || score > bestMatch.score)) {
                 bestMatch = { action: pattern.action, score };
             }
         }
-        
+
         // If we have a reasonable match (score > 5), return it
         if (bestMatch && bestMatch.score >= 5) {
             return bestMatch.action;
         }
-        
+
         // Fallback: if text contains common action words, try to infer
         if (normalized.includes('increase') || normalized.includes('more') || normalized.includes('bigger')) {
             return 'increase_font';
@@ -290,7 +290,7 @@ export default function VoiceNavigation() {
         if (normalized.includes('contrast')) {
             return 'high_contrast';
         }
-        
+
         return null;
     }, []);
 
@@ -359,7 +359,7 @@ export default function VoiceNavigation() {
         if (!isEnabled) {
             if (recognition.current) {
                 try {
-                recognition.current.stop();
+                    recognition.current.stop();
                 } catch (e) {
                     // Ignore stop errors
                 }
@@ -391,7 +391,7 @@ export default function VoiceNavigation() {
         // Always create a new recognition instance to ensure clean state
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-            
+
             // Stop and cleanup existing recognition
             if (recognition.current) {
                 try {
@@ -419,9 +419,9 @@ export default function VoiceNavigation() {
                     const result = event.results[event.results.length - 1];
                     if (result && result[0]) {
                         const transcript = result[0].transcript;
-                console.log('Heard:', transcript);
+                        console.log('Heard:', transcript);
                         setLastHeard(transcript);
-                parseCommand(transcript);
+                        parseCommand(transcript);
                     }
                 }
             };
@@ -470,8 +470,8 @@ export default function VoiceNavigation() {
                 } else {
                     // If not auto-restarting, clear the ref
                     isListeningRef.current = false;
-            }
-        };
+                }
+            };
 
             // Start listening immediately
             try {
@@ -537,14 +537,14 @@ export default function VoiceNavigation() {
                     {!isSupported && <span className="text-red-500 text-xs font-bold mt-1">Not supported in this browser</span>}
                 </div>
                 <div
-                    className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                    className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                     style={{
                         backgroundColor: isEnabled ? theme.active : 'rgba(255, 255, 255, 0.9)',
                         border: isEnabled ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                     }}
                 >
                     {isEnabled && (
-                        <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                     )}
@@ -624,7 +624,7 @@ export default function VoiceNavigation() {
 
                     {/* Example Command */}
                     <div className="text-[12px] text-center mt-3 opacity-60 space-y-1 px-4 leading-relaxed" style={{ color: theme.text }}>
-                        <p className="font-bold uppercase tracking-wider mb-1 opacity-80">AI supports natural commands like:</p>
+                        <p className="font-bold uppercase tracking-wider mb-1 opacity-80">AI supports natural commands e.g:</p>
                         <p>"Show me links", "Read this page"</p>
                         <p>"Dark Mode", "Show reading ruler", "Hide images"</p>
                         <p>"Go to Top", "Reset All", "Next Button"</p>

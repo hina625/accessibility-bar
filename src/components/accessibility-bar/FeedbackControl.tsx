@@ -91,7 +91,7 @@ export default function FeedbackControl() {
                     type="checkbox"
                     checked={isSelected}
                     onChange={onClick}
-                    className="appearance-none w-5 h-5 rounded transition-all cursor-pointer"
+                    className="appearance-none w-[28px] h-[28px] rounded transition-all cursor-pointer"
                     style={{
                         borderWidth: borderWidth,
                         borderStyle: 'solid',
@@ -101,7 +101,7 @@ export default function FeedbackControl() {
                 />
                 {isSelected && (
                     <svg
-                        className="absolute top-0 left-0 w-5 h-5 text-white pointer-events-none"
+                        className="absolute top-0 left-0 w-[28px] h-[28px] text-white pointer-events-none p-1.5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"

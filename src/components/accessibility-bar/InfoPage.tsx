@@ -64,12 +64,12 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
 
                     <div className="flex items-start gap-4 pt-1">
                         <div
-                            className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl text-black shadow-lg mt-1"
+                            className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl text-black shadow-lg mt-1 overflow-hidden"
                             style={{ backgroundColor: guideTheme.accentYellow, color: accentTextColor }}
                         >
-                            i
+                            <Image src={infoIcon} alt="" width={28} height={28} className="brightness-0" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight pt-1">Contact Us and Feature Guide</h1>
+                        <h1 className="text-3xl font-black tracking-tight pt-1">Feature Guide</h1>
                     </div>
                 </div>
 
@@ -92,21 +92,6 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
 
             <div ref={scrollContainerRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-12 space-y-12 sm:space-y-20">
 
-
-                <div ref={contactFormRef} id="contact-form-section" className="flex flex-col md:flex-row gap-8 md:gap-16 ring-1 ring-white/10 rounded-[3rem] p-8 md:p-12 bg-white/5 backdrop-blur-md animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className="w-full md:w-1/3 flex flex-col pt-4">
-                        <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-4 leading-none drop-shadow-sm" style={{ color: guideTheme.text }}>Contact Us</h2>
-                        <div className="w-full h-2 rounded-full mb-8 shadow-sm" style={{ backgroundColor: guideTheme.accentYellow }}></div>
-
-                        <p className="text-base sm:text-lg md:text-xl mb-8 sm:mb-12 font-medium leading-relaxed" style={{ color: guideTheme.text }}>
-                        Interested in getting our accessibility toolbar for your website? Have questions or want to book a FREE demo? We'd love to hear from you, complete the form and we'll be in touch.
-                        </p>
-                    </div>
-
-                    <div className="w-full md:w-2/3">
-                        <ContactForm guideTheme={guideTheme} accentTextColor={accentTextColor} />
-                    </div>
-                </div>
 
                 <div className="w-full h-[1px] mx-auto w-[96%]" style={{ backgroundColor: `${guideTheme.text}33` }}></div>
 
@@ -190,16 +175,16 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                             </p>
 
                                             <div className="absolute bottom-7 left-8 flex items-center gap-2">
-                                                <div 
+                                                <div
                                                     className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(250,204,21,0.8)]"
-                                                    style={{ 
-                                                        backgroundColor: isYellowTheme ? '#000000' : '#facc15' 
+                                                    style={{
+                                                        backgroundColor: isYellowTheme ? '#000000' : '#facc15'
                                                     }}
                                                 ></div>
-                                                <span 
+                                                <span
                                                     className="text-[10px] font-black tracking-[0.2em] opacity-60 uppercase"
-                                                    style={{ 
-                                                        color: isYellowTheme ? '#000000' : '#fde047' 
+                                                    style={{
+                                                        color: isYellowTheme ? '#000000' : '#fde047'
                                                     }}
                                                 >
                                                     READY TO USE
@@ -214,227 +199,8 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                     );
                 })}
 
-                {/* 3. Need More Help Card (Now at bottom, scrolls to top) */}
-                <div className="mt-8 px-4 flex justify-center">
-                    <div
-                        onClick={() => {
-                            const container = document.querySelector('.custom-scrollbar');
-                            if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                        className="w-full max-w-4xl bg-white/5 border border-white/10 rounded-[32px] p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl backdrop-blur-md cursor-pointer hover:bg-white/10 transition-all group"
-                    >
-                        <div className="max-w-xl text-center md:text-left">
-                            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight mb-4 leading-none drop-shadow-sm group-hover:text-yellow-400 transition-colors" style={{ color: guideTheme.text }}>Need More Help?</h2>
-                            <p className="text-xl opacity-70 font-bold leading-relaxed" style={{ color: guideTheme.text }}>
-                                Explore our documentation or use the feedback tool to let us know how we can improve your browsing experience.
-                            </p>
-                        </div>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                // Use refs for embed compatibility (Shadow DOM)
-                                if (contactFormRef.current && scrollContainerRef.current) {
-                                    const container = scrollContainerRef.current;
-                                    const target = contactFormRef.current;
-                                    const containerRect = container.getBoundingClientRect();
-                                    const targetRect = target.getBoundingClientRect();
-                                    const scrollTop = container.scrollTop + (targetRect.top - containerRect.top);
-                                    container.scrollTo({ top: scrollTop, behavior: 'smooth' });
-                                } else if (contactFormRef.current) {
-                                    // Fallback: use scrollIntoView
-                                    contactFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                            }}
-                            className="px-8 py-4 rounded-xl font-black uppercase tracking-[0.15em] text-sm transition-all shadow-lg whitespace-nowrap group-hover:scale-105"
-                            style={{ backgroundColor: guideTheme.accentYellow, color: accentTextColor }}
-                        >
-                            Contact Us
-                        </button>
-                    </div>
-                </div>
-
             </div>
         </div>
     );
 }
 
-function ContactForm({ guideTheme, accentTextColor }: { guideTheme: any, accentTextColor: string }) {
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        website: '',
-        message: ''
-    });
-    const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setStatus('submitting');
-
-        try {
-            const { API_ENDPOINTS } = await import('@/config/api');
-
-            const fullMessage = `
-Message: ${formData.message}
-
----
-Additional Details:
-Phone: ${formData.phone || 'N/A'}
-Website: ${formData.website || 'N/A'}
-            `.trim();
-
-            const response = await fetch(API_ENDPOINTS.CONTACT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: `${formData.firstName} ${formData.lastName}`.trim(),
-                    email: formData.email,
-                    subject: 'New Contact Request from Accessibility Bar Info Page',
-                    message: fullMessage
-                }),
-            });
-
-            if (response.ok) {
-                setStatus('success');
-                setTimeout(() => {
-                    setStatus('idle');
-                    setFormData({
-                        firstName: '',
-                        lastName: '',
-                        email: '',
-                        phone: '',
-                        website: '',
-                        message: ''
-                    });
-                }, 3000);
-            } else {
-                throw new Error('Failed to submit');
-            }
-        } catch (error) {
-            console.error('Contact form error:', error);
-            setStatus('error');
-            setTimeout(() => setStatus('idle'), 3000);
-        }
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setFormData(prev => ({
-            ...prev,
-            [e.target.name]: e.target.value
-        }));
-    };
-
-    return (
-        <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleSubmit}>
-            <div className="group">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>First Name <span className="text-red-500 text-4xl font-bold ml-1 align-middle leading-3 inline-block pt-2">*</span></label>
-                <input
-                    type="text"
-                    name="firstName"
-                    required
-                    value={formData.firstName}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="First Name"
-                />
-            </div>
-            <div className="group">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Last Name <span className="text-red-500 text-4xl font-bold ml-1 align-middle leading-3 inline-block pt-2">*</span></label>
-                <input
-                    type="text"
-                    name="lastName"
-                    required
-                    value={formData.lastName}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="Last Name"
-                />
-            </div>
-            <div className="group md:col-span-2">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Email Address <span className="text-red-500 text-4xl font-bold ml-1 align-middle leading-3 inline-block pt-2">*</span></label>
-                <input
-                    type="email"
-                    name="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="your.email@example.com"
-                />
-            </div>
-            <div className="group">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Phone Number</label>
-                <input
-                    type="tel"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="Your phone number"
-                />
-            </div>
-            <div className="group">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Website URL</label>
-                <input
-                    type="url"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80"
-                    placeholder="https://yourwebsite.com"
-                />
-            </div>
-            <div className="group md:col-span-2">
-                <label className="text-sm font-black tracking-[0.15em] mb-2 block group-focus-within:text-yellow-400 transition-all" style={{ color: guideTheme.text }}>Message <span className="text-red-500 text-4xl font-bold ml-1 align-middle leading-3 inline-block pt-2">*</span></label>
-                <textarea
-                    name="message"
-                    required
-                    rows={4}
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="w-full bg-black/60 border-2 border-white/60 rounded-xl p-4 focus:outline-none focus:border-yellow-400 focus:bg-black/70 transition-all font-medium text-white placeholder-white/80 resize-none"
-                    placeholder="How can we help you?"
-                ></textarea>
-            </div>
-
-            <div className="md:col-span-2 pt-4 flex items-center justify-between">
-                <p className="text-base font-bold tracking-widest text-white"><span className="text-red-500">*</span> Required Fields</p>
-                <button
-                    type="submit"
-                    disabled={status === 'submitting' || status === 'success'}
-                    className={`px-10 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-sm transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-yellow-400/20 flex items-center justify-center gap-3 disabled:opacity-80 disabled:cursor-not-allowed ${status === 'success' ? 'bg-green-500 !text-white' : status === 'error' ? 'bg-red-500 !text-white' : ''
-                        }`}
-                    style={status === 'idle' || status === 'submitting' ? { backgroundColor: guideTheme.accentYellow, color: accentTextColor } : {}}
-                >
-                    {status === 'submitting' ? (
-                        <>
-                            <span>Sending...</span>
-                            <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        </>
-                    ) : status === 'success' ? (
-                        <>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
-                            <span>Sent!</span>
-                        </>
-                    ) : status === 'error' ? (
-                        <span>Try Again</span>
-                    ) : (
-                        <>
-                            Send Message
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                            </svg>
-                        </>
-                    )}
-                </button>
-            </div>
-        </form>
-    );
-}

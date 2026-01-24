@@ -277,6 +277,52 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         return () => document.removeEventListener('click', handleTripleClick);
     }, [visual.setPageZoom]);
 
+    // Mobile Audio Unlocker
+    // iOS and Android browsers block programmatic audio (like TTS) unless an audio context 
+    // is first initialized by a direct user gesture (click/touchstart).
+    React.useEffect(() => {
+        let unlocked = false;
+
+        const unlock = () => {
+            if (unlocked) return;
+
+            // Play a 0.1s silent buffer to "prime" the audio engine
+            if (typeof window !== 'undefined') {
+                const AudioContextClass = (window as any).AudioContext || (window as any).webkitAudioContext;
+                if (AudioContextClass) {
+                    const ctx = new AudioContextClass();
+                    const buffer = ctx.createBuffer(1, 1, 22050);
+                    const source = ctx.createBufferSource();
+                    source.buffer = buffer;
+                    source.connect(ctx.destination);
+                    source.start(0);
+
+                    // Resume if it's suspended
+                    if (ctx.state === 'suspended') {
+                        ctx.resume();
+                    }
+                }
+
+                // Also try using a standard Audio element
+                const silentAudio = new Audio();
+                silentAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhAAQACABAAAABkYXRhAgAAAAEA';
+                silentAudio.play().catch(() => { });
+            }
+
+            unlocked = true;
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
+
+        document.addEventListener('touchstart', unlock, { passive: true });
+        document.addEventListener('click', unlock, { passive: true });
+
+        return () => {
+            document.removeEventListener('touchstart', unlock);
+            document.removeEventListener('click', unlock);
+        };
+    }, []);
+
     const value: AccessibilityContextType = {
         fontSize: text.fontSize,
         fontStyle: text.fontStyle,
@@ -370,7 +416,10 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         resetFontSize: withAudioPing(text.resetFontSize),
         setFontStyle: withAudioPing(text.setFontStyle),
         setTextAlign: withAudioPing(text.setTextAlign),
-        setLanguage: withAudioPing(text.setLanguage),
+        setLanguage: withAudioPing((lang: string) => {
+            text.setLanguage(lang);
+            tools.setSelectionLanguage(lang);
+        }),
         setLineHeight: withAudioPing(text.setLineHeight),
         setTextSpacing: withAudioPing(text.setLineHeight),
         setCharacterSpacing: withAudioPing(text.setCharacterSpacing),
@@ -520,7 +569,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         toggleHideImages: withAudioPing(() => {
             const next = !content.hideImages;
             content.setHideImages(next);
-            showNotification(next ? `${t.controls.hideImages || "Hide Images"} Enabled` : `${t.controls.hideImages || "Hide Images"} Disabled`);
+            showNotification(next ? `${t.controls.hideImages || "Hide Website Images"} Enabled` : `${t.controls.hideImages || "Hide Website Images"} Disabled`);
         }),
         toggleShowImageDescriptions: withAudioPing(() => {
             const next = !content.showImageDescriptions;
@@ -700,7 +749,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (content.reduceMotion) list.push(ct.motion || "Reduce Motion");
                     break;
                 case 'images':
-                    if (content.hideImages) list.push(ct.hideImages || "Hide Images");
+                    if (content.hideImages) list.push(ct.hideImages || "Hide Website Images");
                     if (content.showImageDescriptions) list.push(ct.descriptions || "Image Desc");
                     if (content.pauseAnimations) list.push(ct.motion || "Reduce Motion");
                     if (content.muteAudio) list.push(ct.muteAudio || "Pause Audio");
@@ -774,7 +823,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
                     if (content.reduceMotion) list.push({ label: ct.motion || "Reduce Motion", onRemove: withAudioPing(() => content.setReduceMotion(false)) });
                     break;
                 case 'images':
-                    if (content.hideImages) list.push({ label: ct.hideImages || "Hide Images", onRemove: withAudioPing(() => content.setHideImages(false)) });
+                    if (content.hideImages) list.push({ label: ct.hideImages || "Hide Website Images", onRemove: withAudioPing(() => content.setHideImages(false)) });
                     if (content.showImageDescriptions) list.push({ label: ct.descriptions || "Image Desc", onRemove: withAudioPing(() => content.setShowImageDescriptions(false)) });
                     if (content.pauseAnimations) list.push({ label: ct.motion || "Reduce Motion", onRemove: withAudioPing(() => content.setPauseAnimations(false)) });
                     if (content.muteAudio) list.push({ label: ct.muteAudio || "Pause Audio", onRemove: withAudioPing(() => content.setMuteAudio(false)) });

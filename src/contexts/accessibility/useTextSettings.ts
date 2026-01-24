@@ -29,25 +29,50 @@ export function useTextSettings() {
         setIsInitialized(true);
     }, []);
 
-    
+
     useEffect(() => {
         if (!isInitialized) return;
-        
+
         // Check if any value differs from default
-        const hasNonDefaultValues = fontSize !== DEFAULT_FONT_SIZE || 
-                                   fontStyle !== 'default' || 
-                                   textAlign !== 'left' || 
-                                   lineHeight !== 1 || 
-                                   characterSpacing !== 0 || 
-                                   wordSpacing !== 0;
-        
+        const hasNonDefaultValues = fontSize !== DEFAULT_FONT_SIZE ||
+            fontStyle !== 'default' ||
+            textAlign !== 'left' ||
+            lineHeight !== 1 ||
+            characterSpacing !== 0 ||
+            wordSpacing !== 0 ||
+            language !== 'en-GB';
+
         // Only apply styles if user has explicitly modified settings or values are non-default
-        if (userHasModified && hasNonDefaultValues) {
-            document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
-            document.documentElement.style.setProperty('--line-height', `${lineHeight}`);
-            document.documentElement.style.setProperty('--letter-spacing', `${characterSpacing}em`);
-            document.documentElement.style.setProperty('--word-spacing', `${wordSpacing}em`);
-            document.documentElement.style.setProperty('--text-align', textAlign);
+        if (userHasModified || hasNonDefaultValues) {
+            if (fontSize !== DEFAULT_FONT_SIZE) {
+                document.documentElement.style.setProperty('--font-size', `${fontSize}px`);
+            } else {
+                document.documentElement.style.removeProperty('--font-size');
+            }
+
+            if (lineHeight !== 1) {
+                document.documentElement.style.setProperty('--line-height', `${lineHeight}`);
+            } else {
+                document.documentElement.style.removeProperty('--line-height');
+            }
+
+            if (characterSpacing !== 0) {
+                document.documentElement.style.setProperty('--letter-spacing', `${characterSpacing}em`);
+            } else {
+                document.documentElement.style.removeProperty('--letter-spacing');
+            }
+
+            if (wordSpacing !== 0) {
+                document.documentElement.style.setProperty('--word-spacing', `${wordSpacing}em`);
+            } else {
+                document.documentElement.style.removeProperty('--word-spacing');
+            }
+
+            if (textAlign !== 'left') {
+                document.documentElement.style.setProperty('--text-align', textAlign);
+            } else {
+                document.documentElement.style.removeProperty('--text-align');
+            }
 
             if (fontStyle === 'default') {
                 document.documentElement.removeAttribute('data-font-style');
@@ -55,7 +80,7 @@ export function useTextSettings() {
                 document.documentElement.setAttribute('data-font-style', fontStyle);
             }
         } else {
-            // Remove all styles if at defaults or not modified
+            // Remove all styles if not modified by user
             document.documentElement.style.removeProperty('--font-size');
             document.documentElement.style.removeProperty('--line-height');
             document.documentElement.style.removeProperty('--letter-spacing');
@@ -70,7 +95,8 @@ export function useTextSettings() {
         localStorage.setItem('accessibility-lineHeight', lineHeight.toString());
         localStorage.setItem('accessibility-characterSpacing', characterSpacing.toString());
         localStorage.setItem('accessibility-wordSpacing', wordSpacing.toString());
-    }, [fontSize, fontStyle, textAlign, lineHeight, characterSpacing, wordSpacing, isInitialized, userHasModified]);
+        localStorage.setItem('accessibility-language', language);
+    }, [fontSize, fontStyle, textAlign, lineHeight, characterSpacing, wordSpacing, language, isInitialized, userHasModified]);
 
     return {
         fontSize,
@@ -92,7 +118,10 @@ export function useTextSettings() {
             setTextAlignState(val);
             setUserHasModified(true);
         },
-        setLanguage: setLanguageState,
+        setLanguage: (val: string) => {
+            setLanguageState(val);
+            setUserHasModified(true);
+        },
         setLineHeight: (val: number) => {
             setLineHeightState(val);
             setUserHasModified(true);

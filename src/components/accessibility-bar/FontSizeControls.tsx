@@ -1,12 +1,12 @@
 'use client';
 
 import { useAccessibility } from '@/contexts/AccessibilityContext';
-import { translations } from '@/contexts/accessibility/translations';
+import { translations, getTranslations } from '@/contexts/accessibility/translations';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
 export default function FontSizeControls() {
   const { fontSize, increaseFontSize, decreaseFontSize, resetFontSize, language, barTheme } = useAccessibility();
-  const t = translations[language] || translations['en'];
+  const t = getTranslations(language);
   const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
 
   return (

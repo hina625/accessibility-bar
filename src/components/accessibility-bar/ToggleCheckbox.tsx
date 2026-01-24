@@ -26,8 +26,8 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
             onClick={(e) => { e.stopPropagation(); onChange(); }}
         >
             <div className="flex flex-col flex-1">
-                <span 
-                    className={labelClassName || "text-[16px] font-semibold relative inline"} 
+                <span
+                    className={labelClassName || "text-[16px] font-semibold relative inline"}
                     style={{ color: theme.text }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.textDecoration = 'underline';
@@ -42,14 +42,14 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
                 </span>
             </div>
             <div
-                className="w-6 h-6 rounded flex items-center justify-center transition-all ml-3"
+                className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                 style={{
                     backgroundColor: checked ? theme.active : 'rgba(255, 255, 255, 0.9)',
                     border: checked ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                 }}
             >
                 {checked && (
-                    <svg className="w-4 h-4" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                 )}

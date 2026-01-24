@@ -18,7 +18,6 @@ export default function PageSummaryControl() {
         <ToggleCheckbox
             id="page-summary-toggle"
             label="Page Summary"
-            description="AI-powered page condensation"
             checked={pageSummary}
             onChange={handleToggle}
         />

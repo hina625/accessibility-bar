@@ -63,14 +63,14 @@ export default function FontOptions() {
                 <h2 className="text-[18px] font-normal text-black dark:text-white">Font Options</h2>
                 <button
                     onClick={() => setShowInfo(true)}
-                    className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                    className="p-1 rounded-full transition-colors"
                     title="Font Features Info"
                 >
                     <img
                         src={typeof infoIcon === 'string' ? infoIcon : (infoIcon as any).src}
                         alt="Info"
-                        className="w-6 h-6"
-                        style={{ filter: currentTheme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
+                        className="w-6 h-6 opacity-100"
+                        style={{ filter: 'brightness(0) invert(1)' }}
                     />
                 </button>
             </div>

@@ -1,50 +1,66 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
-
-interface Language {
-  code: string;
-  name: string;
-  flag: string;
-  nativeName: string;
-}
-
-const languages: Language[] = [
-  { code: 'en', name: 'English', flag: '🇬🇧', nativeName: 'English' },
-  { code: 'ur', name: 'Urdu', flag: '🇵🇰', nativeName: 'اردو' },
-  { code: 'ar', name: 'Arabic', flag: '🇸🇦', nativeName: 'العربية' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸', nativeName: 'Español' },
-  { code: 'fr', name: 'French', flag: '🇫🇷', nativeName: 'Français' },
-  { code: 'de', name: 'German', flag: '🇩🇪', nativeName: 'Deutsch' },
-  { code: 'hi', name: 'Hindi', flag: '🇮🇳', nativeName: 'हिन्दी' },
-  { code: 'zh-CN', name: 'Chinese', flag: '🇨🇳', nativeName: '中文' },
-  { code: 'ja', name: 'Japanese', flag: '🇯🇵', nativeName: '日本語' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹', nativeName: 'Português' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺', nativeName: 'Русский' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹', nativeName: 'Italiano' },
-];
+import { SUPPORTED_LANGUAGES, Language } from '@/config/languages';
 
 export default function LanguageSelector() {
   const { language, setLanguage, barTheme, isMobile, panelPosition, realTimeTranslation, toggleRealTimeTranslation } = useAccessibility();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0, width: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false);
     };
+    const handleScroll = (e: Event) => {
+      if (dropdownRef.current && dropdownRef.current.contains(e.target as Node)) {
+        return;
+      }
+      setIsOpen(false);
+    };
     window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    window.addEventListener('scroll', handleScroll, true); // Use capture to detect modal scroll
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [isOpen]);
 
-  const selectedLang = languages.find(lang => lang.code === language) || languages[0];
+  useEffect(() => {
+    if (isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setCoords({
+        top: rect.bottom,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  }, [isOpen]);
+
+  const selectedLang = SUPPORTED_LANGUAGES.find(lang => lang.code === language) || SUPPORTED_LANGUAGES[0];
+
+  const handleSelect = (code: string) => {
+    console.log('Language selected:', code);
+    setLanguage(code);
+    setIsOpen(false);
+  };
 
   return (
     <div className="relative">
       <button
+        ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-3 py-3 w-full mx-auto rounded-md text-[16px] font-semibold focus:outline-none focus:ring-2"
         style={{ backgroundColor: theme.active, color: theme.text, border: `1px solid ${theme.border}` }}
@@ -64,31 +80,30 @@ export default function LanguageSelector() {
         </svg>
       </button>
 
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <>
           <div
-            className="fixed inset-0 z-10"
+            className="fixed inset-0 z-[2147483659] pointer-events-auto cursor-default"
             onClick={() => setIsOpen(false)}
           />
           <div
-            className={`absolute z-20 mt-1 ${isMobile ? 'min-w-[200px]' : 'w-full'} max-h-60 overflow-auto rounded-none shadow-lg scrollbar-hide [&::-webkit-scrollbar]:hidden`}
+            ref={dropdownRef}
+            className="fixed z-[2147483660] mt-1 max-h-60 overflow-y-auto rounded-none shadow-2xl pointer-events-auto custom-scrollbar-hide"
             style={{
+              top: coords.top,
+              left: coords.left,
+              width: coords.width,
               backgroundColor: theme.background,
               border: `1px solid ${theme.border}`,
               scrollbarWidth: 'none',
-              msOverflowStyle: 'none',
-              left: isMobile && (panelPosition === 'right' || panelPosition === 'bottom') ? 'auto' : 0,
-              right: isMobile && (panelPosition === 'right' || panelPosition === 'bottom') ? 0 : 'auto'
+              msOverflowStyle: 'none'
             }}
           >
             <div className="py-1">
-              {languages.map((lang) => (
+              {SUPPORTED_LANGUAGES.map((lang) => (
                 <button
                   key={lang.code}
-                  onClick={() => {
-                    setLanguage(lang.code);
-                    setIsOpen(false);
-                  }}
+                  onClick={() => handleSelect(lang.code)}
                   className="w-full flex items-center gap-3 px-4 py-3 text-sm focus:outline-none"
                   style={{ backgroundColor: language === lang.code ? theme.active : 'transparent', color: theme.text }}
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.hover}
@@ -108,7 +123,10 @@ export default function LanguageSelector() {
               ))}
             </div>
           </div>
-        </>
+        </>,
+        document.querySelector('.a11y-embed-host')?.shadowRoot?.getElementById('a11y-react-root') ||
+        document.getElementById('a11y-react-root') ||
+        document.body
       )}
     </div>
   );

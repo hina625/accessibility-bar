@@ -36,7 +36,7 @@ export default function InfoPopupButton({ title, description }: InfoPopupButtonP
             <button
                 ref={buttonRef}
                 onClick={() => setIsOpen(!isOpen)}
-                className="p-1 hover:bg-black/5 rounded-full transition-colors flex items-center justify-center transform hover:scale-110 active:scale-95 duration-200"
+                className="p-1 rounded-full transition-colors flex items-center justify-center active:scale-95 duration-200"
                 title="More info"
                 style={{ width: '32px', height: '32px' }}
                 aria-label={`More info about ${title}`}
@@ -46,8 +46,8 @@ export default function InfoPopupButton({ title, description }: InfoPopupButtonP
                     alt="Info"
                     width={22}
                     height={22}
-                    className="opacity-60 hover:opacity-100"
-                    style={{ filter: theme.text === '#FFFFFF' ? 'invert(1)' : 'none' }}
+                    className="opacity-100"
+                    style={{ filter: 'brightness(0) invert(1)' }}
                 />
             </button>
 

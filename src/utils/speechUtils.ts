@@ -13,7 +13,7 @@ const OPENAI_VOICES = [
     // ElevenLabs Male Voices (3 selected - alphabetical order)
     'qJXPML3QGhCJ3NLe2sEw', // Andrew
     '2EVscXwJhGYuLiX1PgKA', // David
-    'j66dKaoQRV6l59TsWZKv', // Saeed
+    'Ix8C14HEHgIQkJswik2o', // Peter
     // ElevenLabs Female Voices (3 selected - free tier compatible, alphabetical order)
     'LcfcDJNUP1GQjkzn1xUU', // Anika (Jenni - free tier)
     'EXAVITQu4vr4xnSDxMaL', // Karla (Bella - free tier)
@@ -37,14 +37,14 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
     if (selectedVoice === 'male') selectedVoice = 'onyx';
     if (selectedVoice === 'female') selectedVoice = 'nova';
 
-   
+
     if (currentAudio) {
         currentAudio.pause();
         currentAudio.src = '';
         currentAudio = null;
     }
 
-   
+
     if (typeof window !== 'undefined' && window.speechSynthesis) {
         window.speechSynthesis.cancel();
     }
@@ -54,27 +54,27 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
             const isLocal = API_ENDPOINTS.TTS.includes('localhost');
 
             if (isLocal && text.length < 1000) {
-              
+
                 if (signal.aborted) {
                     return;
                 }
                 const url = `${API_ENDPOINTS.TTS}?text=${encodeURIComponent(text)}&voice=${selectedVoice}&speed=${speed}`;
                 currentAudio = new Audio(url);
-                
-              
+
+
                 if (signal.aborted) {
                     return;
                 }
-                
+
                 try {
                     await currentAudio.play();
                 } catch (playError: any) {
-               
+
                     if (signal.aborted || playError?.name === 'AbortError') {
                         return;
                     }
-                    
-                  
+
+
                     console.error('Audio playback failed:', playError);
                     throw playError;
                 }
@@ -88,7 +88,7 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
                 signal: signal
             });
 
-           
+
             if (signal.aborted) {
                 return;
             }
@@ -101,30 +101,30 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
                 } catch {
                     errorText = await response.text();
                 }
-                
+
                 // Handle ElevenLabs custom voice limit error gracefully
                 if (errorText.includes('maximum amount of custom voices') || errorText.includes('custom voice limit')) {
                     console.warn(`TTS Voice Limit: ${errorText}. Please check your ElevenLabs account settings or use library voices instead.`);
                     return;
                 }
-                
+
                 // Handle ElevenLabs subscription tier requirement error
                 if (errorText.includes('creator tier') || errorText.includes('subscription') || errorText.includes('tier')) {
                     console.warn(`TTS Subscription Required: ${errorText}. This voice requires a paid ElevenLabs plan (Creator tier or above). Please upgrade your subscription or use free-tier compatible voices.`);
                     return;
                 }
-                
+
                 console.error(`TTS API Error: ${response.status} - ${errorText}`);
                 return;
             }
 
             const blob = await response.blob();
-            
-          
+
+
             if (signal.aborted) {
                 return;
             }
-            
+
             const url = URL.createObjectURL(blob);
             currentAudio = new Audio(url);
 
@@ -136,20 +136,20 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
             try {
                 await currentAudio.play();
             } catch (playError: any) {
-              
+
                 if (signal.aborted || playError?.name === 'AbortError') {
                     URL.revokeObjectURL(url);
                     return;
                 }
-                
-             
+
+
                 console.error('Audio playback failed:', playError);
                 URL.revokeObjectURL(url);
                 throw playError;
             }
             return;
         } catch (error: any) {
-            
+
             if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
                 return;
             }

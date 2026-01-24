@@ -22,11 +22,12 @@ export default function OnPageDictionary() {
     }
 
     // Use pointerup/down for better compatibility
-    const handleMouseUp = (e: MouseEvent) => {
+    const handleSelection = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
       // Check if click origin was inside the bar to ignore it
-      if (tooltipRef.current?.contains(e.target as Node) ||
-        (e.target as HTMLElement).closest('.accessibility-bar') ||
-        (e.target as HTMLElement).closest('.a11y-embed-host')) {
+      if (tooltipRef.current?.contains(target) ||
+        target.closest('.accessibility-bar') ||
+        target.closest('.a11y-embed-host')) {
         return;
       }
 
@@ -34,8 +35,6 @@ export default function OnPageDictionary() {
       setTimeout(() => {
         const selection = window.getSelection();
         const text = selection?.toString().trim();
-
-        console.log('[AccessibilityBar] Selection Event:', text);
 
         if (text && text.length > 1 && text.split(/\s+/).length === 1) {
           if (selection && selection.rangeCount > 0) {
@@ -53,31 +52,29 @@ export default function OnPageDictionary() {
             setIsVisible(true);
             fetchDefinition(text);
           }
-        } else {
-          // Only hide if we actually clicked outside and didn't select anything new
-          // But we already checked text length.
+        } else if (!text) {
+          // Only hide if nothing selected
           setIsVisible(false);
         }
-      }, 10);
+      }, 100); // Slightly longer for mobile
     };
 
-    const handleMouseDown = (e: MouseEvent) => {
-      // Only hide if clicking outside tooltip and outside bar
-      // And NOT selecting text (which we can't know yet, but usually mousedown starts selection)
-      // Let's rely on mouseup to determine valid selection vs deselect
-      if (!tooltipRef.current?.contains(e.target as Node) &&
-        !(e.target as HTMLElement).closest('.accessibility-bar')) {
-        // Don't close immediately on mousedown, wait for mouseup results
-        // setIsVisible(false); 
+    const handleTouchStart = (e: TouchEvent) => {
+      const target = e.target as HTMLElement;
+      if (!tooltipRef.current?.contains(target) &&
+        !target.closest('.accessibility-bar')) {
+        // Prepare for selection
       }
     };
 
-    document.addEventListener('mouseup', handleMouseUp);
-    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('mouseup', handleSelection);
+    document.addEventListener('touchend', handleSelection);
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
 
     return () => {
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('mouseup', handleSelection);
+      document.removeEventListener('touchend', handleSelection);
+      document.removeEventListener('touchstart', handleTouchStart);
     };
   }, [onPageDictionary]);
 

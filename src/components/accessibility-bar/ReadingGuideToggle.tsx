@@ -32,8 +32,8 @@ export default function ReadingGuideToggle() {
         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
         onClick={handleToggle}
       >
-        <span 
-          className="text-[16px] font-medium relative inline" 
+        <span
+          className="text-[16px] font-medium relative inline"
           style={{ color: theme.text }}
           onMouseEnter={(e) => {
             e.currentTarget.style.textDecoration = 'underline';
@@ -47,14 +47,14 @@ export default function ReadingGuideToggle() {
           Reading Lines
         </span>
         <div
-          className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+          className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
           style={{
             backgroundColor: readingGuide ? theme.active : 'rgba(255, 255, 255, 0.9)',
             border: readingGuide ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
           }}
         >
           {readingGuide && (
-            <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           )}

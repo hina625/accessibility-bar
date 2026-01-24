@@ -56,6 +56,7 @@ import resetIcon from '@/assets/icons/reset.png?inline';
 const resetCategoryIcon = resetIcon;
 import infoIcon from '@/assets/icons/info.png?inline';
 import informationButtonIcon from '@/assets/icons/information-button.png?inline';
+import contactUsIcon from '@/assets/icons/contact-us.png?inline';
 import spacingCategoryIcon from '@/assets/icons/capital-letter.png?inline';
 import lineCategoryIcon from '@/assets/icons/line.png?inline';
 import letterIcon from '@/assets/icons/letter.png?inline';
@@ -103,13 +104,14 @@ import ToggleCheckbox from './ToggleCheckbox';
 import InfoPopupButton from './InfoPopupButton';
 import SelectionTranslator from './SelectionTranslator';
 import InfoPage from './InfoPage';
+import ContactPage from './ContactPage';
 import SidebarTutorial from './SidebarTutorial';
 import VisualConfirmation from './VisualConfirmation';
 import FeatureWrapper from './FeatureWrapper';
 import FeedbackPopup from './FeedbackPopup';
 import Tooltip from './Tooltip';
 import AZFeatureList from './AZFeatureList';
-import { translations } from '@/contexts/accessibility/translations';
+import { getTranslations } from '@/contexts/accessibility/translations';
 
 import { THEME, BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 
@@ -393,7 +395,7 @@ export default function AccessibilityBar() {
     ? 'rgba(255, 255, 255, 0.6)'
     : 'rgba(0, 0, 0, 0.6)';
 
-  const t = translations[language] || translations['en'];
+  const t = getTranslations(language || 'en');
 
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -1010,14 +1012,15 @@ export default function AccessibilityBar() {
     { id: 'textSpacing', name: `Text Align`, icon: spacingCategoryIcon, colorClass: 'from-lime-500 to-lime-600', indicatorClass: 'bg-lime-500' },
     { id: 'lineHeight', name: `Line Height`, icon: lineCategoryIcon, colorClass: 'from-green-500 to-green-600', indicatorClass: 'bg-green-500' },
     { id: 'letterSpacing', name: `Letter Spacing`, icon: letterSpacingIcon, colorClass: 'from-indigo-500 to-indigo-600', indicatorClass: 'bg-indigo-500' },
+    {
+      id: 'quick_zoom', name: `Quick Zoom`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
+    },
     { id: 'contrast', name: `Contrast`, icon: contrastIcon, colorClass: 'from-purple-500 to-purple-600', indicatorClass: 'bg-purple-500' },
     { id: 'reading', name: `Reading Tools`, icon: bookIcon, colorClass: 'from-emerald-500 to-emerald-600', indicatorClass: 'bg-emerald-500' },
     { id: 'cursor', name: `Cursor Options`, icon: cursorIcon, colorClass: 'from-orange-500 to-orange-600', indicatorClass: 'bg-orange-500' },
     { id: 'navigation', name: `Keyboard\nShortcuts`, icon: navigationIcon, colorClass: 'from-violet-500 to-violet-600', indicatorClass: 'bg-violet-500' },
     { id: 'layout', name: `Page Layout`, icon: layoutIcon, colorClass: 'from-teal-500 to-teal-600', indicatorClass: 'bg-teal-500' },
-    {
-      id: 'quick_zoom', name: `Quick Zoom`, icon: zoomInIcon, colorClass: 'from-blue-500 to-cyan-500', indicatorClass: 'bg-blue-500'
-    },
+
     {
       id: 'images', name: `Images/ Animations`, icon: hideIcon, colorClass: 'from-cyan-500 to-blue-500', indicatorClass: 'bg-cyan-500'
     },
@@ -1027,8 +1030,8 @@ export default function AccessibilityBar() {
     { id: 'az', name: `A-Z List`, icon: azIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
     { id: 'position', name: `Sidebar\nPosition`, icon: moveUiIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
     { id: 'feedback', name: `Feedback`, icon: feedbackIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
+    { id: 'contact', name: t.common?.contact || `Contact Us`, icon: contactUsIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
     { id: 'info', name: `Info`, icon: infoIcon, colorClass: 'from-gray-500 to-gray-600', indicatorClass: 'bg-gray-500' },
-
   ];
 
   const renderCategoryContent = () => {
@@ -1243,42 +1246,36 @@ export default function AccessibilityBar() {
           {
             id: 'page_summary',
             name: 'Page Summary',
-            desc: 'AI-powered page condensation',
             icon: generativeIcon,
             action: () => { /* This one stays here */ }
           },
           {
             id: 'simplify_layout',
             name: 'Simplify Page Layout',
-            desc: 'Remove clutter using AI',
             icon: layoutIcon,
             targetCategory: 'layout'
           },
           {
             id: 'voice_nav',
             name: 'AI Voice Navigation',
-            desc: 'Navigate using voice commands',
             icon: speakIcon,
             targetCategory: 'speech'
           },
           {
             id: 'realtime_translate',
             name: 'Real-Time Translation',
-            desc: 'AI translation of content',
             icon: translateIcon,
             targetCategory: 'language'
           },
           {
             id: 'smart_suggestions',
             name: 'Smart Suggestions',
-            desc: 'AI-based accessibility tips',
             icon: generativeIcon,
             targetCategory: 'language'
           },
           {
             id: 'selection_translate',
             name: 'Selection Translator',
-            desc: 'Translate highlighted text',
             icon: translateIcon,
             targetCategory: 'language'
           },
@@ -1341,9 +1338,6 @@ export default function AccessibilityBar() {
                     <div className="text-[17px] font-normal leading-tight" style={{ color: currentTheme.text }}>
                       {shortcut.name}
                     </div>
-                    <div className="text-[15px] opacity-70 truncate" style={{ color: currentTheme.text }}>
-                      {shortcut.desc}
-                    </div>
                   </div>
                   <svg
                     className="w-5 h-5 opacity-40 group-hover/shortcut:opacity-100 transition-opacity"
@@ -1376,7 +1370,7 @@ export default function AccessibilityBar() {
                 const categoryName = categories.find(c => c.id === key)?.name || key;
                 const isExpanded = expandedInfoId === key;
 
-                if (key === 'reset' || key === 'info' || key === 'feedback') return null;
+                if (key === 'reset' || key === 'info' || key === 'feedback' || key === 'contact') return null;
 
                 return (
                   <div
@@ -1451,6 +1445,12 @@ export default function AccessibilityBar() {
                 );
               })}
             </div>
+          </div>
+        );
+      case 'contact':
+        return (
+          <div className="space-y-6">
+            <ContactPage />
           </div>
         );
       default:
@@ -1557,7 +1557,10 @@ export default function AccessibilityBar() {
               pointerEvents: 'auto',
               zoom: '1', // Prevent browser zoom influence
               transform: 'none', // Prevent transform scaling
-              fontSize: '20px' // Force base font size
+              fontSize: '20px', // Force base font size
+              visibility: 'visible',
+              display: 'flex',
+              opacity: 1
             }}
             aria-label="Open accessibility menu"
             aria-expanded={isOpen}
@@ -1578,7 +1581,7 @@ export default function AccessibilityBar() {
       {/* Global More menu dropdown (positioned outside bar like panels) */}
       {showMoreMenu && moreMenuPosition && (
         <div
-          className="fixed z-[2147483647] w-40 rounded-lg shadow-lg border text-sm font-normal"
+          className="fixed z-[2147483655] w-64 rounded-2xl shadow-2xl border-2 overflow-hidden pointer-events-auto"
           style={{
             top: moreMenuPosition.y,
             left: moreMenuPosition.x,
@@ -1587,8 +1590,28 @@ export default function AccessibilityBar() {
           }}
         >
           <button
-            className="w-full text-left px-3 py-2 hover:bg-black/5 transition-colors"
-            style={{ color: currentTheme.text }}
+            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
+            style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
+            onClick={async (e) => {
+              e.stopPropagation();
+              if (audioPingEnabled) playAudioPing();
+              if (textToSpeech) {
+                await speak(t.common?.contact || 'Contact Us', ttsVoiceGender);
+              }
+              setSelectedCategory('contact');
+              setShowSettingsDropdown(false);
+              setShowMoreMenu(false);
+            }}
+          >
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+              <Image src={contactUsIcon} alt="" width={24} height={24} className="brightness-0" />
+            </div>
+            <span className="text-[17px] font-bold tracking-tight">{t.common?.contact || 'Contact Us'}</span>
+          </button>
+
+          <button
+            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
+            style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
             onClick={async (e) => {
               e.stopPropagation();
               if (audioPingEnabled) playAudioPing();
@@ -1601,10 +1624,14 @@ export default function AccessibilityBar() {
               setMoreMenuPosition(null);
             }}
           >
-            Toolbar Feedback
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+              <Image src={feedbackIcon} alt="" width={24} height={24} className="brightness-0" />
+            </div>
+            <span className="text-[17px] font-bold tracking-tight">Toolbar Feedback</span>
           </button>
+
           <button
-            className="w-full text-left px-3 py-2 hover:bg-black/5 transition-colors"
+            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item"
             style={{ color: currentTheme.text }}
             onClick={async (e) => {
               e.stopPropagation();
@@ -1618,7 +1645,10 @@ export default function AccessibilityBar() {
               setMoreMenuPosition(null);
             }}
           >
-            Information
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+              <Image src={infoIcon} alt="" width={24} height={24} className="brightness-0" />
+            </div>
+            <span className="text-[17px] font-bold tracking-tight">Information</span>
           </button>
         </div>
       )}
@@ -1677,8 +1707,8 @@ export default function AccessibilityBar() {
                     top: '50%',
                     transform: 'translateY(-50%)',
                     [panelPosition === 'right' ? 'marginRight' : 'marginLeft']: '0px',
-                    width: '36px',
-                    height: '333px',
+                    width: 'auto',
+                    height: 'auto',
                   }
                   : {
                     [panelPosition === 'bottom' ? 'bottom' : 'top']: '100%',
@@ -1698,43 +1728,55 @@ export default function AccessibilityBar() {
                 style={{ gap: isVertical ? '4px' : '8px' }}
               >
                 {/* Left: A-Z List (text-sized button) */}
-                {!isVertical && (
-                  <button
-                    onClick={async (e) => {
-                      e.stopPropagation();
-                      const target = e.currentTarget; // cache before awaiting (React pools events)
-                      if (audioPingEnabled) playAudioPing();
-                      if (textToSpeech) {
-                        await speak('A to Z List', ttsVoiceGender);
-                      }
-                      const rect = target.getBoundingClientRect();
-                      setSelectedOffset(rect.left + rect.width / 2);
-                      setSelectedCategoryRect(rect);
-                      setSelectedCategory('az');
-                      setShowSettingsDropdown(false); // Close settings when selecting category
-                      setHighlightedFeature(null);
-                    }}
-                    onMouseEnter={() => {
-                      if (textToSpeech && !justOpenedRef.current) {
-                        speak('A to Z List', ttsVoiceGender);
-                      }
-                    }}
-                    className="flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 h-[36px] px-3 border-0 focus:outline-none ease-out"
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    const target = e.currentTarget; // cache before awaiting (React pools events)
+                    if (audioPingEnabled) playAudioPing();
+                    if (textToSpeech) {
+                      await speak('A to Z List', ttsVoiceGender);
+                    }
+                    const rect = target.getBoundingClientRect();
+                    setSelectedOffset(rect.left + rect.width / 2);
+                    setSelectedCategoryRect(rect);
+                    setSelectedCategory('az');
+                    setShowSettingsDropdown(false); // Close settings when selecting category
+                    setHighlightedFeature(null);
+                  }}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredCategory({ id: 'az', name: 'A to Z List', rect });
+                    if (textToSpeech && !justOpenedRef.current) {
+                      speak('A to Z List', ttsVoiceGender);
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredCategory(null)}
+                  className={`flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 ${isVertical ? 'w-[36px]' : 'h-[36px]'} ${isVertical ? 'px-1' : 'px-3'} border-0 focus:outline-none ease-out`}
+                  style={{
+                    borderRadius: '0px',
+                    background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
+                    boxShadow: `0 3px 8px ${currentTheme.border}33`,
+                    border: `1px solid ${currentTheme.border}4D`,
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    filter: 'brightness(1)',
+                    minWidth: isVertical ? '36px' : '110px',
+                    minHeight: isVertical ? '110px' : '36px'
+                  }}
+                  title="A-Z List"
+                >
+                  <span
+                    className="text-[13px] font-normal leading-none whitespace-nowrap"
                     style={{
-                      borderRadius: '0px',
-                      background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
-                      boxShadow: `0 3px 8px ${currentTheme.border}33`,
-                      border: `1px solid ${currentTheme.border}4D`,
-                      backdropFilter: 'blur(10px)',
-                      WebkitBackdropFilter: 'blur(10px)',
-                      filter: 'brightness(1)',
-                      minWidth: '110px'
+                      color: currentTheme.text,
+                      writingMode: isVertical ? 'vertical-rl' : 'horizontal-tb',
+                      textOrientation: 'mixed',
+                      transform: isVertical ? 'rotate(180deg)' : 'none'
                     }}
-                    title="A-Z List"
                   >
-                    <span className="text-[13px] font-normal leading-none" style={{ color: currentTheme.text }}>A to Z List</span>
-                  </button>
-                )}
+                    A to Z List
+                  </span>
+                </button>
 
                 {/* Center: Plus / Customise */}
                 <button
@@ -1749,12 +1791,15 @@ export default function AccessibilityBar() {
                       setSelectedCategory(null); // Close any open category panel when opening settings
                     }
                   }}
-                  onMouseEnter={() => {
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredCategory({ id: 'customise', name: 'Customise', rect });
                     if (textToSpeech && !justOpenedRef.current) {
                       speak('Customise', ttsVoiceGender);
                     }
                   }}
-                  className="flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 h-[36px] px-3 border-0 focus:outline-none ease-out"
+                  onMouseLeave={() => setHoveredCategory(null)}
+                  className={`flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 ${isVertical ? 'w-[36px]' : 'h-[36px]'} ${isVertical ? 'px-1' : 'px-3'} border-0 focus:outline-none ease-out`}
                   style={{
                     borderRadius: '0px',
                     background: showSettingsDropdown
@@ -1765,15 +1810,16 @@ export default function AccessibilityBar() {
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
                     filter: 'brightness(1)',
-                    minWidth: '110px'
+                    minWidth: isVertical ? '36px' : '110px',
+                    minHeight: isVertical ? '110px' : '36px'
                   }}
                   aria-label="Customise"
                   title="Customise"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="18"
-                    height="18"
+                    width={isVertical ? 40 : 28}
+                    height={isVertical ? 40 : 28}
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke={currentTheme.text === '#FFFFFF' ? '#FFFFFF' : '#000000'}
@@ -1799,12 +1845,15 @@ export default function AccessibilityBar() {
                     setSelectedCategory('position');
                     setShowSettingsDropdown(false);
                   }}
-                  onMouseEnter={() => {
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredCategory({ id: 'position', name: 'Sidebar Position', rect });
                     if (textToSpeech && !justOpenedRef.current) {
                       speak('Sidebar Position', ttsVoiceGender);
                     }
                   }}
-                  className="flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 h-[36px] px-3 border-0 focus:outline-none ease-out"
+                  onMouseLeave={() => setHoveredCategory(null)}
+                  className={`flex-none flex items-center justify-center pointer-events-auto transition-all duration-300 ${isVertical ? 'w-[40px]' : 'h-[36px]'} ${isVertical ? 'px-1' : 'px-3'} border-0 focus:outline-none ease-out`}
                   style={{
                     borderRadius: '0px',
                     background: `linear-gradient(135deg, ${currentTheme.background}, ${currentTheme.hover})`,
@@ -1813,15 +1862,16 @@ export default function AccessibilityBar() {
                     backdropFilter: 'blur(10px)',
                     WebkitBackdropFilter: 'blur(10px)',
                     filter: 'brightness(1)',
-                    minWidth: '110px'
+                    minWidth: isVertical ? '40px' : '110px',
+                    minHeight: isVertical ? '110px' : '36px'
                   }}
                   title="Sidebar Position"
                 >
                   <Image
                     src={moveUiIcon}
                     alt="Position"
-                    width={18}
-                    height={18}
+                    width={isVertical ? 40 : 28}
+                    height={isVertical ? 40 : 28}
                     className="object-contain"
                     style={{
                       filter: currentTheme.text === '#FFFFFF' ? 'brightness(0) invert(1)' : 'brightness(0)',
@@ -1905,6 +1955,11 @@ export default function AccessibilityBar() {
                         </h2>
                         <button
                           onClick={() => setShowSettingsDropdown(false)}
+                          onMouseEnter={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect();
+                            setHoveredCategory({ id: 'close', name: 'Close', rect });
+                          }}
+                          onMouseLeave={() => setHoveredCategory(null)}
                           className={`absolute ${isMobile ? 'right-2' : 'right-4 md:right-6'} flex items-center ${isMobile ? 'gap-1 px-1.5 py-1' : 'gap-2 px-2 py-1'} rounded-lg transition-all hover:brightness-110 active:scale-95`}
                           style={{ backgroundColor: 'transparent', color: currentTheme.text }}
                         >
@@ -2359,7 +2414,9 @@ export default function AccessibilityBar() {
                       )}
                     </div>
                   </div>
-                  , document.body) : null;
+                  , document.querySelector('.a11y-embed-host')?.shadowRoot?.getElementById('a11y-react-root') ||
+                  document.getElementById('a11y-react-root') ||
+                  document.body) : null;
               })()}
               {showSettingsDropdown && !isMobile && (
                 <div
@@ -2445,6 +2502,11 @@ export default function AccessibilityBar() {
                       </h2>
                       <button
                         onClick={() => setShowSettingsDropdown(false)}
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          setHoveredCategory({ id: 'close', name: 'Close', rect });
+                        }}
+                        onMouseLeave={() => setHoveredCategory(null)}
                         className={`absolute ${isMobile ? 'right-2' : 'right-4 md:right-6'} flex items-center ${isMobile ? 'gap-1 px-1.5 py-1' : 'gap-2 px-2 py-1'} rounded-lg transition-all hover:brightness-110 active:scale-95`}
                         style={{ backgroundColor: 'transparent', color: currentTheme.text }}
                       >
@@ -2932,12 +2994,6 @@ export default function AccessibilityBar() {
 
                 <button
                   type="button"
-                  onMouseEnter={() => {
-                    // Speak "Exit Toolbar" when cursor hovers over close button
-                    if (textToSpeech && !justOpenedRef.current) {
-                      speak('Exit Toolbar', ttsVoiceGender);
-                    }
-                  }}
                   onClick={async (e) => {
                     e.stopPropagation();
                     e.preventDefault();
@@ -2966,8 +3022,15 @@ export default function AccessibilityBar() {
 
                     // Show popup on close if feedback not given (matches "whenever cross is clicked")
                     setShowFeedbackPopup(true);
-                    // }
                   }}
+                  onMouseEnter={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    setHoveredCategory({ id: 'close', name: 'Exit Toolbar', rect });
+                    if (textToSpeech && !justOpenedRef.current) {
+                      speak('Exit Toolbar', ttsVoiceGender);
+                    }
+                  }}
+                  onMouseLeave={() => setHoveredCategory(null)}
                   className={`p-2 rounded-xl transition-all duration-300 pointer-events-auto hover:brightness-110 active:scale-95 sticky top-0 left-0 right-0 z-[100]`}
                   style={{
                     background: '#FFFFFF',
@@ -2983,21 +3046,97 @@ export default function AccessibilityBar() {
                   }}
                   aria-label="Close"
                 >
-                  <svg
-                    className="h-6 w-6"
-                    style={{ color: '#000000' }}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
+                  <div className="relative flex items-center justify-center w-full h-full">
+                    <svg
+                      className="h-6 w-6"
+                      style={{ color: '#000000' }}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+
+                  </div>
                 </button>
+
+                {isVertical && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (audioPingEnabled) playAudioPing('menu');
+                      const target = e.currentTarget as HTMLElement;
+                      const rect = target.getBoundingClientRect();
+                      const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 0;
+                      const menuWidth = 256;
+
+                      const panelRect = panelRef.current?.getBoundingClientRect();
+
+                      let x = (panelRect ? panelRect.right : rect.right) + 0;
+                      if (panelPosition === 'right') {
+                        x = (panelRect ? panelRect.left : rect.left) - menuWidth - 0;
+                      }
+
+                      // Clamp x to stay on screen
+                      x = Math.max(8, Math.min(viewportWidth - menuWidth - 8, x));
+
+                      // Move moves up (approx height of menu is ~200px)
+                      // "thoda upr kro" -> move higher (subtract more)
+                      let y = rect.bottom - 260;
+
+                      // Ensure it doesn't go off top
+                      y = Math.max(10, y);
+
+                      setShowMoreMenu((prev) => {
+                        const next = !prev;
+                        setMoreMenuPosition(
+                          next
+                            ? {
+                              x: x,
+                              y: y,
+                            }
+                            : null
+                        );
+                        return next;
+                      });
+                    }}
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredCategory({ id: 'more', name: 'More Options', rect });
+                      if (textToSpeech && !justOpenedRef.current) {
+                        speak('More options', ttsVoiceGender);
+                      }
+                    }}
+                    onMouseLeave={() => setHoveredCategory(null)}
+                    className="p-2 mt-1 rounded-xl transition-all duration-300 pointer-events-auto hover:bg-black/10 active:scale-95 flex items-center justify-center"
+                    style={{
+                      width: '60px',
+                      height: '60px',
+                      background: 'transparent',
+                      border: 'none',
+                      boxShadow: 'none'
+                    }}
+                    aria-label="More options"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={30 * sidebarIconSize}
+                      height={30 * sidebarIconSize}
+                      viewBox="0 0 24 24"
+                      fill={currentTheme.text === '#FFFFFF' ? '#FFFFFF' : '#000000'}
+                    >
+                      <circle cx="12" cy="4.5" r="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <circle cx="12" cy="19.5" r="2" />
+                    </svg>
+                  </button>
+                )}
 
                 <div
                   ref={iconsContainerRef}
@@ -3026,7 +3165,7 @@ export default function AccessibilityBar() {
                   {(() => {
                     // Exclude constant categories from paginated list
                     const constantCategoryIds = ['reset', 'az', 'move_ui_extra']; // reset and az are handled separately
-                    const paginatedCategories = categories.filter(c => !['reset', 'az', 'position', 'feedback', 'info'].includes(c.id));
+                    const paginatedCategories = categories.filter(c => !['reset', 'az', 'position', 'feedback', 'contact', 'info'].includes(c.id));
                     // Disable pagination for all sizes (Standard, Medium, Large, XL) to show all icons
                     // This prevents icons from disappearing when zooming - all sizes behave like Large/XL
                     const shouldPaginate = !isVertical ? false : true;
@@ -3175,8 +3314,12 @@ export default function AccessibilityBar() {
                                     WebkitBackdropFilter: 'blur(5px) saturate(180%)',
                                     border: barTheme === 'white' ? '4px solid rgba(0,0,0,0.1)' : '4px solid rgba(255,255,255,0.2)',
                                     boxShadow: 'none',
-                                    width: (isVertical ? (category.id === 'position' ? 64 : 78) : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? (category.id === 'position' ? 64 : 80) : (category.id === 'position' ? 48 : 58)) * sidebarIconSize + 'px',
-                                    height: (isVertical ? 80 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 80 : 58) * sidebarIconSize + 'px'
+                                    width: (isVertical
+                                      ? (category.id === 'position' ? 64 : 78)
+                                      : (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)
+                                        ? (category.id === 'position' ? 64 : 80)
+                                        : (category.id === 'position' ? 48 : 58)) * sidebarIconSize + 'px',
+                                    height: (isVertical ? 80 : (sidebarIconSize === 1.3 || sidebarIconSize === 1.5) ? 80 : 58) * sidebarIconSize + 'px'
                                   }
                                   : category.id === 'az' // A-Z button always white background
                                     ? {
@@ -3227,8 +3370,8 @@ export default function AccessibilityBar() {
                                     color: '#000000',
                                   }}
                                 >
-                                  <span style={{ fontSize: `${(isVertical ? 24 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 18 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
-                                  <span style={{ fontSize: `${(isVertical ? 24 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 18 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
+                                  <span style={{ fontSize: `${(isVertical ? 18 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 18 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal', whiteSpace: 'nowrap' }}>A to Z</span>
+                                  <span style={{ fontSize: `${(isVertical ? 18 : (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? 18 : 22) * sidebarIconSize}px`, display: 'block', lineHeight: '1', fontWeight: 'normal' }}>List</span>
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-center" style={{ paddingTop: (!isVertical && (sidebarIconSize === 1.3 || sidebarIconSize === 1.5)) ? '24px' : (isVertical ? '4px' : '2px') }}>
@@ -3478,83 +3621,6 @@ export default function AccessibilityBar() {
                 </div>
               </div>
 
-              {/* More Menu Dropdown */}
-              {showMoreMenu && moreMenuPosition && (
-                <div
-                  className="fixed z-[2147483652] w-64 rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-                  style={{
-                    top: moreMenuPosition.y,
-                    left: moreMenuPosition.x,
-                    background: currentTheme.background,
-                    border: `4px solid ${currentTheme.border}`,
-                    borderTop: 'none',
-                    borderTopLeftRadius: '0px',
-                    borderTopRightRadius: '0px',
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)'
-                  }}
-                >
-                  <div className="py-2 flex flex-col">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (audioPingEnabled) playAudioPing('menu');
-                        setSelectedCategory('feedback');
-                        setShowMoreMenu(false);
-                      }}
-                      className="flex items-center gap-3 px-4 py-3 text-left hover:bg-black/5 transition-colors group"
-                    >
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
-                        style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }}
-                      >
-                        <Image
-                          src={feedbackIcon}
-                          alt=""
-                          width={20}
-                          height={20}
-                          className="opacity-70 group-hover:opacity-100 transition-opacity"
-                          style={{ filter: 'brightness(0)' }}
-                        />
-                      </div>
-                      <span className="font-medium text-[19px]" style={{ color: currentTheme.text }}>Toolbar Feedback</span>
-                    </button>
-
-                    <div className="my-1 w-full border-t-2" style={{ borderColor: currentTheme.border }} />
-
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (audioPingEnabled) playAudioPing('menu');
-                        setSelectedCategory('info');
-                        setShowMoreMenu(false);
-                      }}
-                      className="flex items-center gap-3 px-4 py-3 text-left hover:bg-black/5 transition-colors group"
-                    >
-                      <div
-                        className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors shadow-sm"
-                        style={{ background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.05)' }}
-                      >
-                        <Image
-                          src={infoIcon}
-                          alt=""
-                          width={20}
-                          height={20}
-                          className="opacity-70 group-hover:opacity-100 transition-opacity"
-                          style={{ filter: 'brightness(0)' }}
-                        />
-                      </div>
-                      <span className="font-medium text-[19px]" style={{ color: currentTheme.text }}>Information</span>
-                    </button>
-
-                    <div className="my-1 border-t border-black/5 mx-4" />
-
-                    {/* External Links from image example - Optional/Placeholder if needed, but sticking to user request first */}
-                    {/* If user needs Everway/Privacy/Terms, I can add them here. For now, strictly following 'Toolbar Feedback' & 'Information' */}
-                  </div>
-                </div>
-              )}
 
               {/* Invisible overlay to close menu when clicking outside */}
               {showMoreMenu && (
@@ -3594,7 +3660,7 @@ export default function AccessibilityBar() {
                       [panelPosition === 'bottom' ? 'bottom' : 'top']: (selectedCategory === 'feedback' || selectedCategory === 'info')
                         ? `${80 * sidebarIconSize + 8}px`
                         : `${80 * sidebarIconSize + 36 + (isMobile ? 10 : 20)}px`,
-                      background: `linear-gradient(135deg, ${currentTheme.background}F2, ${currentTheme.background}E6)`, // Increased opacity slightly since blur is gone
+                      background: currentTheme.background, // Solid background
                       borderTop: `4px solid ${currentTheme.border}4D`,
                       borderBottom: `4px solid ${currentTheme.border}4D`,
                       borderLeft: `4px solid ${currentTheme.border}4D`,
@@ -3611,9 +3677,7 @@ export default function AccessibilityBar() {
                       style={{
                         borderColor: `${currentTheme.border}`,
                         borderBottomWidth: '4px',
-                        background: `linear-gradient(180deg, ${currentTheme.background}00, ${currentTheme.background}15)`,
-                        backdropFilter: 'blur(2.5px)',
-                        WebkitBackdropFilter: 'blur(2.5px)',
+                        background: currentTheme.background,
                         boxShadow: 'none'
                       }}
                     >
@@ -3668,20 +3732,29 @@ export default function AccessibilityBar() {
                                 }).join(' ');
                               })()}
                             </h2>
+                            {selectedCategory === 'az' && t.common.azDescription && (
+                              <p
+                                className="text-[14px] font-bold mt-1 opacity-80 max-w-[400px] leading-tight"
+                                style={{ color: currentTheme.text }}
+                              >
+                                {t.common.azDescription}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <button
                           onMouseEnter={() => {
-                            // Speak "Exit Toolbar" when cursor hovers over close button
+                            // Speak "Exit Panel" when cursor hovers over close button
                             if (textToSpeech && !justOpenedRef.current) {
-                              speak('Exit Toolbar', ttsVoiceGender);
+                              speak('Exit Panel', ttsVoiceGender);
                             }
                           }}
+                          onMouseLeave={() => setHoveredCategory(null)}
                           onClick={async () => {
                             if (audioPingEnabled) playAudioPing('menu');
-                            // Speak "Exit Toolbar" when close button is clicked (only if TTS is enabled)
+                            // Speak "Exit Panel" when close button is clicked (only if TTS is enabled)
                             if (textToSpeech) {
-                              await speak('Exit Toolbar', ttsVoiceGender);
+                              await speak('Exit Panel', ttsVoiceGender);
                             }
                             setSelectedCategory(null);
                           }}
@@ -3940,6 +4013,13 @@ export default function AccessibilityBar() {
       {
         isOpen && selectedCategory === 'info' && (
           <InfoPage onClose={() => setSelectedCategory(null)} categories={categories} />
+        )
+      }
+
+      {/* Contact Page Overlay */}
+      {
+        isOpen && selectedCategory === 'contact' && (
+          <ContactPage onClose={() => setSelectedCategory(null)} />
         )
       }
 

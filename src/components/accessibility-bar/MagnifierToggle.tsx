@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { translations } from '@/contexts/accessibility/translations';
@@ -9,29 +10,36 @@ export default function MagnifierToggle() {
     const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
     const t = translations[language] || translations['en'];
 
+    const labelRef = useRef<HTMLSpanElement>(null);
+
     return (
         <div
             className="flex items-center justify-between py-3 px-4 cursor-pointer rounded-lg transition-all"
             style={{ backgroundColor: theme.hover }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.active}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = theme.hover}
+            onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme.active;
+                if (labelRef.current) {
+                    labelRef.current.style.textDecoration = 'underline';
+                    labelRef.current.style.textDecorationThickness = '2px';
+                    labelRef.current.style.textUnderlineOffset = '2px';
+                }
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme.hover;
+                if (labelRef.current) {
+                    labelRef.current.style.textDecoration = 'none';
+                }
+            }}
             onClick={() => {
                 if (audioPingEnabled) playAudioPing(magnifier ? 'deselect' : 'select');
                 toggleMagnifier();
             }}
         >
             <div className="flex items-center">
-                <span 
-                    className="text-[16px] font-medium relative inline" 
+                <span
+                    ref={labelRef}
+                    className="text-[16px] font-medium relative inline"
                     style={{ color: theme.text }}
-                    onMouseEnter={(e) => {
-                        e.currentTarget.style.textDecoration = 'underline';
-                        e.currentTarget.style.textDecorationThickness = '2px';
-                        e.currentTarget.style.textUnderlineOffset = '2px';
-                    }}
-                    onMouseLeave={(e) => {
-                        e.currentTarget.style.textDecoration = 'none';
-                    }}
                 >
                     Magnifier
                 </span>
@@ -44,14 +52,14 @@ export default function MagnifierToggle() {
             </div>
 
             <div
-                className="w-5 h-5 rounded flex items-center justify-center transition-all ml-3"
+                className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                 style={{
                     backgroundColor: magnifier ? theme.active : 'rgba(255, 255, 255, 0.9)',
                     border: magnifier ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
                 }}
             >
                 {magnifier && (
-                    <svg className="w-3.5 h-3.5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                    <svg className="w-5 h-5" style={{ color: theme.text }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                 )}

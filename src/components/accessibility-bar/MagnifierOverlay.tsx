@@ -16,15 +16,21 @@ export default function MagnifierOverlay() {
             return;
         }
 
-        const handleMouseMove = (e: MouseEvent) => {
+        const handleMove = (e: MouseEvent | TouchEvent) => {
             // Throttle slightly with RAF
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
 
             rafRef.current = requestAnimationFrame(() => {
-                setPosition({ x: e.clientX, y: e.clientY });
+                const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+                const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+                // Add a vertical offset for touch to avoid finger blocking content
+                const offsetVertical = 'touches' in e ? -100 : 0;
+
+                setPosition({ x: clientX, y: clientY + offsetVertical });
 
                 // Use elementsFromPoint to pierce through overlays/backdrops
-                const elements = document.elementsFromPoint(e.clientX, e.clientY);
+                const elements = document.elementsFromPoint(clientX, clientY);
 
                 // Find the first relevant element (not the lens, not the backdrop)
                 let target: HTMLElement | null = null;
@@ -61,9 +67,9 @@ export default function MagnifierOverlay() {
 
                         // Try modern API first
                         if (document.caretRangeFromPoint) {
-                            range = document.caretRangeFromPoint(e.clientX, e.clientY);
+                            range = document.caretRangeFromPoint(clientX, clientY);
                         } else if ((document as any).caretPositionFromPoint) {
-                            const position = (document as any).caretPositionFromPoint(e.clientX, e.clientY);
+                            const position = (document as any).caretPositionFromPoint(clientX, clientY);
                             if (position) {
                                 range = document.createRange();
                                 range.setStart(position.offsetNode, position.offset);
@@ -134,10 +140,10 @@ export default function MagnifierOverlay() {
                                     const vPad = 15;
 
                                     const isOver =
-                                        e.clientX >= rect.left - hPad &&
-                                        e.clientX <= rect.right + hPad &&
-                                        e.clientY >= rect.top - vPad &&
-                                        e.clientY <= rect.bottom + vPad;
+                                        clientX >= rect.left - hPad &&
+                                        clientX <= rect.right + hPad &&
+                                        clientY >= rect.top - vPad &&
+                                        clientY <= rect.bottom + vPad;
 
                                     if (isOver) {
                                         extractedText = candidateText;
@@ -172,9 +178,13 @@ export default function MagnifierOverlay() {
             });
         };
 
-        document.addEventListener('mousemove', handleMouseMove, { passive: true });
+        document.addEventListener('mousemove', handleMove, { passive: true });
+        document.addEventListener('touchstart', handleMove, { passive: true });
+        document.addEventListener('touchmove', handleMove, { passive: false });
         return () => {
-            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mousemove', handleMove);
+            document.removeEventListener('touchstart', handleMove);
+            document.removeEventListener('touchmove', handleMove);
             if (rafRef.current) cancelAnimationFrame(rafRef.current);
         };
     }, [magnifier, content]);

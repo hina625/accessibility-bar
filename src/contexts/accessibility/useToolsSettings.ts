@@ -18,7 +18,7 @@ export function useToolsSettings() {
     const [ttsAutoPlay, setTtsAutoPlay] = useState<boolean>(false);
     const [ttsReadWholePage, setTtsReadWholePage] = useState<boolean>(false);
     const [ttsMovableControls, setTtsMovableControls] = useState<boolean>(false);
-    const [ttsVoiceGender, setTtsVoiceGender] = useState<string>('nova');
+    const [ttsVoiceGender, setTtsVoiceGender] = useState<string>('qJXPML3QGhCJ3NLe2sEw');
     const [ttsReadingSpeed, setTtsReadingSpeed] = useState<number>(1);
     const [ttsReadSelectedText, setTtsReadSelectedText] = useState<boolean>(false);
     const [ttsReadHoveredText, setTtsHoverToSpeak] = useState<boolean>(false);
@@ -104,16 +104,18 @@ export function useToolsSettings() {
             await apiSpeak(text, ttsVoiceGender as any, ttsReadingSpeed);
         };
 
-        const handleMouseUp = () => {
+        const handleSelection = () => {
             if (!ttsReadSelectedText) return;
+
+            // Use a slightly longer timeout for mobile to ensure selection is complete
             setTimeout(() => {
                 const selection = window.getSelection();
                 const text = selection?.toString().trim();
-                if (text) speak(text);
-            }, 50);
+                if (text && text.length > 1) speak(text);
+            }, 150);
         };
 
-        const handleMouseDown = (e: MouseEvent) => {
+        const handleMouseDown = (e: MouseEvent | TouchEvent) => {
             if (!ttsAutoPlay) return;
             const target = e.target as HTMLElement;
             if (target && !target.closest('.accessibility-bar')) {
@@ -136,13 +138,17 @@ export function useToolsSettings() {
             if (content) speak(content.innerText);
         }
 
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('mouseup', handleSelection);
+        document.addEventListener('touchend', handleSelection);
         document.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('touchstart', handleMouseDown, { passive: true });
         document.addEventListener('mouseover', handleMouseOver);
 
         return () => {
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('mouseup', handleSelection);
+            document.removeEventListener('touchend', handleSelection);
             document.removeEventListener('mousedown', handleMouseDown);
+            document.removeEventListener('touchstart', handleMouseDown);
             document.removeEventListener('mouseover', handleMouseOver);
             if (window.speechSynthesis) window.speechSynthesis.cancel();
             clearAllHighlights();

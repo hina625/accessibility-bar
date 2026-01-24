@@ -12,9 +12,9 @@ export default function SpeechToText() {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<any>(null);
-  const ttsVoiceGenderRef = useRef<'male' | 'female' | 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer'>(ttsVoiceGender || 'female');
-  
-  // Keep the ref updated with the latest value
+  const ttsVoiceGenderRef = useRef<string>(ttsVoiceGender || 'female');
+
+
   useEffect(() => {
     ttsVoiceGenderRef.current = ttsVoiceGender || 'female';
   }, [ttsVoiceGender]);
@@ -43,13 +43,12 @@ export default function SpeechToText() {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             finalTranscript += transcript + ' ';
-            
-            // Check if "x" is detected in the final transcript
-            // Match "x" as a word or standalone letter (case-insensitive)
+
+
             const transcriptLower = transcript.toLowerCase().trim();
-            // Match "x" exactly or as a standalone word with word boundaries
+
             if (transcriptLower === 'x' || /\bx\b/i.test(transcript)) {
-              // Trigger text-to-speech to say "close"
+
               speak('close', ttsVoiceGenderRef.current);
             }
           } else {

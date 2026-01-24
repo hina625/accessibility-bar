@@ -3,6 +3,8 @@
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import ToggleCheckbox from './ToggleCheckbox';
 import FeatureWrapper from './FeatureWrapper';
+import InfoPopupButton from './InfoPopupButton';
+import { translations } from '@/contexts/accessibility/translations';
 
 interface ContentFilteringProps {
     highlightedFeature?: string | null;
@@ -14,15 +16,18 @@ export default function ContentFiltering({ highlightedFeature }: ContentFilterin
         showImageDescriptions, toggleShowImageDescriptions,
         pauseAnimations, togglePauseAnimations,
         muteAudio, toggleMuteAudio,
-        stopVideos, toggleStopVideos
+        stopVideos, toggleStopVideos,
+        language
     } = useAccessibility();
+
+    const t = translations[language] || translations['en'];
 
     return (
         <div className="space-y-4 pt-2">
             <FeatureWrapper featureId="hide-images" highlightedFeature={highlightedFeature || null}>
                 <ToggleCheckbox
                     id="hide-images-toggle"
-                    label="Hide Images"
+                    label="Hide Website Images"
                     checked={hideImages}
                     onChange={toggleHideImages}
                     labelClassName="text-[18px] font-medium"
@@ -31,7 +36,15 @@ export default function ContentFiltering({ highlightedFeature }: ContentFilterin
             <FeatureWrapper featureId="image-descriptions" highlightedFeature={highlightedFeature || null}>
                 <ToggleCheckbox
                     id="show-descriptions-toggle"
-                    label="Image Descriptions"
+                    label={
+                        <div className="flex items-center gap-1">
+                            <span>Image Descriptions</span>
+                            <InfoPopupButton
+                                title="Image Descriptions"
+                                description={t.info?.images?.features?.["Image Descriptions"] || "Show alt text descriptions for images."}
+                            />
+                        </div>
+                    }
                     checked={showImageDescriptions}
                     onChange={toggleShowImageDescriptions}
                     labelClassName="text-[18px] font-medium"

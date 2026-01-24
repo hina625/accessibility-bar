@@ -4,21 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { API_ENDPOINTS } from '@/config/api';
+import { SUPPORTED_LANGUAGES } from '@/config/languages';
 
-const LANGUAGES = [
-    { code: 'en', name: 'English' },
-    { code: 'ur', name: 'Urdu' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'zh-CN', name: 'Chinese' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'pt', name: 'Portuguese' },
-    { code: 'ru', name: 'Russian' },
-    { code: 'it', name: 'Italian' },
-];
 
 export default function SelectionTranslator() {
     const { realTimeTranslation, barTheme, selectionLanguage } = useAccessibility();
@@ -38,7 +25,7 @@ export default function SelectionTranslator() {
             return;
         }
 
-        const handleMouseUp = (e: MouseEvent) => {
+        const handleSelection = (e: MouseEvent | TouchEvent) => {
             if (tooltipRef.current?.contains(e.target as Node) ||
                 (e.target as HTMLElement).closest('.accessibility-bar') ||
                 (e.target as HTMLElement).closest('.a11y-embed-host')) {
@@ -68,22 +55,26 @@ export default function SelectionTranslator() {
                 } else {
                     setIsVisible(false);
                 }
-            }, 10);
+            }, 100); // Slightly longer for mobile/embed
         };
 
-        const handleMouseDown = (e: MouseEvent) => {
+        const handleMouseDown = (e: MouseEvent | TouchEvent) => {
             if (!tooltipRef.current?.contains(e.target as Node) &&
                 !(e.target as HTMLElement).closest('.accessibility-bar')) {
                 // setIsVisible(false); // Rely on mouseup to clear
             }
         };
 
-        document.addEventListener('mouseup', handleMouseUp);
+        document.addEventListener('mouseup', handleSelection);
+        document.addEventListener('touchend', handleSelection);
         document.addEventListener('mousedown', handleMouseDown);
+        document.addEventListener('touchstart', handleMouseDown, { passive: true });
 
         return () => {
-            document.removeEventListener('mouseup', handleMouseUp);
+            document.removeEventListener('mouseup', handleSelection);
+            document.removeEventListener('touchend', handleSelection);
             document.removeEventListener('mousedown', handleMouseDown);
+            document.removeEventListener('touchstart', handleMouseDown);
         };
     }, [realTimeTranslation, selectionLanguage]);
 
@@ -92,7 +83,7 @@ export default function SelectionTranslator() {
         setTranslatedText('');
 
         try {
-            const targetLangName = LANGUAGES.find(l => l.code === selectionLanguage)?.name || 'English';
+            const targetLangName = SUPPORTED_LANGUAGES.find(l => l.code === selectionLanguage)?.name || 'English';
 
             const response = await fetch(API_ENDPOINTS.TRANSLATE, {
                 method: 'POST',
@@ -132,7 +123,7 @@ export default function SelectionTranslator() {
         >
             <div className="p-2 px-3 flex justify-between items-center" style={{ backgroundColor: theme.active, color: theme.text }}>
                 <div className="text-[14px] font-bold uppercase tracking-tight truncate max-w-[200px]">{selectedText}</div>
-                <div className="text-[10px] opacity-80 uppercase tracking-widest">{LANGUAGES.find(l => l.code === selectionLanguage)?.name}</div>
+                <div className="text-[10px] opacity-80 uppercase tracking-widest">{SUPPORTED_LANGUAGES.find(l => l.code === selectionLanguage)?.name}</div>
             </div>
             <div className="p-4">
                 {isLoading ? (

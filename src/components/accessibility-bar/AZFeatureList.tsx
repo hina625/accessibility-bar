@@ -62,7 +62,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         toggleTextToSpeech,
         toggleStopVideos,
         toggleSpeechToText,
-        
+
         pauseAnimations,
         highContrast,
         grayscale,
@@ -129,7 +129,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Help Options', action: () => onNavigate('info') },
         { label: 'Highlight Headings', category: 'layout', highlightId: 'highlight-headings', isActive: highlightHeadings },
         { label: 'High Contrast', category: 'contrast', highlightId: 'high-contrast', isActive: highContrast },
-        { label: 'Hide Images', category: 'images', highlightId: 'hide-images', isActive: hideImages },
+        { label: 'Hide Website Images', category: 'images', highlightId: 'hide-images', isActive: hideImages },
         { label: 'Highlight Links', category: 'layout', highlightId: 'highlight-links', isActive: highlightLinks },
         { label: 'Images and Animation (Menu Icon)', category: 'images' },
         { label: 'Image Descriptions', category: 'images', highlightId: 'image-descriptions', isActive: showImageDescriptions },
@@ -237,7 +237,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
 
     return (
         <div className="flex flex-col sm:flex-row h-full animate-in fade-in slide-in-from-bottom-4 duration-300 overflow-hidden">
-          
+
             <div
                 className="w-full sm:w-1/2 flex flex-col p-6 border-b sm:border-b-0 sm:border-r"
                 style={{
@@ -245,7 +245,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     background: `${currentTheme.background}0D`
                 }}
             >
-                
+
                 <div className="mb-8">
                     <div className="relative group">
                         <input
@@ -273,7 +273,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                     </div>
                 </div>
 
-                
+
                 <div className="mb-8">
                     <div className="grid grid-cols-9 sm:grid-cols-6 lg:grid-cols-8 gap-y-4 gap-x-2">
                         {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split('').map(letter => (
@@ -299,7 +299,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 </div>
             </div>
 
-           
+
             <div
                 ref={scrollContainerRef}
                 className="w-full sm:w-1/2 overflow-y-auto p-4 sm:p-8 pt-6 custom-scrollbar space-y-12 pb-12 scroll-smooth"
@@ -328,7 +328,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                 ) : (
                     Object.entries(groupedFeatures).map(([letter, items]) => (
                         <div key={letter} id={`section-${letter}`} className="space-y-8 scroll-mt-6">
-                           
+
                             <div className="flex items-center gap-4">
                                 <div
                                     className="w-12 h-12 rounded-xl flex items-center justify-center text-[22px] font-black border-4 shadow-sm"
