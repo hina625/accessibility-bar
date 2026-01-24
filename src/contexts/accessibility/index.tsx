@@ -92,6 +92,8 @@ export interface AccessibilityContextType extends AccessibilityState {
     setSelectionLanguage: (lang: string) => void;
     setMagnifierScale: (scale: number) => void;
     toggleShowActiveIndicators: () => void;
+    showOnBadge: boolean;
+    toggleShowOnBadge: () => void;
     audioPingEnabled: boolean;
     toggleAudioPing: () => void;
     getActiveFeatures: (categoryId: string) => string[];
@@ -402,6 +404,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         barTheme: ui.barTheme,
         isMobile: ui.isMobile,
         showActiveIndicators: ui.showActiveIndicators,
+        showOnBadge: ui.showOnBadge,
         audioPingEnabled: ui.audioPingEnabled,
         isPanelPinned: ui.isPanelPinned,
         sidebarIconSize: ui.sidebarIconSize,
@@ -699,6 +702,7 @@ export function AccessibilityProvider({ children }: { children: ReactNode }) {
         setResetIconStyle: withAudioPing(ui.setResetIconStyle),
         setMagnifierScale: withAudioPing(visual.setMagnifierScale),
         toggleShowActiveIndicators: withAudioPing(() => ui.setShowActiveIndicators((prev: boolean) => !prev)),
+        toggleShowOnBadge: withAudioPing(() => ui.setShowOnBadge((prev: boolean) => !prev)),
         toggleAudioPing: () => {
             const next = !ui.audioPingEnabled;
             if (next) playAudioPing();

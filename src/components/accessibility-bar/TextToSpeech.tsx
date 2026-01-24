@@ -128,8 +128,8 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                                     {([
                                         { id: 'qJXPML3QGhCJ3NLe2sEw', name: 'Andrew' },
                                         { id: '2EVscXwJhGYuLiX1PgKA', name: 'David' },
-                                        { id: 'Ix8C14HEHgIQkJswik2o', name: 'Peter' },
-                                        { id: 'j66dKaoQRV6l59TsWZKv', name: 'Saeed' }
+                                        { id: 'pNInz6obpgDQGcFmaJgB', name: 'Ovie' },
+                                        { id: 'd6IbhdqAKkXCCVuJjbie', name: 'Peter' }
                                     ] as const).map((voice) => (
                                         <div
                                             key={voice.id}

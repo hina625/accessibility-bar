@@ -26,6 +26,7 @@ export function useUISettings() {
     const [barTheme, setBarTheme] = useState<BarTheme>('purple');
     const [isMobile, setIsMobile] = useState(false);
     const [showActiveIndicators, setShowActiveIndicators] = useState<boolean>(true);
+    const [showOnBadge, setShowOnBadge] = useState<boolean>(true);
     const [audioPingEnabled, setAudioPingEnabled] = useState<boolean>(true);
     const [isPanelPinned, setIsPanelPinned] = useState<boolean>(false);
     const [sidebarIconSize, setSidebarIconSize] = useState<number>(1);
@@ -48,6 +49,7 @@ export function useUISettings() {
             panelPosition: safeStorage.getItem('accessibility-panelPosition'),
             barTheme: safeStorage.getItem('accessibility-barTheme'),
             showActiveIndicators: safeStorage.getItem('accessibility-showActiveIndicators'),
+            showOnBadge: safeStorage.getItem('accessibility-showOnBadge'),
             audioPingEnabled: safeStorage.getItem('accessibility-audioPingEnabled'),
             isPanelPinned: safeStorage.getItem('accessibility-isPanelPinned'),
             sidebarIconSize: safeStorage.getItem('accessibility-sidebarIconSize'),
@@ -83,6 +85,12 @@ export function useUISettings() {
             setShowActiveIndicators(saved.showActiveIndicators === 'true');
         } else {
             setShowActiveIndicators(true); // Default enabled
+        }
+
+        if (saved.showOnBadge !== null) {
+            setShowOnBadge(saved.showOnBadge === 'true');
+        } else {
+            setShowOnBadge(true); // Default enabled
         }
 
         if (saved.audioPingEnabled !== null) {
@@ -313,6 +321,7 @@ export function useUISettings() {
         panelPosition, setPanelPosition,
         barTheme, setBarTheme,
         showActiveIndicators, setShowActiveIndicators,
+        showOnBadge, setShowOnBadge,
         audioPingEnabled, setAudioPingEnabled,
         isMobile,
         isPanelPinned, setIsPanelPinned, togglePanelPin,

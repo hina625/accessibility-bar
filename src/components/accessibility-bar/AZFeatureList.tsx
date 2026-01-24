@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState, useRef } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import { playAudioPing } from '@/utils/audioPingUtils';
@@ -28,6 +28,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
     onOpenPosition,
     onOpenSettings
 }) => {
+    const { showOnBadge, ttsReadingSpeed, setTtsReadingSpeed, ttsVoiceGender, setTtsVoiceGender } = useAccessibility() as any;
     const context = useAccessibility();
     const {
         barTheme,
@@ -366,8 +367,20 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                                     onNavigate(item.category, item.highlightId);
                                                 }
                                             }}
-                                            className="group flex items-start gap-4 text-left transition-all duration-300"
+                                            className="group relative flex items-start gap-4 text-left transition-all duration-300"
                                         >
+                                            {item.isActive && showOnBadge && (
+                                                <span
+                                                    className="absolute -top-1 -left-1 text-[10px] font-black leading-none px-1 py-0.5 rounded-full shadow-sm z-10 transform scale-110 origin-top-left"
+                                                    style={{
+                                                        backgroundColor: '#ef4444',
+                                                        color: '#ffffff',
+                                                        boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+                                                    }}
+                                                >
+                                                    On
+                                                </span>
+                                            )}
 
                                             <div
                                                 className="w-2.5 h-2.5 rounded-full mt-2 transition-all duration-300 shadow-sm flex-shrink-0"

@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { useAccessibility } from '@/contexts/AccessibilityContext';
 
 interface AccessibilityButtonProps {
   icon: ReactNode;
@@ -17,6 +18,7 @@ export default function AccessibilityButton({
   onClick,
   hasSlider = false,
 }: AccessibilityButtonProps) {
+  const { showOnBadge } = useAccessibility() as any;
   return (
     <button
       onClick={onClick}
@@ -27,6 +29,18 @@ export default function AccessibilityButton({
         : 'bg-white dark:bg-gray-800 text-black hover:bg-gray-100 dark:hover:bg-gray-700'
         }`}
     >
+      {active && showOnBadge && (
+        <span
+          className="absolute -top-1 -left-1 text-[10px] font-black leading-none px-1 py-0.5 rounded-sm shadow-sm z-20 pointer-events-none transform scale-110 origin-top-left"
+          style={{
+            backgroundColor: '#ef4444',
+            color: '#ffffff',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+          }}
+        >
+          On
+        </span>
+      )}
       <span className={`flex items-center justify-center rounded-md transition-colors ${active ? 'bg-white/10' : 'bg-transparent'
         }`} style={{ paddingTop: '2px' }}>{icon}</span>
 

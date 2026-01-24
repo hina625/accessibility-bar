@@ -157,6 +157,7 @@ export interface AccessibilityState {
     realTimeTranslation: boolean;
     selectionLanguage: string;
     showActiveIndicators: boolean;
+    showOnBadge: boolean;
     audioPingEnabled: boolean;
     isPaused: boolean;
     notification: NotificationState;

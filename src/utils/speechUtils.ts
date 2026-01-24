@@ -13,7 +13,8 @@ const OPENAI_VOICES = [
     // ElevenLabs Male Voices (3 selected - alphabetical order)
     'qJXPML3QGhCJ3NLe2sEw', // Andrew
     '2EVscXwJhGYuLiX1PgKA', // David
-    'Ix8C14HEHgIQkJswik2o', // Peter
+    'pNInz6obpgDQGcFmaJgB', // Ovie (mapped to Adam)
+    'd6IbhdqAKkXCCVuJjbie', // Peter
     // ElevenLabs Female Voices (3 selected - free tier compatible, alphabetical order)
     'LcfcDJNUP1GQjkzn1xUU', // Anika (Jenni - free tier)
     'EXAVITQu4vr4xnSDxMaL', // Karla (Bella - free tier)

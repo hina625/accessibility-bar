@@ -287,6 +287,8 @@ export default function AccessibilityBar() {
     toggleReadingProgressBar,
     toggleAudioPing,
     toggleShowActiveIndicators,
+    showOnBadge,
+    toggleShowOnBadge,
     ttsVoiceGender,
     ttsReadWholePage,
     stopTts
@@ -2079,7 +2081,7 @@ export default function AccessibilityBar() {
                           <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>4. Choose Sidebar Icon Size:</h3>
                           <div className="grid grid-cols-2 gap-1.5">
                             {[
-                              { id: 'standard', name: 'Standard', multiplier: 1 },
+                              { id: 'standard', name: 'Small', multiplier: 1 },
                               { id: 'medium', name: 'Medium', multiplier: 1.15 },
                               { id: 'large', name: 'Large', multiplier: 1.3 },
                               { id: 'xl', name: 'XL', multiplier: 1.5 }
@@ -2607,17 +2609,20 @@ export default function AccessibilityBar() {
 
                       {/* Row 1, Cell 3: Feature Indicators */}
                       <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle Dots to Menu Icons when a Feature is Selected:</h3>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle (Red Dots) or an 'On' badge when a feature is selected:</h3>
                         <ToggleCheckbox
                           id="show-active-indicators"
                           label={<span>Active Circle<br />(Red Dots)</span>}
                           checked={showActiveIndicators}
                           onChange={toggleShowActiveIndicators}
                         />
-                        <div className="absolute bottom-2 right-2">
-                          <InfoPopupButton
-                            title="Feature Indicators"
-                            description="Displays red circles on menu icons to indicate which features are currently active."
+
+                        <div className="mt-2 pt-2 border-t" style={{ borderColor: 'rgba(0,0,0,0.1)' }}>
+                          <ToggleCheckbox
+                            id="show-on-badge"
+                            label={<span>Active Badge<br />(On Label)</span>}
+                            checked={showOnBadge}
+                            onChange={toggleShowOnBadge}
                           />
                         </div>
                       </section>
@@ -2627,7 +2632,7 @@ export default function AccessibilityBar() {
                         <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>4. Choose Sidebar Icon Size:</h3>
                         <div className="grid grid-cols-2 gap-1.5">
                           {[
-                            { id: 'standard', name: 'Standard', multiplier: 1 },
+                            { id: 'standard', name: 'Small', multiplier: 1 },
                             { id: 'medium', name: 'Medium', multiplier: 1.15 },
                             { id: 'large', name: 'Large', multiplier: 1.3 },
                             { id: 'xl', name: 'XL', multiplier: 1.5 }
@@ -3439,6 +3444,25 @@ export default function AccessibilityBar() {
                                       />
                                     ))}
                                   </div>
+                                );
+                              })()}
+
+                              {(() => {
+                                const activeCount = getActiveFeaturesCount(category.id);
+                                if (activeCount === 0 || !showOnBadge) return null;
+
+                                return (
+                                  <span
+                                    className="absolute -top-1 -left-1 text-[9px] font-black leading-none px-1 py-0.5 rounded-sm shadow-sm z-20 pointer-events-none origin-top-left"
+                                    style={{
+                                      backgroundColor: '#ef4444',
+                                      color: '#ffffff',
+                                      boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                                      transform: `scale(${sidebarIconSize * 1.1})`
+                                    }}
+                                  >
+                                    On
+                                  </span>
                                 );
                               })()}
 
