@@ -70,7 +70,7 @@ body {
 }
 
 .dark-mode body,
-.dark-mode body *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *) {
+.dark-mode body *:not(.accessibility-bar):not(.accessibility-bar *):not(.a11y-embed-host):not(.a11y-embed-host *):not(img):not(svg):not(video):not(canvas) {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #ffffff !important;
@@ -249,9 +249,9 @@ body .tts-highlight-current:not(.accessibility-bar *):not(.a11y-embed-host *) {
 
 
 /* Global Background/Text overrides for Accessible Content */
-body:has([style*="--page-bg-color"]) *:not(.accessibility-bar):not(.accessibility-bar *),
-#accessible-content,
-#accessible-content * {
+body:has([style*="--page-bg-color"]) *:not(.accessibility-bar):not(.accessibility-bar *):not(img):not(svg):not(video):not(canvas),
+#accessible-content:not(img):not(svg):not(video):not(canvas),
+#accessible-content *:not(.accessibility-bar):not(.accessibility-bar *):not(img):not(svg):not(video):not(canvas) {
   background-color: var(--page-bg-color) !important;
   color: var(--text-color) !important;
   border-color: var(--text-color) !important;

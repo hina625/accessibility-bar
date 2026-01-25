@@ -12,7 +12,7 @@ export default function ColorBlindFilter() {
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-start gap-2 mb-2">
         <label className="block text-[16px] font-normal" style={{ color: theme.text }}>
           {t.controls.colorBlind}
         </label>

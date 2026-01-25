@@ -45,7 +45,8 @@ export default function ToggleCheckbox({ id, label, checked, onChange, descripti
                 className="w-[28px] h-[28px] rounded flex items-center justify-center transition-all ml-3"
                 style={{
                     backgroundColor: checked ? theme.active : 'rgba(255, 255, 255, 0.9)',
-                    border: checked ? 'none' : '1px solid rgba(255, 255, 255, 0.3)'
+                    border: checked ? 'none' : '1px solid rgba(255, 255, 255, 0.3)',
+                    transform: checked ? 'scale(1.2)' : 'scale(1)'
                 }}
             >
                 {checked && (

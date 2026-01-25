@@ -2,6 +2,7 @@
 
 import { ReactNode } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { BAR_THEMES } from '@/contexts/accessibility/theme';
 
 interface AccessibilityButtonProps {
   icon: ReactNode;
@@ -18,7 +19,9 @@ export default function AccessibilityButton({
   onClick,
   hasSlider = false,
 }: AccessibilityButtonProps) {
-  const { showOnBadge } = useAccessibility() as any;
+  const { showOnBadge, barTheme } = useAccessibility() as any;
+  const currentTheme = (BAR_THEMES as any)[barTheme] || BAR_THEMES.purple;
+
   return (
     <button
       onClick={onClick}
@@ -33,8 +36,8 @@ export default function AccessibilityButton({
         <span
           className="absolute -top-1 -left-1 text-[10px] font-black leading-none px-1 py-0.5 rounded-sm shadow-sm z-20 pointer-events-none transform scale-110 origin-top-left"
           style={{
-            backgroundColor: '#ef4444',
-            color: '#ffffff',
+            backgroundColor: barTheme === 'yellow' ? '#000000' : '#FFD700',
+            color: barTheme === 'yellow' ? '#FFFFFF' : '#000000',
             boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
           }}
         >

@@ -206,7 +206,7 @@ export default function TextToSpeech({ onClosePanel }: TextToSpeechProps = { onC
                             {expandedCategory === 'female' && (
                                 <div className="space-y-1 pl-2 pt-1">
                                     {([
-                                        { id: 'LcfcDJNUP1GQjkzn1xUU', name: 'Anika' },
+                                        { id: 'XB0fDUnXU5powFXDhCwa', name: 'Charlotte' },
                                         { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Karla' },
                                         { id: 'ThT5KcBeYPX3keUQqHPh', name: 'Sharon' }
                                     ] as const).map((voice) => (

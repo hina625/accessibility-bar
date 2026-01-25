@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
 import Image from 'next/image';
-import contactUsIcon from '@/assets/icons/contact-us.png?inline';
+import contactUsIcon from '@/assets/icons/email.png?inline';
 
 interface ContactPageProps {
     onClose: () => void;
@@ -68,7 +68,7 @@ export default function ContactPage({ onClose }: ContactPageProps) {
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    <span>Close</span>
+                    <span>Exit</span>
                 </button>
             </div>
 

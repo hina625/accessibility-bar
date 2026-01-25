@@ -134,21 +134,21 @@ export default function FontStyleSelector() {
   return (
     <div className="space-y-4">
       <Dropdown
-        label={t.controls.allFonts}
-        options={allFonts}
-        isOpen={allFontsOpen}
-        setIsOpen={setAllFontsOpen}
-        containerRef={allFontsRef}
-        type="all"
-      />
-
-      <Dropdown
         label={t.controls.dyslexiaFonts}
         options={dyslexiaFonts}
         isOpen={dyslexiaFontsOpen}
         setIsOpen={setDyslexiaFontsOpen}
         containerRef={dyslexiaFontsRef}
         type="dyslexia"
+      />
+
+      <Dropdown
+        label={t.controls.allFonts}
+        options={allFonts}
+        isOpen={allFontsOpen}
+        setIsOpen={setAllFontsOpen}
+        containerRef={allFontsRef}
+        type="all"
       />
 
       <div className="text-[16px] font-medium opacity-90 p-2.5 px-3 rounded-lg flex items-center gap-3 mt-2"

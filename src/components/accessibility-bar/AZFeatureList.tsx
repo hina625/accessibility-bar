@@ -119,7 +119,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Dark Mode', category: 'contrast', highlightId: 'dark-mode', isActive: darkMode },
         { label: 'Dictionary', category: 'language', highlightId: 'dictionary', isActive: onPageDictionary },
         { label: 'Dyslexia Friendly Fonts', category: 'font', highlightId: 'font-style' },
-        { label: 'Feature Indicators (Red Dots Markers)', action: toggleShowActiveIndicators, isActive: showActiveIndicators },
+        { label: 'Feature Indicators (Red Dot Markers)', action: toggleShowActiveIndicators, isActive: showActiveIndicators },
         { label: 'Feedback Options (Menu Icon)', action: onOpenFeedback },
         { label: 'Font Size', category: 'font', highlightId: 'font-size', isActive: fontSize !== 16 },
         { label: 'Font Increase', category: 'font', highlightId: 'font-size' },
@@ -373,8 +373,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
                                                 <span
                                                     className="absolute -top-1 -left-1 text-[10px] font-black leading-none px-1 py-0.5 rounded-full shadow-sm z-10 transform scale-110 origin-top-left"
                                                     style={{
-                                                        backgroundColor: '#ef4444',
-                                                        color: '#ffffff',
+                                                        backgroundColor: barTheme === 'yellow' ? '#FFFFFF' : '#FFD700',
+                                                        color: '#000000',
                                                         boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
                                                     }}
                                                 >

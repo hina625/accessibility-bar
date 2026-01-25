@@ -84,10 +84,12 @@ export default function ReadingRuler() {
                 <button
                     onClick={() => setIsPinned(!isPinned)}
                     className={`w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border touch-manipulation ${isPinned
-                        ? (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
-                            ? 'bg-green-500 hover:bg-green-600 active:bg-green-700 border-black/20'
-                            : 'bg-green-600 hover:bg-green-700 active:bg-green-800 border-white/20'
-                        : (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
+                        ? (readingRulerColor === 'rgba(22, 163, 74, 1)')
+                            ? 'bg-red-600 hover:bg-red-700 active:bg-red-800 border-white/20'
+                            : (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)' || readingRulerColor === 'rgba(220, 38, 38, 1)')
+                                ? 'bg-green-500 hover:bg-green-600 active:bg-green-700 border-black/20'
+                                : 'bg-green-600 hover:bg-green-700 active:bg-green-800 border-white/20'
+                        : (!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)' || readingRulerColor === 'rgba(220, 38, 38, 1)')
                             ? 'bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 border-black/20'
                             : 'bg-red-600 hover:bg-red-700 active:bg-red-800 border-white/20'
                         } hover:scale-110 active:scale-95`}
@@ -99,7 +101,7 @@ export default function ReadingRuler() {
                 </button>
                 <button
                     onClick={toggleReadingRuler}
-                    className={`w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border touch-manipulation ${(!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)')
+                    className={`w-10 h-10 sm:w-8 sm:h-8 rounded-full flex items-center justify-center shadow-md pointer-events-auto transition-all border touch-manipulation ${(!readingRulerColor || readingRulerColor === '#FF0000' || readingRulerColor === 'rgba(255, 0, 0, 0.4)' || readingRulerColor === 'rgba(220, 38, 38, 1)')
                         ? 'bg-yellow-400 hover:bg-yellow-500 active:bg-yellow-600 border-black/20 text-black'
                         : 'bg-red-600 hover:bg-red-700 active:bg-red-800 border-white/20 text-white'
                         } hover:scale-110 active:scale-95`}

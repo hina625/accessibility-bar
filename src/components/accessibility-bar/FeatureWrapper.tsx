@@ -37,15 +37,11 @@ export default function FeatureWrapper({
     return (
         <div
             ref={elementRef}
-            className={`transition-all duration-500 rounded-xl ${className} ${isHighlighted ? 'ring-4 ring-offset-2 z-10' : ''
-                }`}
+            className={`transition-all duration-500 rounded-xl ${className}`}
             style={{
-                borderColor: isHighlighted ? currentTheme.active : 'transparent',
-                boxShadow: isHighlighted ? `0 0 0 4px ${currentTheme.active}40` : 'none',
-                // We use inline style for the ring color because tailwind ring color classes might not match our dynamic theme
-                ['--tw-ring-color' as any]: isHighlighted ? currentTheme.active : 'transparent',
-                ['--tw-ring-offset-color' as any]: currentTheme.background,
-                backgroundColor: isHighlighted ? `${currentTheme.active}15` : 'transparent'
+                borderColor: 'transparent',
+                boxShadow: 'none',
+                backgroundColor: 'transparent'
             }}
         >
             {children}

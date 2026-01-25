@@ -28,7 +28,7 @@ ANIMATION`,
             resetAllBtn: "Reset All",
             resetSelectedBtn: "Reset Selected",
             contact: "Contact Us",
-            azDescription: "All the features available via the graphical Menu icons, are also available by searching the A - Z list"
+            azDescription: "All the features available via the graphical Menu icons, are also available by searching the A - Z list."
         },
         controls: {
             fontSize: "Font Size",
@@ -121,7 +121,7 @@ ZOOM`,
             'open-sans': "Open Sans",
             calibri: "Calibri",
             'fs-me': "FS Me",
-            allFonts: "Fonts",
+            allFonts: "More Fonts",
             dyslexiaFonts: "Dyslexia Friendly Fonts",
             currentSelection: "Current selection",
             voiceControl: "Voice Control",

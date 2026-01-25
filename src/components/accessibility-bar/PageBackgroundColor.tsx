@@ -225,7 +225,7 @@ export default function PageBackgroundColor() {
           Custom {t.controls.bg}
         </label>
         <div className="space-y-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
             <div className="relative">
               <input
                 type="color"
@@ -240,7 +240,7 @@ export default function PageBackgroundColor() {
                   setTextColor(autoTextColor);
                   setHeadingColor(autoTextColor);
                 }}
-                className="w-12 h-12 rounded-lg border-2 cursor-pointer transition-all hover:scale-105"
+                className="w-10 h-10 rounded-lg border-2 cursor-pointer transition-all hover:scale-105"
                 style={{ borderColor: currentTheme.border }}
                 aria-label={`${t.controls.bg} picker`}
               />
@@ -258,7 +258,7 @@ export default function PageBackgroundColor() {
                 setTextColor(autoTextColor);
                 setHeadingColor(autoTextColor);
               }}
-              className="w-32 px-3 py-2.5 text-[15px] font-medium rounded-lg border-2 transition-all focus:outline-none focus:ring-2"
+              className="flex-1 min-w-[60px] max-w-[100px] px-2 py-2 text-[13px] font-medium rounded-lg border-2 transition-all focus:outline-none focus:ring-2"
               placeholder="#FFFFFF"
               style={{
                 background: currentTheme.background,
@@ -272,7 +272,7 @@ export default function PageBackgroundColor() {
                 setTextColor('#000000');
                 setHeadingColor('#000000');
               }}
-              className="px-3 py-2.5 text-[15px] font-bold rounded-lg border-2 transition-all hover:scale-105 active:scale-95"
+              className="px-2.5 py-2 text-[13px] font-bold rounded-lg border-2 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
               style={{
                 background: currentTheme.active,
                 color: currentTheme.text,

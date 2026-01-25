@@ -69,7 +69,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                         >
                             <Image src={infoIcon} alt="" width={28} height={28} className="brightness-0" />
                         </div>
-                        <h1 className="text-3xl font-black tracking-tight pt-1">Feature Guide</h1>
+                        <h1 className="text-3xl font-black tracking-tight pt-1">Features Guide</h1>
                     </div>
                 </div>
 
@@ -82,7 +82,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
-                    <span>Close</span>
+                    <span>Exit</span>
                 </button>
             </div>
 

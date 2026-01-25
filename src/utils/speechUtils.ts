@@ -16,7 +16,7 @@ const OPENAI_VOICES = [
     'pNInz6obpgDQGcFmaJgB', // Ovie (mapped to Adam)
     'd6IbhdqAKkXCCVuJjbie', // Peter
     // ElevenLabs Female Voices (3 selected - free tier compatible, alphabetical order)
-    'LcfcDJNUP1GQjkzn1xUU', // Anika (Jenni - free tier)
+    'XB0fDUnXU5powFXDhCwa', // Charlotte (British - free tier)
     'EXAVITQu4vr4xnSDxMaL', // Karla (Bella - free tier)
     'ThT5KcBeYPX3keUQqHPh', // Sharon (Dorothy - free tier)
 ];

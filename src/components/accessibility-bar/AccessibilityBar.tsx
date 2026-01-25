@@ -56,8 +56,8 @@ import resetIcon from '@/assets/icons/reset.png?inline';
 const resetCategoryIcon = resetIcon;
 import infoIcon from '@/assets/icons/info.png?inline';
 import informationButtonIcon from '@/assets/icons/information-button.png?inline';
-import contactUsIcon from '@/assets/icons/contact-us.png?inline';
 import spacingCategoryIcon from '@/assets/icons/capital-letter.png?inline';
+import contactUsIcon from '@/assets/icons/email.png?inline';
 import lineCategoryIcon from '@/assets/icons/line.png?inline';
 import letterIcon from '@/assets/icons/letter.png?inline';
 const letterSpacingIcon = letterIcon;
@@ -1001,6 +1001,10 @@ export default function AccessibilityBar() {
         if (ctx.pronunciationGuide) count++;
         if (ctx.smartSuggestions) count++;
         break;
+      case 'navigation':
+        if (ctx.keyboardNavigation) count++;
+        if (ctx.isPanelPinned) count++;
+        break;
       default:
         count = 0;
     }
@@ -1364,7 +1368,7 @@ export default function AccessibilityBar() {
       case 'info':
         return (
           <div className="space-y-4">
-            <h3 className="text-[24px] font-bold mb-4 px-2" style={{ color: currentTheme.text }}>Feature Guide</h3>
+            <h3 className="text-[24px] font-bold mb-4 px-2" style={{ color: currentTheme.text }}>Features Guide</h3>
             <div className="space-y-2">
               {Object.entries(t.info || {}).map(([key, data]: [string, any]) => {
                 const description = typeof data === 'string' ? data : data.description;
@@ -1580,80 +1584,92 @@ export default function AccessibilityBar() {
         </>
       )}
 
+      {/* Invisible overlay to close menu when clicking outside - Moved here to be BEFORE the menu for correct stacking */}
+      {
+        showMoreMenu && (
+          <div
+            className="fixed inset-0 z-[2147483651]"
+            onClick={() => setShowMoreMenu(false)}
+          />
+        )
+      }
+
       {/* Global More menu dropdown (positioned outside bar like panels) */}
-      {showMoreMenu && moreMenuPosition && (
-        <div
-          className="fixed z-[2147483655] w-64 rounded-2xl shadow-2xl border-2 overflow-hidden pointer-events-auto"
-          style={{
-            top: moreMenuPosition.y,
-            left: moreMenuPosition.x,
-            backgroundColor: currentTheme.background,
-            borderColor: currentTheme.border,
-          }}
-        >
-          <button
-            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
-            style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (audioPingEnabled) playAudioPing();
-              if (textToSpeech) {
-                await speak(t.common?.contact || 'Contact Us', ttsVoiceGender);
-              }
-              setSelectedCategory('contact');
-              setShowSettingsDropdown(false);
-              setShowMoreMenu(false);
+      {
+        showMoreMenu && moreMenuPosition && (
+          <div
+            className="fixed z-[2147483655] w-64 rounded-2xl shadow-2xl border-2 overflow-hidden pointer-events-auto"
+            style={{
+              top: moreMenuPosition.y,
+              left: moreMenuPosition.x,
+              backgroundColor: currentTheme.background,
+              borderColor: currentTheme.border,
             }}
           >
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
-              <Image src={contactUsIcon} alt="" width={24} height={24} className="brightness-0" />
-            </div>
-            <span className="text-[17px] font-bold tracking-tight">{t.common?.contact || 'Contact Us'}</span>
-          </button>
+            <button
+              className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
+              style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (audioPingEnabled) playAudioPing();
+                if (textToSpeech) {
+                  await speak(t.common?.contact || 'Contact Us', ttsVoiceGender);
+                }
+                setSelectedCategory('contact');
+                setShowSettingsDropdown(false);
+                setShowMoreMenu(false);
+              }}
+            >
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                <Image src={contactUsIcon} alt="" width={24} height={24} className="brightness-0" />
+              </div>
+              <span className="text-[17px] font-bold tracking-tight">{t.common?.contact || 'Contact Us'}</span>
+            </button>
 
-          <button
-            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
-            style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (audioPingEnabled) playAudioPing();
-              if (textToSpeech) {
-                await speak('Toolbar Feedback', ttsVoiceGender);
-              }
-              setSelectedCategory('feedback');
-              setShowSettingsDropdown(false);
-              setShowMoreMenu(false);
-              setMoreMenuPosition(null);
-            }}
-          >
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
-              <Image src={feedbackIcon} alt="" width={24} height={24} className="brightness-0" />
-            </div>
-            <span className="text-[17px] font-bold tracking-tight">Toolbar Feedback</span>
-          </button>
+            <button
+              className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item border-b"
+              style={{ color: currentTheme.text, borderColor: `${currentTheme.border}4d` }}
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (audioPingEnabled) playAudioPing();
+                if (textToSpeech) {
+                  await speak('Toolbar Feedback', ttsVoiceGender);
+                }
+                setSelectedCategory('feedback');
+                setShowSettingsDropdown(false);
+                setShowMoreMenu(false);
+                setMoreMenuPosition(null);
+              }}
+            >
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                <Image src={feedbackIcon} alt="" width={24} height={24} className="brightness-0" />
+              </div>
+              <span className="text-[17px] font-bold tracking-tight">Toolbar Feedback</span>
+            </button>
 
-          <button
-            className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item"
-            style={{ color: currentTheme.text }}
-            onClick={async (e) => {
-              e.stopPropagation();
-              if (audioPingEnabled) playAudioPing();
-              if (textToSpeech) {
-                await speak('Information', ttsVoiceGender);
-              }
-              setSelectedCategory('info');
-              setShowSettingsDropdown(false);
-              setShowMoreMenu(false);
-              setMoreMenuPosition(null);
-            }}
-          >
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
-              <Image src={infoIcon} alt="" width={24} height={24} className="brightness-0" />
-            </div>
-            <span className="text-[17px] font-bold tracking-tight">Information</span>
-          </button>
-        </div>
-      )}
+            <button
+              className="w-full text-left px-5 py-4 hover:bg-white/10 transition-all flex items-center gap-4 group/item"
+              style={{ color: currentTheme.text }}
+              onClick={async (e) => {
+                e.stopPropagation();
+                if (audioPingEnabled) playAudioPing();
+                if (textToSpeech) {
+                  await speak('Features Guide', ttsVoiceGender);
+                }
+                setSelectedCategory('info');
+                setShowSettingsDropdown(false);
+                setShowMoreMenu(false);
+                setMoreMenuPosition(null);
+              }}
+            >
+              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                <Image src={infoIcon} alt="" width={24} height={24} className="brightness-0" />
+              </div>
+              <span className="text-[17px] font-bold tracking-tight">Features Guide</span>
+            </button>
+          </div>
+        )
+      }
 
       {isOpen && (
         <>
@@ -2608,11 +2624,11 @@ export default function AccessibilityBar() {
                       </section>
 
                       {/* Row 1, Cell 3: Feature Indicators */}
-                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-0 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
-                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle (Red Dots) or an 'On' badge when a feature is selected:</h3>
+                      <section className={`pt-1 ${isMobile ? 'px-3' : 'px-4'} pb-3 ${!isMobile ? 'border-r border-b' : 'border-b'} relative`} style={{ borderColor: modalBorderColor }}>
+                        <h3 className={`${isMobile ? 'text-[15px]' : 'text-[16px]'} font-normal mb-4`} style={{ color: currentTheme.text, lineHeight: '1' }}>3. Apply Active Circle (Red Dot) or an 'On' badge when a feature is selected:</h3>
                         <ToggleCheckbox
                           id="show-active-indicators"
-                          label={<span>Active Circle<br />(Red Dots)</span>}
+                          label={<span>Active Circle<br />(Red Dot)</span>}
                           checked={showActiveIndicators}
                           onChange={toggleShowActiveIndicators}
                         />
@@ -3202,6 +3218,7 @@ export default function AccessibilityBar() {
                                       e.stopPropagation();
                                       if (audioPingEnabled) playAudioPing('menu');
                                       setShowResetConfirm(true);
+                                      setShowMoreMenu(false);
                                     }}
                                     onKeyDown={(e) => handleCategoryKeyDown(e, 0)}
                                     onMouseEnter={(e) => {
@@ -3455,8 +3472,12 @@ export default function AccessibilityBar() {
                                   <span
                                     className="absolute -top-1 -left-1 text-[9px] font-black leading-none px-1 py-0.5 rounded-sm shadow-sm z-20 pointer-events-none origin-top-left"
                                     style={{
-                                      backgroundColor: '#ef4444',
-                                      color: '#ffffff',
+                                      backgroundColor: selectedCategory === category.id
+                                        ? '#FFFFFF'
+                                        : (barTheme === 'yellow' ? '#000000' : '#FFD700'),
+                                      color: selectedCategory === category.id
+                                        ? '#000000'
+                                        : (barTheme === 'yellow' ? '#FFFFFF' : '#000000'),
                                       boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
                                       transform: `scale(${sidebarIconSize * 1.1})`
                                     }}
@@ -3646,13 +3667,7 @@ export default function AccessibilityBar() {
               </div>
 
 
-              {/* Invisible overlay to close menu when clicking outside */}
-              {showMoreMenu && (
-                <div
-                  className="fixed inset-0 z-[2147483651]"
-                  onClick={() => setShowMoreMenu(false)}
-                />
-              )}
+              {/* Invisible overlay moved to top level */}
 
               {/* Enhanced Tooltip */}
               <Tooltip
@@ -3673,15 +3688,15 @@ export default function AccessibilityBar() {
                       : `fixed z-[2147483647] ${isMobile ? 'w-[calc(100vw-20px)] left-[10px]' : (selectedCategory === 'az' ? 'w-[min(680px,calc(100vw-40px))]' : 'w-[min(350px,calc(100vw-40px))]')} shadow-2xl rounded-none overflow-hidden animate-fade-in`
                       }`}
                     style={!isVertical ? {
-                      left: (isEmbed && (selectedCategory === 'feedback' || selectedCategory === 'info'))
+                      left: (isEmbed && (selectedCategory === 'feedback' || selectedCategory === 'info' || selectedCategory === 'contact'))
                         ? 'auto'
                         : isMobile ? '10px' : selectedCategory === 'az'
                           ? `${Math.max(10, Math.min(window.innerWidth - Math.min(690, window.innerWidth - 10), selectedOffset - 340))}px`
                           : `${Math.max(10, Math.min(window.innerWidth - Math.min(360, window.innerWidth - 10), selectedOffset - 175))}px`,
-                      right: (isEmbed && (selectedCategory === 'feedback' || selectedCategory === 'info'))
+                      right: (isEmbed && (selectedCategory === 'feedback' || selectedCategory === 'info' || selectedCategory === 'contact'))
                         ? '10px'
                         : 'auto',
-                      [panelPosition === 'bottom' ? 'bottom' : 'top']: (selectedCategory === 'feedback' || selectedCategory === 'info')
+                      [panelPosition === 'bottom' ? 'bottom' : 'top']: (selectedCategory === 'feedback' || selectedCategory === 'info' || selectedCategory === 'contact')
                         ? `${80 * sidebarIconSize + 8}px`
                         : `${80 * sidebarIconSize + 36 + (isMobile ? 10 : 20)}px`,
                       background: currentTheme.background, // Solid background
@@ -3744,7 +3759,7 @@ export default function AccessibilityBar() {
                               )}`}
                               style={{ color: currentTheme.text }}
                             >
-                              {selectedCategory === 'az' ? 'A to Z List' : selectedCategory === 'feedback' ? 'Toolbar Feedback' : selectedCategory === 'info' ? 'Information' : (() => {
+                              {selectedCategory === 'az' ? 'A to Z List' : selectedCategory === 'feedback' ? 'Toolbar Feedback' : selectedCategory === 'info' ? 'Features Guide' : (() => {
                                 const categoryName = categories.find((c) => c.id === selectedCategory)?.name || '';
                                 // Split camelCase words (e.g., KeyboardShortcuts -> Keyboard Shortcuts)
                                 const withSpaces = categoryName.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -3758,7 +3773,7 @@ export default function AccessibilityBar() {
                             </h2>
                             {selectedCategory === 'az' && t.common.azDescription && (
                               <p
-                                className="text-[14px] font-bold mt-1 opacity-80 max-w-[400px] leading-tight"
+                                className="text-[16px] font-bold mt-4 opacity-80 max-w-[400px] leading-tight"
                                 style={{ color: currentTheme.text }}
                               >
                                 {t.common.azDescription}
@@ -3799,7 +3814,7 @@ export default function AccessibilityBar() {
                               d="M6 18L18 6M6 6l12 12"
                             />
                           </svg>
-                          <span className="text-base font-semibold tracking-wide">Close</span>
+                          <span className="text-base font-semibold tracking-wide">Exit</span>
                         </button>
                       </div>
 
