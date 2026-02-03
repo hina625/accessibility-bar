@@ -104,21 +104,21 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                     const category = categories.find(c => c.id === key)
                         || categories.find(c => c.id === 'font');
 
-                    let displayName: React.ReactNode = key.replace(/_/g, ' ').toUpperCase();
-                    if (key === 'font') displayName = 'FONT TOOLS';
+                    let displayName: React.ReactNode = key.replace(/_/g, ' ');
+                    if (key === 'font') displayName = 'Font Tools';
                     else if (key === 'position') displayName = (
                         <>
-                            CUSTOMISE<br />TOOLBAR
+                            Customise<br />Toolbar
                         </>
                     );
-                    else if (key === 'ai') displayName = 'AI SUPPORT';
+                    else if (key === 'ai') displayName = 'AI Support';
                     else if (key === 'reading') displayName = (
                         <>
-                            READING<br />TOOLS
+                            Reading<br />Tools
                         </>
                     );
                     else if (categories.find(c => c.id === key)) {
-                        const name = categories.find(c => c.id === key)?.name.toUpperCase() || "";
+                        const name = categories.find(c => c.id === key)?.name || "";
                         if (name.includes(' ')) {
                             const parts = name.split(' ');
                             displayName = (
@@ -149,7 +149,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                             )}
                                         </div>
                                         <div className="flex flex-col items-start pt-1">
-                                            <h2 className="text-2xl font-black uppercase tracking-widest drop-shadow-md leading-[1.1]" style={{ color: guideTheme.text }}>{displayName}</h2>
+                                            <h2 className="text-2xl font-black tracking-widest drop-shadow-md leading-[1.1]" style={{ color: guideTheme.text }}>{displayName}</h2>
                                             <div className="h-2 rounded-full shadow-lg mt-3 w-full opacity-100 transition-all duration-300" style={{ backgroundColor: guideTheme.accentYellow }}></div>
                                         </div>
                                     </div>
@@ -169,7 +169,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                         >
                                             <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-yellow-400 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 shadow-[0_0_15px_rgba(250,204,21,0.5)]"></div>
 
-                                            <h3 className="font-black text-2xl mb-4 uppercase tracking-tight" style={{ color: guideTheme.text }}>{fName.replace(/color/gi, 'colour')}</h3>
+                                            <h3 className="font-black text-2xl mb-4 tracking-tight" style={{ color: guideTheme.text }}>{fName.replace(/color/gi, 'Colour')}</h3>
                                             <p className="text-[22px] opacity-80 mb-10 font-bold leading-relaxed" style={{ color: guideTheme.text }}>
                                                 {(fDesc as string).replace(/color/gi, 'colour')}
                                             </p>
@@ -182,7 +182,7 @@ export default function InfoPage({ onClose, categories }: InfoPageProps) {
                                                     }}
                                                 ></div>
                                                 <span
-                                                    className="text-[10px] font-black tracking-[0.2em] opacity-60 uppercase"
+                                                    className="text-[10px] font-black tracking-[0.2em] opacity-60"
                                                     style={{
                                                         color: isYellowTheme ? '#000000' : '#fde047'
                                                     }}

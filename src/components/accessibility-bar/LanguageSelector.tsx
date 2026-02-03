@@ -67,7 +67,15 @@ export default function LanguageSelector() {
         aria-label="Select language"
         aria-expanded={isOpen}
       >
-        <span className="text-lg">{selectedLang.flag}</span>
+        <img
+          src={`https://flagcdn.com/w40/${selectedLang.countryCode}.png`}
+          srcSet={`https://flagcdn.com/w80/${selectedLang.countryCode}.png 2x`}
+          width="24"
+          height="18"
+          alt=""
+          className="rounded-sm object-cover"
+          style={{ width: '24px', height: '18px' }}
+        />
         <span className="flex-1 text-left">{selectedLang.name}</span>
         <svg
           className={`w-5 h-5 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
@@ -109,7 +117,15 @@ export default function LanguageSelector() {
                   onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = language === lang.code ? theme.active : 'transparent'}
                 >
-                  <span className="text-xl">{lang.flag}</span>
+                  <img
+                    src={`https://flagcdn.com/w40/${lang.countryCode}.png`}
+                    srcSet={`https://flagcdn.com/w80/${lang.countryCode}.png 2x`}
+                    width="24"
+                    height="18"
+                    alt=""
+                    className="rounded-sm object-cover"
+                    style={{ width: '24px', height: '18px' }}
+                  />
                   <div className="flex-1 text-left">
                     <div className="text-[16px] font-semibold" style={{ color: theme.text }}>{lang.name}</div>
                     <div className="text-[14px] font-semibold" style={{ color: theme.text, opacity: 0.7 }}>{lang.nativeName}</div>

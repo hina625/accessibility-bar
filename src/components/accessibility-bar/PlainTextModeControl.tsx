@@ -60,7 +60,7 @@ export default function PlainTextModeControl() {
 
             {plainTextMode && (
                 <div className="space-y-2 pl-2">
-                    <label className="block text-[12px] font-normal uppercase" style={{ color: theme.text, opacity: 0.7 }}>
+                    <label className="block text-[12px] font-normal" style={{ color: theme.text, opacity: 0.7 }}>
                         Text Size
                     </label>
                     <div className="grid grid-cols-3 gap-2">

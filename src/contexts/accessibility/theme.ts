@@ -1,3 +1,4 @@
+// Theme definitions for the accessibility bar
 export type BarTheme = 'white' | 'grayscale' | 'black' | 'oceanBlue' | 'Turquoise' | 'navy' | 'yellow' | 'purple' | 'pink';
 
 export interface ThemeColors {

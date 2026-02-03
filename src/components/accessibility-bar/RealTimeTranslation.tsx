@@ -168,7 +168,15 @@ export default function RealTimeTranslation() {
                                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = theme.hover}
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = selectionLanguage === lang.code ? theme.active : 'transparent'}
                                                 >
-                                                    <span className="text-xl">{lang.flag}</span>
+                                                    <img
+                                                        src={`https://flagcdn.com/w40/${lang.countryCode || 'un'}.png`}
+                                                        srcSet={`https://flagcdn.com/w80/${lang.countryCode || 'un'}.png 2x`}
+                                                        width="24"
+                                                        height="18"
+                                                        alt=""
+                                                        className="rounded-sm object-cover"
+                                                        style={{ width: '24px', height: '18px' }}
+                                                    />
                                                     <div className="flex-1 text-left">
                                                         <div className="text-[16px] font-semibold">{lang.name}</div>
                                                         <div className="text-[14px] font-semibold opacity-70">{lang.nativeName}</div>
@@ -240,7 +248,7 @@ export default function RealTimeTranslation() {
                                 <svg className="w-4 h-4" style={{ color: theme.active }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                                 </svg>
-                                <span className="text-[14px] font-bold uppercase" style={{ color: theme.active }}>
+                                <span className="text-[14px] font-bold" style={{ color: theme.active }}>
                                     {SUPPORTED_LANGUAGES.find(l => l.code === selectionLanguage)?.name}
                                 </span>
                             </div>

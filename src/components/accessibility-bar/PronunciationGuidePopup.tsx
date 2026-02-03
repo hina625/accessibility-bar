@@ -171,7 +171,7 @@ export default function PronunciationGuidePopup() {
                 <div className="text-[13px] pb-2 border-b" style={{ color: theme.text, opacity: 0.7, borderColor: theme.border }}>
                     <p>Highlight any word to hear an audio pronunciation of it</p>
                 </div>
-                
+
                 {isLoading ? (
                     <div className="flex items-center gap-2 py-2" style={{ color: theme.text, opacity: 0.6 }}>
                         <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: theme.active, borderTopColor: 'transparent' }}></div>
@@ -181,7 +181,7 @@ export default function PronunciationGuidePopup() {
                     <>
                         {/* Phonetics Section */}
                         <div className="space-y-1">
-                            <label className="text-[14px] font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
+                            <label className="text-[14px] font-semibold tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 {t.controls.phonetics || "Phonetics"} (IPA)
                             </label>
                             <div className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export default function PronunciationGuidePopup() {
 
                         {/* Syllables Section */}
                         <div className="space-y-1">
-                            <label className="text-[14px] font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
+                            <label className="text-[14px] font-semibold tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 Syllables
                             </label>
                             <div className="flex flex-wrap gap-1">
@@ -207,7 +207,7 @@ export default function PronunciationGuidePopup() {
 
                         {/* Simple Pronunciation (Sounds Like) */}
                         <div className="space-y-1 pt-2 border-t" style={{ borderColor: theme.border }}>
-                            <label className="text-xs font-semibold uppercase tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
+                            <label className="text-xs font-semibold tracking-wider" style={{ color: theme.text, opacity: 0.5 }}>
                                 {t.controls.soundsLike || "Sounds like"}
                             </label>
                             <div className="flex items-center justify-between">

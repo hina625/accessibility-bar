@@ -79,7 +79,7 @@ function mount() {
     host.style.width = '0'
     host.style.height = '0'
     host.style.overflow = 'visible'
-    host.style.zIndex = '2147483647'
+    host.style.zIndex = '2147483640'
     host.style.setProperty('pointer-events', 'none', 'important')
 
     const shadow = host.attachShadow({ mode: 'open' })

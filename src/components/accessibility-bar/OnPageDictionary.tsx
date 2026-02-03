@@ -118,7 +118,7 @@ export default function OnPageDictionary() {
           }}
         >
           <div className="p-3" style={{ backgroundColor: theme.active, color: theme.text }}>
-            <div className="text-[16px] font-bold uppercase tracking-tight">{selectedWord}</div>
+            <div className="text-[16px] font-bold tracking-tight">{selectedWord}</div>
           </div>
           <div className="p-4">
             {isLoading ? (

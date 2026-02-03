@@ -57,7 +57,7 @@ export default function TextAlignControl() {
                 }}
               />
             </div>
-            <span className="text-[14px] font-bold uppercase">{option.label}</span>
+            <span className="text-[14px] font-bold">{option.label}</span>
           </button>
         ))}
       </div>

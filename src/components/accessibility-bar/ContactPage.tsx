@@ -242,7 +242,7 @@ Website: ${formData.website || 'N/A'}
                 <button
                     type="submit"
                     disabled={status === 'submitting' || status === 'success'}
-                    className={`px-10 py-4 rounded-xl font-black uppercase tracking-[0.2em] text-sm transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-yellow-400/20 flex items-center justify-center gap-3 disabled:opacity-80 disabled:cursor-not-allowed ${status === 'success' ? 'bg-green-500 !text-white' : status === 'error' ? 'bg-red-500 !text-white' : ''
+                    className={`px-10 py-4 rounded-xl font-black tracking-[0.2em] text-sm transition-all hover:scale-105 active:scale-95 shadow-lg hover:shadow-yellow-400/20 flex items-center justify-center gap-3 disabled:opacity-80 disabled:cursor-not-allowed ${status === 'success' ? 'bg-green-500 !text-white' : status === 'error' ? 'bg-red-500 !text-white' : ''
                         }`}
                     style={status === 'idle' || status === 'submitting' ? { backgroundColor: guideTheme.accentYellow, color: accentTextColor } : {}}
                 >

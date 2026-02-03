@@ -199,7 +199,7 @@ export default function PageSummaryOverlay() {
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
-                        <span className="text-xs font-bold uppercase tracking-wide">Close</span>
+                        <span className="text-xs font-bold tracking-wide">Close</span>
                     </button>
                 </div>
             </div>
@@ -343,7 +343,7 @@ export default function PageSummaryOverlay() {
                 {/* Summary Text */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-sm font-bold uppercase tracking-wider opacity-40">
+                        <h3 className="text-sm font-bold tracking-wider opacity-40">
                             {isSimplified ? 'Simplified Summary' : 'Summary'}
                         </h3>
                         {isSimplified && (
@@ -379,7 +379,7 @@ export default function PageSummaryOverlay() {
                         className="mt-8 pt-6 border-t"
                         style={{ borderColor: `${theme.text}10` }}
                     >
-                        <h3 className="text-sm font-bold uppercase tracking-wider opacity-40 mb-4">Acronyms Detected</h3>
+                        <h3 className="text-sm font-bold tracking-wider opacity-40 mb-4">Acronyms Detected</h3>
                         <div className="space-y-3">
                             {Object.entries(acronyms).map(([acronym, fullForm]) => (
                                 <div

@@ -80,7 +80,7 @@ export default function PositionControls({
                                     }}
                                 />
                             </div>
-                            <span className="text-[14px] font-bold uppercase">{pos.label}</span>
+                            <span className="text-[14px] font-bold">{pos.label}</span>
                         </button>
                     ))}
                 </div>

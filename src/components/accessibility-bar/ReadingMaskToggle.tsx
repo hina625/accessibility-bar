@@ -102,7 +102,7 @@ export default function ReadingMaskToggle() {
                 <button
                   key={size.label}
                   onClick={() => setReadingMaskSize(size.value)}
-                  className={`flex-1 py-1 px-2 rounded border text-base font-bold transition-all uppercase`}
+                  className={`flex-1 py-1 px-2 rounded border text-base font-bold transition-all`}
                   style={{
                     backgroundColor: readingMaskSize === size.value ? theme.active : 'transparent',
                     color: readingMaskSize === size.value ? '#FFF' : theme.text,

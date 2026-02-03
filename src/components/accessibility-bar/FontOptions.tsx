@@ -77,7 +77,7 @@ export default function FontOptions() {
 
             {/* Line Height */}
             <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400">
                     Line Height
                 </label>
                 <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-2xl p-2 px-4 shadow-inner">
@@ -107,7 +107,7 @@ export default function FontOptions() {
 
             {/* Character Spacing */}
             <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400">
                     Character Spacing
                 </label>
                 <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-2xl p-2 px-4 shadow-inner">
@@ -137,7 +137,7 @@ export default function FontOptions() {
 
             {/* Word Spacing */}
             <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400">
                     Word Spacing
                 </label>
                 <div className="flex items-center justify-between bg-gray-100 dark:bg-gray-800 rounded-2xl p-2 px-4 shadow-inner">
@@ -169,7 +169,7 @@ export default function FontOptions() {
 
             {/* Dyslexia Friendly Fonts Dropdown */}
             <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400">
                     {t.controls.dyslexiaFonts}
                 </label>
                 <div className="relative group">
@@ -193,7 +193,7 @@ export default function FontOptions() {
 
             {/* All Fonts Dropdown */}
             <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+                <label className="text-xs font-bold tracking-widest text-gray-500 dark:text-gray-400">
                     {t.controls.allFonts}
                 </label>
                 <div className="relative group">

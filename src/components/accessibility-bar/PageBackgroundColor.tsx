@@ -104,7 +104,7 @@ export default function PageBackgroundColor() {
 
       <div className="space-y-6">
         <div>
-          <h4 className="text-[14px] font-semibold mb-3 uppercase tracking-wide" style={{ color: currentTheme.text, opacity: 0.8 }}>
+          <h4 className="text-[14px] font-semibold mb-3" style={{ color: currentTheme.text, opacity: 0.8 }}>
             {t.common.dark} {t.controls.bg}
           </h4>
           <div className="grid grid-cols-5 gap-3">
@@ -162,7 +162,7 @@ export default function PageBackgroundColor() {
         </div>
 
         <div>
-          <h4 className="text-[14px] font-semibold mb-3 uppercase tracking-wide" style={{ color: currentTheme.text, opacity: 0.8 }}>
+          <h4 className="text-[14px] font-semibold mb-3" style={{ color: currentTheme.text, opacity: 0.8 }}>
             {t.common.light} {t.controls.bg}
           </h4>
           <div className="grid grid-cols-5 gap-3">
@@ -221,7 +221,7 @@ export default function PageBackgroundColor() {
       </div>
 
       <div className="pt-4 border-t-2" style={{ borderColor: currentTheme.border }}>
-        <label className="block text-[14px] font-semibold mb-3 uppercase tracking-wide" style={{ color: currentTheme.text }}>
+        <label className="block text-[14px] font-semibold mb-3" style={{ color: currentTheme.text }}>
           Custom {t.controls.bg}
         </label>
         <div className="space-y-3">
@@ -297,7 +297,7 @@ export default function PageBackgroundColor() {
               borderColor: currentTheme.border
             }}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[12px] font-semibold uppercase" style={{ color: getContrastColor(backgroundColor) }}>
+                <span className="text-[12px] font-semibold" style={{ color: getContrastColor(backgroundColor) }}>
                   Preview
                 </span>
               </div>

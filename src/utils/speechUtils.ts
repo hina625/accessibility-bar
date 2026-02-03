@@ -25,63 +25,74 @@ const OPENAI_VOICES = [
 let currentAudio: HTMLAudioElement | null = null;
 let currentAbortController: AbortController | null = null;
 
-export const speak = async (text: string, voiceGender?: string, speed: number = 1.0) => {
-    if (typeof window === 'undefined') return;
+export const setAsCurrentAudio = (audio: HTMLAudioElement | null) => {
+    currentAudio = audio;
+};
 
-    if (currentAbortController) {
-        currentAbortController.abort();
+export const speak = async (text: string, voiceGender?: string, speed: number = 1.0, options: { autoplay?: boolean } = { autoplay: true }): Promise<HTMLAudioElement | null> => {
+    if (typeof window === 'undefined') return null;
+
+    const isForeground = options.autoplay !== false;
+
+    if (isForeground) {
+        if (currentAbortController) {
+            currentAbortController.abort();
+        }
+        currentAbortController = new AbortController();
+
+        if (currentAudio) {
+            currentAudio.pause();
+            currentAudio.src = '';
+            currentAudio = null;
+        }
+
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
     }
-    currentAbortController = new AbortController();
-    const signal = currentAbortController.signal;
+
+    const localAbortController = isForeground ? currentAbortController! : new AbortController();
+    const signal = localAbortController.signal;
 
     let selectedVoice = voiceGender;
     if (selectedVoice === 'male') selectedVoice = 'onyx';
     if (selectedVoice === 'female') selectedVoice = 'nova';
 
-
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.src = '';
-        currentAudio = null;
-    }
-
-
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-    }
-
     if (selectedVoice && OPENAI_VOICES.includes(selectedVoice)) {
         try {
-            const isLocal = API_ENDPOINTS.TTS.includes('localhost');
-
-            if (isLocal && text.length < 1000) {
-
-                if (signal.aborted) {
-                    return;
-                }
+            if (text.length < 1000) {
+                // For shorter text, use GET request with direct Audio stream
                 const url = `${API_ENDPOINTS.TTS}?text=${encodeURIComponent(text)}&voice=${selectedVoice}&speed=${speed}`;
-                currentAudio = new Audio(url);
+                const localAudio = new Audio();
+                localAudio.crossOrigin = "anonymous";
+                localAudio.src = url;
 
-
-                if (signal.aborted) {
-                    return;
+                if (isForeground) {
+                    currentAudio = localAudio;
                 }
 
-                try {
-                    await currentAudio.play();
-                } catch (playError: any) {
-
-                    if (signal.aborted || playError?.name === 'AbortError') {
-                        return;
+                if (options.autoplay !== false) {
+                    try {
+                        await localAudio.play();
+                    } catch (playError: any) {
+                        if (signal.aborted || playError?.name === 'AbortError' || playError?.message?.includes('interrupted')) {
+                            return null;
+                        }
+                        if (playError?.name === 'NotAllowedError') {
+                            console.warn('TTS Autoplay blocked: User interaction required.', playError.message);
+                        } else {
+                            console.error('Audio playback failed, trying fetch fallback:', playError);
+                            if (isForeground) currentAudio = null;
+                            // Fallback to POST below
+                            return null;
+                        }
                     }
-
-
-                    console.error('Audio playback failed:', playError);
-                    throw playError;
                 }
-                return;
+
+                return localAudio;
             }
 
+            // Fallback for long text or if POST is preferred
             const response = await fetch(API_ENDPOINTS.TTS, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -91,70 +102,76 @@ export const speak = async (text: string, voiceGender?: string, speed: number = 
 
 
             if (signal.aborted) {
-                return;
+                return null;
             }
 
             if (!response.ok) {
+                const textBody = await response.text();
                 let errorText;
                 try {
-                    const errorData = await response.json();
+                    const errorData = JSON.parse(textBody);
                     errorText = errorData.error || errorData.message || 'Unknown error';
                 } catch {
-                    errorText = await response.text();
+                    errorText = textBody;
                 }
 
                 // Handle ElevenLabs custom voice limit error gracefully
                 if (errorText.includes('maximum amount of custom voices') || errorText.includes('custom voice limit')) {
                     console.warn(`TTS Voice Limit: ${errorText}. Please check your ElevenLabs account settings or use library voices instead.`);
-                    return;
+                    return null;
                 }
 
                 // Handle ElevenLabs subscription tier requirement error
                 if (errorText.includes('creator tier') || errorText.includes('subscription') || errorText.includes('tier')) {
                     console.warn(`TTS Subscription Required: ${errorText}. This voice requires a paid ElevenLabs plan (Creator tier or above). Please upgrade your subscription or use free-tier compatible voices.`);
-                    return;
+                    return null;
                 }
 
                 console.error(`TTS API Error: ${response.status} - ${errorText}`);
-                return;
+                return null;
             }
 
             const blob = await response.blob();
 
 
             if (signal.aborted) {
-                return;
+                return null;
             }
 
             const url = URL.createObjectURL(blob);
-            currentAudio = new Audio(url);
+            const localAudio = new Audio(url);
 
-            if (signal.aborted) {
-                URL.revokeObjectURL(url);
-                return;
+            if (isForeground) {
+                currentAudio = localAudio;
             }
 
-            try {
-                await currentAudio.play();
-            } catch (playError: any) {
-
-                if (signal.aborted || playError?.name === 'AbortError') {
-                    URL.revokeObjectURL(url);
-                    return;
+            if (options.autoplay !== false) {
+                try {
+                    await localAudio.play();
+                } catch (playError: any) {
+                    if (signal.aborted || playError?.name === 'AbortError') {
+                        URL.revokeObjectURL(url);
+                        return null;
+                    }
+                    if (playError?.name === 'NotAllowedError') {
+                        console.warn('TTS Autoplay blocked: User interaction required.');
+                    } else {
+                        console.error('Audio playback failed:', playError);
+                        URL.revokeObjectURL(url);
+                        if (isForeground) currentAudio = null;
+                        throw playError;
+                    }
                 }
-
-
-                console.error('Audio playback failed:', playError);
-                URL.revokeObjectURL(url);
-                throw playError;
             }
-            return;
+            return localAudio;
         } catch (error: any) {
 
             if (error?.name === 'AbortError' || error?.message?.includes('aborted')) {
-                return;
+                return null;
             }
             console.error('OpenAI TTS Error:', error);
+            return null;
         }
     }
+    return null;
 };

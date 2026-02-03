@@ -131,7 +131,7 @@ export default function FeedbackPopup({ onClose, onSubmit }: FeedbackPopupProps)
                     <button
                         onClick={handleSubmit}
                         disabled={rating === null}
-                        className="w-full sm:w-auto px-6 py-4 sm:px-16 sm:py-5 rounded-2xl font-black uppercase tracking-widest text-base sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
+                        className="w-full sm:w-auto px-6 py-4 sm:px-16 sm:py-5 rounded-2xl font-black tracking-widest text-base sm:text-xl transition-all shadow-xl hover:shadow-2xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none bg-black text-white"
                         style={{
                             backgroundColor: currentTheme.text,
                             color: currentTheme.background

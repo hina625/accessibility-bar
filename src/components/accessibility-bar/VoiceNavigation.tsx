@@ -624,7 +624,7 @@ export default function VoiceNavigation() {
 
                     {/* Example Command */}
                     <div className="text-[12px] text-center mt-3 opacity-60 space-y-1 px-4 leading-relaxed" style={{ color: theme.text }}>
-                        <p className="font-bold uppercase tracking-wider mb-1 opacity-80">AI supports natural commands e.g:</p>
+                        <p className="font-bold tracking-wider mb-1 opacity-80">AI supports natural commands e.g:</p>
                         <p>"Show me links", "Read this page"</p>
                         <p>"Dark Mode", "Show reading ruler", "Hide images"</p>
                         <p>"Go to Top", "Reset All", "Next Button"</p>

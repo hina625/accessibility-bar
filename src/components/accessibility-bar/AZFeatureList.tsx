@@ -11,6 +11,7 @@ interface FeatureItem {
     category?: string;
     highlightId?: string;
     isActive?: boolean;
+    sortLabel?: string;
 }
 
 interface AZFeatureListProps {
@@ -63,6 +64,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         toggleTextToSpeech,
         toggleStopVideos,
         toggleSpeechToText,
+        toggleShowOnBadge,
 
         pauseAnimations,
         highContrast,
@@ -110,7 +112,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Background Page Colours (Dark or Light Options)', category: 'contrast', highlightId: 'page-background' },
         { label: 'Colour Blind Tools/Options', category: 'contrast', highlightId: 'color-blind' },
         { label: 'Colour Theme (for Sidebar)', action: onOpenSettings },
-        { label: 'Contrast Controls (Menu Icon)', category: 'contrast', highlightId: 'contrast-toggle', isActive: highContrast },
+        { label: 'Contrast Controls (Menu Icon)', category: 'contrast', highlightId: 'contrast-toggle', isActive: highContrast, sortLabel: 'Contrast Controls 1' },
+        { label: 'Contact Us Form', action: () => onNavigate('contact'), sortLabel: 'Contrast Controls 2' },
         { label: 'Cursor Colours', category: 'cursor', highlightId: 'cursor-color' },
         { label: 'Cursor Options (Menu Icon)', category: 'cursor' },
         { label: 'Cursor (Reduce Motion)', category: 'cursor', highlightId: 'reduce-motion' },
@@ -120,7 +123,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Dictionary', category: 'language', highlightId: 'dictionary', isActive: onPageDictionary },
         { label: 'Dyslexia Friendly Fonts', category: 'font', highlightId: 'font-style' },
         { label: 'Feature Indicators (Red Dot Markers)', action: toggleShowActiveIndicators, isActive: showActiveIndicators },
-        { label: 'Feedback Options (Menu Icon)', action: onOpenFeedback },
+        { label: 'More Options Menu (3 Dots)', action: onOpenFeedback },
         { label: 'Font Size', category: 'font', highlightId: 'font-size', isActive: fontSize !== 16 },
         { label: 'Font Increase', category: 'font', highlightId: 'font-size' },
         { label: 'Font Decrease', category: 'font', highlightId: 'font-size' },
@@ -132,9 +135,9 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'High Contrast', category: 'contrast', highlightId: 'high-contrast', isActive: highContrast },
         { label: 'Hide Website Images', category: 'images', highlightId: 'hide-images', isActive: hideImages },
         { label: 'Highlight Links', category: 'layout', highlightId: 'highlight-links', isActive: highlightLinks },
-        { label: 'Images and Animation (Menu Icon)', category: 'images' },
+        { label: 'Images / Animations (Menu Icon)', category: 'images' },
         { label: 'Image Descriptions', category: 'images', highlightId: 'image-descriptions', isActive: showImageDescriptions },
-        { label: 'Information (Icon)', action: () => onNavigate('info') },
+        { label: 'Features Guide (More Options Menu)', action: () => onNavigate('info') },
         { label: 'Invert Colours', category: 'contrast', highlightId: 'invert-colors', isActive: invertColors },
         { label: 'Keyboard Shortcuts (Menu Icon)', category: 'navigation' },
         { label: 'Large buttons', category: 'reading', highlightId: 'large-buttons', isActive: largeButtons },
@@ -149,6 +152,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Page Simplify', category: 'layout', highlightId: 'simplify-layout', isActive: simplifiedLayout },
         { label: 'Page Summary', category: 'ai', highlightId: 'page-summary', isActive: pageSummary },
         { label: 'Page Structure', category: 'layout', highlightId: 'page-structure', isActive: pageStructure },
+        { label: "On Badge (Apply 'On' Label/ Badge to Menu icons)", action: toggleShowOnBadge, isActive: showOnBadge },
         { label: 'Page Background Colour', category: 'contrast', highlightId: 'page-background' },
         { label: 'Panel Position (Sidebar)', category: 'position', highlightId: 'position-controls' },
         { label: 'Plain Text View', category: 'layout', highlightId: 'plain-text', isActive: plainTextMode },
@@ -158,7 +162,8 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Reading Mask', category: 'reading', highlightId: 'reading-mask', isActive: readingMask },
         { label: 'Reading Spotlight', category: 'reading', highlightId: 'reading-spotlight', isActive: readingSpotlight },
         { label: 'Reading Tools (Menu Icon)', category: 'reading' },
-        { label: 'Reset Button (Menu Icon)', action: resetAll },
+        { label: 'Reset Button (Menu Icon)', action: resetAll, sortLabel: 'Reset Button 1' },
+        { label: 'Reset Button (Change Colour)', action: onOpenSettings, sortLabel: 'Reset Button 2' },
         { label: 'Ruler', category: 'reading', highlightId: 'reading-ruler', isActive: readingRuler },
         { label: 'Smart Suggestions', category: 'language', highlightId: 'smart-suggestions', isActive: smartSuggestions },
         { label: 'Subtitles (for Videos)', category: 'images' },
@@ -167,6 +172,7 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
         { label: 'Translate Website', category: 'language', highlightId: 'real-time-translation' },
         { label: 'Text Align', category: 'textSpacing' },
         { label: 'Text to Speech (TTS)', category: 'speech', highlightId: 'text-to-speech', isActive: textToSpeech },
+        { label: 'Toolbar Feedback (More Options Menu)', action: onOpenFeedback },
         { label: 'Video Controls (Pause or Stop)', category: 'images', highlightId: 'stop-videos', isActive: stopVideos },
         { label: 'Voice Control', category: 'speech', highlightId: 'voice-navigation', isActive: speechToText },
         { label: 'Word Spacing (Kerning)', category: 'letterSpacing', highlightId: 'word-spacing' },
@@ -211,7 +217,11 @@ const AZFeatureList: React.FC<AZFeatureListProps> = ({
     const filteredFeatures = useMemo(() => {
         return features
             .filter(f => f.label.toLowerCase().includes(searchQuery.toLowerCase()))
-            .sort((a, b) => a.label.localeCompare(b.label));
+            .sort((a, b) => {
+                const labelA = a.sortLabel || a.label;
+                const labelB = b.sortLabel || b.label;
+                return labelA.localeCompare(labelB);
+            });
     }, [features, searchQuery]);
 
     const groupedFeatures = useMemo(() => {

@@ -18,8 +18,7 @@ export default function SelectionTranslator() {
     const tooltipRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // Only active if realTimeTranslation is enabled
-        // Note: User can enable BOTH Dictionary and Translator if they want.
+
         if (!realTimeTranslation) {
             setIsVisible(false);
             return;
@@ -32,7 +31,7 @@ export default function SelectionTranslator() {
                 return;
             }
 
-            // Small timeout to let selection settle (crucial for embed)
+
             setTimeout(() => {
                 const selection = window.getSelection();
                 const text = selection?.toString().trim();
@@ -55,13 +54,13 @@ export default function SelectionTranslator() {
                 } else {
                     setIsVisible(false);
                 }
-            }, 100); // Slightly longer for mobile/embed
+            }, 100);
         };
 
         const handleMouseDown = (e: MouseEvent | TouchEvent) => {
             if (!tooltipRef.current?.contains(e.target as Node) &&
                 !(e.target as HTMLElement).closest('.accessibility-bar')) {
-                // setIsVisible(false); // Rely on mouseup to clear
+
             }
         };
 
@@ -117,13 +116,13 @@ export default function SelectionTranslator() {
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 backgroundColor: theme.background,
-                marginTop: '-12px', // Little offset to not overlap exact mouse position
+                marginTop: '-12px',
                 pointerEvents: 'auto'
             }}
         >
             <div className="p-2 px-3 flex justify-between items-center" style={{ backgroundColor: theme.active, color: theme.text }}>
-                <div className="text-[14px] font-bold uppercase tracking-tight truncate max-w-[200px]">{selectedText}</div>
-                <div className="text-[10px] opacity-80 uppercase tracking-widest">{SUPPORTED_LANGUAGES.find(l => l.code === selectionLanguage)?.name}</div>
+                <div className="text-[14px] font-bold tracking-tight truncate max-w-[200px]">{selectedText}</div>
+                <div className="text-[10px] opacity-80 tracking-widest">{SUPPORTED_LANGUAGES.find(l => l.code === selectionLanguage)?.name}</div>
             </div>
             <div className="p-4">
                 {isLoading ? (

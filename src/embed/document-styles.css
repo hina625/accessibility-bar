@@ -384,10 +384,10 @@ html.highlight-headings * :is(h1, h2, h3, h4, h5, h6):not(.a11y-embed-host *):no
     background-color: #FFD700 !important;
     background: #FFD700 !important;
     color: #000000 !important;
-    padding: 3px 6px !important;
+
     border-radius: 3px !important;
-    display: inline-block !important;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    /* display: inline-block !important; REMOVED */
+    box-shadow: 0 0 0 4px #FFD700, 0 2px 4px rgba(0, 0, 0, 0.3) !important;
     background-image: none !important;
     opacity: 1 !important;
     font-weight: bold !important;

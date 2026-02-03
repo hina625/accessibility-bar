@@ -35,10 +35,10 @@ export default function CursorSizeControl({ highlightedFeature }: CursorSizeCont
     {
       id: 'circle',
       label: t.controls.circle || 'Circle 1',
-      icon: (size, _) => (
+      icon: (size, color) => (
         <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
-          <circle cx="12" cy="12" r="9" fill="none" stroke={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} strokeWidth="2" />
-          <circle cx="12" cy="12" r="2" fill={currentTheme.text === '#FFFFFF' ? 'white' : 'black'} />
+          <circle cx="12" cy="12" r="9" fill="none" stroke={color || '#000000'} strokeWidth="2" />
+          <circle cx="12" cy="12" r="2" fill={color || '#000000'} />
         </svg>
       )
     },
@@ -53,7 +53,7 @@ export default function CursorSizeControl({ highlightedFeature }: CursorSizeCont
       id: 'highlight',
       label: t.controls.highlight || 'Circle 3',
       icon: (size, color) => {
-        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        const iconColor = color === '#000000' || color === '#000' ? '#000' : color;
         return (
           <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
             <circle cx="12" cy="12" r="11.5" fill={iconColor} />
@@ -149,7 +149,7 @@ export default function CursorSizeControl({ highlightedFeature }: CursorSizeCont
       id: 'crosshair',
       label: t.controls.crosshair || 'Cross',
       icon: (size, color) => {
-        const iconColor = color === '#000000' || color === '#000' ? (currentTheme.text === '#FFFFFF' ? '#fff' : '#000') : color;
+        const iconColor = color === '#000000' || color === '#000' ? '#000' : color;
         return (
           <svg viewBox="0 0 24 24" style={{ width: size, height: size }}>
             <path fill="none" stroke={iconColor} strokeWidth="2" d="M12 2v20M2 12h20" />
@@ -210,27 +210,28 @@ export default function CursorSizeControl({ highlightedFeature }: CursorSizeCont
                 }}
                 className="flex flex-col items-center justify-center gap-1.5 p-1.5 rounded-lg border-2 transition-all h-full min-h-[75px] group"
                 style={{
-                  borderColor: cursorStyle === style.id ? currentTheme.active : currentTheme.border,
-                  backgroundColor: cursorStyle === style.id ? `${currentTheme.active}22` : `${currentTheme.text}08`
+                  borderColor: cursorStyle === style.id ? '#000000' : 'rgba(0,0,0,0.2)',
+                  backgroundColor: '#ffd015', // Yellow theme background for all
+                  color: '#000000'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'scale(1.1)';
-                  e.currentTarget.style.backgroundColor = cursorStyle === style.id ? `${currentTheme.active}33` : `${currentTheme.active}22`;
-                  e.currentTarget.style.borderColor = currentTheme.active;
+                  e.currentTarget.style.backgroundColor = '#cca818'; // Darker yellow on hover
+                  e.currentTarget.style.borderColor = '#000000';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.backgroundColor = cursorStyle === style.id ? `${currentTheme.active}22` : `${currentTheme.text}08`;
-                  e.currentTarget.style.borderColor = cursorStyle === style.id ? currentTheme.active : currentTheme.border;
+                  e.currentTarget.style.backgroundColor = '#ffd015';
+                  e.currentTarget.style.borderColor = cursorStyle === style.id ? '#000000' : 'rgba(0,0,0,0.2)';
                 }}
               >
                 <div className="w-7 h-7 flex items-center justify-center shrink-0 transition-transform group-hover:scale-110">
                   <div className="scale-75 origin-center group-hover:scale-90">
-                    {style.icon(32, cursorColor)}
+                    {style.icon(32, '#000000')}
                   </div>
                 </div>
                 <span className="text-[10px] sm:text-[11px] font-bold leading-tight w-full text-center px-0.5 whitespace-nowrap overflow-hidden text-ellipsis transition-all"
-                  style={{ color: currentTheme.text }}>
+                  style={{ color: '#000000' }}>
                   {style.label}
                 </span>
               </button>

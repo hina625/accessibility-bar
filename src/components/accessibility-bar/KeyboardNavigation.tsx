@@ -1,12 +1,20 @@
-'use client';
-
+import { useState, useRef, useEffect } from 'react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
 import { BAR_THEMES, BarTheme } from '@/contexts/accessibility/theme';
+import { ShadowPortal } from '@/embed/ShadowPortal';
 
 export default function KeyboardNavigation() {
   const { barTheme, isPanelPinned, togglePanelPin, panelPosition } = useAccessibility();
   const theme = BAR_THEMES[barTheme as BarTheme] || BAR_THEMES['purple'];
   const isTopOrBottom = panelPosition === 'top' || panelPosition === 'bottom';
+  const [showPinPopup, setShowPinPopup] = useState(false);
+  const [popupPos, setPopupPos] = useState({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="space-y-4">
@@ -16,8 +24,17 @@ export default function KeyboardNavigation() {
             <span className="text-[16px] font-black tracking-wide" style={{ color: theme.text }}>Pin Keyboard</span>
           </div>
           <button
-            onClick={() => togglePanelPin()}
-            className="p-2 rounded-xl transition-all hover:scale-105 active:scale-95 z-10 flex items-center justify-center shadow-md"
+            ref={buttonRef}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setPopupPos({
+                x: rect.right - 266, // 256 width + buffer
+                y: rect.bottom + 10
+              });
+              togglePanelPin();
+              setShowPinPopup(true);
+            }}
+            className="p-2 rounded-xl transition-all hover:scale-105 active:scale-95 z-10 flex items-center justify-center shadow-md relative group"
             style={{
               backgroundColor: isPanelPinned ? '#FFD700' : '#FFFFFF',
               color: '#000000',
@@ -37,10 +54,70 @@ export default function KeyboardNavigation() {
               <path d="M16 12V4H17V2H7V4H8V12L6 14V16H11V22H13V16H18V14L16 12Z" />
             </svg>
           </button>
+
+          {showPinPopup && mounted && (
+            <ShadowPortal>
+              <div className="fixed inset-0 z-[2147483667] flex items-center justify-center p-4 animate-in fade-in duration-300 pointer-events-auto">
+                <div
+                  className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+                  onClick={() => setShowPinPopup(false)}
+                />
+                <div
+                  className="relative rounded-3xl p-8 shadow-2xl max-w-sm w-full text-center m-4 animate-scale-up z-10 border-[4px]"
+                  style={{
+                    backgroundColor: theme.background,
+                    color: theme.text,
+                    borderColor: theme.border
+                  }}
+                >
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border-2"
+                    style={{
+                      backgroundColor: theme.active,
+                      color: theme.background,
+                      borderColor: theme.active
+                    }}
+                  >
+                    <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+
+                  <h3 className="text-xl font-black mb-2 tracking-wide">Panel Pinned</h3>
+                  <p className="opacity-90 font-medium text-base leading-relaxed mb-6">
+                    When Pin is selected, any open panels will close on pressing 'X Exit'. Unselect 'Pin' for any open panels to close automatically when any part of the screen is clicked.
+                  </p>
+
+                  <button
+                    onClick={() => setShowPinPopup(false)}
+                    className="w-full py-3.5 rounded-2xl font-black tracking-widest text-lg transition-all shadow-xl hover:shadow-2xl active:scale-95 border-2"
+                    style={{
+                      backgroundColor: theme.text,
+                      color: theme.background,
+                      borderColor: theme.border
+                    }}
+                  >
+                    Okay
+                  </button>
+
+                  <button
+                    onClick={() => setShowPinPopup(false)}
+                    className="absolute top-2 right-2 p-2 rounded-full bg-red-600 hover:bg-red-700 transition-colors shadow-lg hover:shadow-xl z-20"
+                    aria-label="Close"
+                    style={{ color: 'white' }}
+                  >
+                    <svg className="w-5 h-5 opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </ShadowPortal>
+          )}
         </div>
       </div>
       <div className="p-4 rounded-xl border-2" style={{ backgroundColor: theme.hover, borderColor: theme.border }}>
-        <p className={`${isTopOrBottom ? 'text-[16px]' : 'text-[14px]'} font-bold mb-4 uppercase tracking-wide text-center`} style={{ color: theme.text }}>Keyboard Shortcuts</p>
+        <p className={`${isTopOrBottom ? 'text-[16px]' : 'text-[14px]'} font-bold mb-4 tracking-wide text-center`} style={{ color: theme.text }}>Keyboard Shortcuts</p>
         <ul className={`space-y-3.5 ${isTopOrBottom ? 'text-[16px]' : 'text-[14px]'}`} style={{ color: theme.text }}>
           {/* Bar Control */}
           <li className="flex justify-between items-center">
@@ -143,6 +220,6 @@ export default function KeyboardNavigation() {
           </li>
         </ul>
       </div>
-    </div>
+    </div >
   );
 }

@@ -91,67 +91,58 @@ export default function TtsPlayer() {
 
     return (
         <div
-            className="fixed z-[9999] shadow-2xl rounded-xl p-4 flex flex-col gap-3 min-w-[200px] select-none"
+            className="fixed z-[9999] shadow-2xl rounded-xl p-4 flex flex-col gap-3 min-w-[200px] select-none cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
                 backgroundColor: theme.background,
                 border: `2px solid ${theme.active}`,
-                cursor: isDragging ? 'grabbing' : 'auto',
+                cursor: isDragging ? 'grabbing' : 'grab',
                 pointerEvents: 'auto'
             }}
         >
             {/* Header / Drag Handle */}
             <div
-                className="relative flex items-center justify-between cursor-grab active:cursor-grabbing border-b pb-2 mb-1"
-                onMouseDown={handleMouseDown}
-                onTouchStart={handleTouchStart}
+                className="relative flex items-center justify-between border-b pb-2 mb-1"
                 style={{ borderColor: `${theme.text}22` }}
             >
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.active }} />
-                    <span className="text-[14px] font-bold uppercase tracking-wider" style={{ color: theme.text }}>TTS Player</span>
+                    <span className="text-[14px] font-bold tracking-wider" style={{ color: theme.text }}>TTS Player</span>
                 </div>
-                {/* Close Button - Red X in top right */}
+                {/* Close Button - "X Exit" */}
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
                         toggleTtsMovableControls();
                     }}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-all hover:scale-105 active:scale-95 border"
                     style={{
-                        backgroundColor: '#EF4444',
-                        color: '#FFFFFF'
+                        backgroundColor: theme.active,
+                        color: (() => {
+                            const hex = theme.active.replace('#', '');
+                            const r = parseInt(hex.substring(0, 2), 16);
+                            const g = parseInt(hex.substring(2, 4), 16);
+                            const b = parseInt(hex.substring(4, 6), 16);
+                            const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+                            return (yiq >= 128) ? '#000000' : '#FFFFFF';
+                        })(),
+                        borderColor: 'rgba(0,0,0,0.1)'
                     }}
                     aria-label={t.common.close}
                 >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
+                    <span className="text-[10px] font-black tracking-wide">Exit</span>
                 </button>
             </div>
 
             {/* Controls */}
             <div className="flex items-center justify-center gap-4 py-2">
-                {/* Play/Pause Audio Button */}
-                <button
-                    onClick={toggleMuteAudio}
-                    className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                    style={{ backgroundColor: `${theme.text}11`, color: theme.text }}
-                    title={muteAudio ? "Resume Audio" : "Pause Audio"}
-                >
-                    {muteAudio ? (
-                        <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M8 5v14l11-7z" />
-                        </svg>
-                    ) : (
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                        </svg>
-                    )}
-                </button>
-
                 <button
                     onClick={isPaused ? resumeTts : pauseTts}
                     className="w-10 h-10 rounded-full flex items-center justify-center transition-all hover:scale-110 active:scale-95"
@@ -179,17 +170,6 @@ export default function TtsPlayer() {
                         <path d="M6 6h12v12H6z" />
                     </svg>
                 </button>
-            </div>
-
-            {/* Status Info */}
-            <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-[16px] font-bold uppercase tracking-tight" style={{ color: theme.text, opacity: 0.8 }}>
-                    <span>{ttsReadingSpeed.toFixed(1)}x Speed</span>
-                    <span>{ttsVoiceGender}</span>
-                </div>
-                <div className="h-1 rounded-full overflow-hidden" style={{ backgroundColor: `${theme.text}33` }}>
-                    <div className="h-full transition-all duration-300" style={{ width: '100%', backgroundColor: theme.active }} />
-                </div>
             </div>
         </div>
     );

@@ -13,27 +13,29 @@ interface ShadowPortalProps {
 export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
     const hostRef = useRef<HTMLDivElement | null>(null);
     const shadowRoot = useRef<ShadowRoot | null>(null);
-   
+
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
-       
+
         const host = document.createElement('div');
-        host.style.position = 'absolute';
+        host.style.position = 'fixed';
         host.style.top = '0';
         host.style.left = '0';
-        host.style.width = '0';
-        host.style.height = '0';
+        host.style.width = '100vw';
+        host.style.height = '100vh';
+        host.style.zIndex = '2147483647';
+        host.style.pointerEvents = 'none';
         host.id = 'a11y-shadow-portal-' + Math.random().toString(36).substr(2, 9);
 
-        document.body.appendChild(host);
+        document.documentElement.appendChild(host);
         hostRef.current = host;
 
-      
+
         const shadow = host.attachShadow({ mode: 'open' });
         shadowRoot.current = shadow;
 
-       
+
         try {
             const tailwindStyle = document.createElement('style');
             tailwindStyle.textContent = tailwindCss;
@@ -48,7 +50,7 @@ export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
 
         const container = document.createElement('div');
         container.id = 'shadow-portal-root';
-    
+
         shadow.appendChild(container);
 
         setReady(true);
@@ -62,7 +64,7 @@ export const ShadowPortal: React.FC<ShadowPortalProps> = ({ children }) => {
 
     if (!ready || !shadowRoot.current) return null;
 
- 
+
     const container = shadowRoot.current.getElementById('shadow-portal-root');
     if (!container) return null;
 

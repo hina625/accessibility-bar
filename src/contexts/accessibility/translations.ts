@@ -200,7 +200,8 @@ ZOOM`,
                     "Comic Sans": "Irregular character shapes, distinct letterforms.",
                     "Arial": "Clean, evenly spaced, sans-serif.",
                     "Verdana": "Wide spacing, clear simplicity, sans-serif.",
-                    "Trebuchet MS": "Strong visual contrast, broad characters."
+                    "Trebuchet MS": "Strong visual contrast, broad characters.",
+                    "Page Zoom": "Zoom in or out of the entire page content."
                 }
             },
             contrast: {
@@ -223,7 +224,8 @@ ZOOM`,
                     "Spotlight": "Highlights a circular area around your cursor.",
                     "Highlight Links": "Makes all links widely visible.",
                     "Highlight Headings": "Highlights all headers on the page.",
-                    "Magnifier": "Zoom in on specific parts of the screen."
+                    "Magnifier": "Zoom in on specific parts of the screen.",
+                    "Reading Progress Bar": "Visual indicator of your reading progress on the page."
                 }
             },
             layout: {
@@ -265,7 +267,10 @@ ZOOM`,
                 features: {
                     "Text to Speech": "Read the page content aloud.",
                     "Voice Navigation": "Control the website using voice commands.",
-                    "Select to Read": "Read only the text you select."
+                    "Select to Read": "Read only the text you select.",
+                    "Speech to Text": "Dictate text instead of typing.",
+                    "Hover to Speak": "Read text aloud when you hover over it.",
+                    "Click to Speak": "Read text aloud when you click on it."
                 }
             },
             language: {
@@ -273,7 +278,9 @@ ZOOM`,
                 features: {
                     "Google Translate": "Translate the entire page to another language.",
                     "Dictionary": "Look up definitions of words on the page.",
-                    "Pronunciation": "See how words are pronounced."
+                    "Pronunciation": "See how words are pronounced.",
+                    "Phonetics": "View phonetic spelling of words.",
+                    "Sounds Like": "Find words that sound similar."
                 }
             },
             ai: {
@@ -289,6 +296,20 @@ ZOOM`,
                     "Feedback Form": "Send us your comments and suggestions."
                 }
             }
+        },
+        profileExplanations: {
+            adhd: "Applies Reading Mask, Reading Ruler, and Highlighted Links to help focus.",
+            blindness: "Enables Text to Speech, Voice Control, and Page Structure for non-visual navigation.",
+            cognitive: "Simplifies layout, adds reading mask, and highlights important elements for better focus.",
+            colorblind: "Applies high contrast and highlights links and headings for better visibility.",
+            dyslexia: "Applies Dyslexic font (Weighted bottoms, unique letter shapes), increased line/word spacing, and reading ruler.",
+            hearing: "Highlights headings and visual markers for content structure.",
+            motor: "Increases button sizes, enables keyboard navigation, and simplifies layout for easier interaction.",
+            photosensitive: "Enables Dark Mode, pauses animations, and reduces motion to prevent seizures.",
+            reading: "Adds Reading Ruler and Guide, and increases text spacing for better tracking.",
+            seizure: "Applies Greyscale and stop all animations/videos for a static experience.",
+            elderly: "Increases font size significantly and simplifies the layout for easier reading.",
+            lowvision: "Increases font size, applies high contrast, and adds a magnifier for better visibility.",
         }
     },
     ur: {
@@ -445,6 +466,20 @@ ZOOM`,
             primaryButton: "بنیادی ماؤس بٹن",
             leftButton: "بایاں",
             rightButton: "دایاں"
+        },
+        profileExplanations: {
+            adhd: "توجہ مرکوز کرنے میں مدد کے لیے ریڈنگ ماسک، ریڈنگ رولر، اور ہائی لائٹڈ لنکس استعمال کرتا ہے۔",
+            blindness: "بصری نیویگیشن کے بغیر ویب سائٹ استعمال کرنے کے لیے ٹیکسٹ ٹو اسپیچ، وائس کنٹرول اور پیج سٹرکچر کو فعال کرتا ہے۔",
+            cognitive: "بہتر توجہ کے لیے لے آؤٹ کو سادہ بناتا ہے، ریڈنگ ماسک شامل کرتا ہے، اور اہم عناصر کو نمایاں کرتا ہے۔",
+            colorblind: "بہتر بصارت کے لیے زیادہ تضاد (high contrast) استعمال کرتا ہے اور لنکس اور ہیڈنگز کو نمایاں کرتا ہے۔",
+            dyslexia: "ڈیسلیکسک فونٹ (منفرد حروف کی شکلیں)، لائنوں اور الفاظ کے درمیان زیادہ فاصلہ، اور ریڈنگ رولر استعمال کرتا ہے۔",
+            hearing: "مواد کی ساخت کے لیے ہیڈنگز اور بصری اشارے نمایاں کرتا ہے۔",
+            motor: "آسان تعامل کے لیے بٹنوں کا سائز بڑھاتا ہے، کی بورڈ نیویگیشن کو فعال کرتا ہے، اور لے آؤٹ کو سادہ بناتا ہے۔",
+            photosensitive: "دوروں سے بچنے کے لیے ڈارک موڈ کو فعال کرتا ہے، اینیمیشنز کو روکتا ہے، اور حرکت کو کم کرتا ہے۔",
+            reading: "بہتر ٹریکنگ کے لیے ریڈنگ رولر اور گائیڈ شامل کرتا ہے، اور تحریر کے درمیان فاصلہ بڑھاتا ہے۔",
+            seizure: "ایک ساکن تجربے کے لیے گرے اسکیل استعمال کرتا ہے اور تمام اینیمیشنز/ویڈیوز کو روک دیتا ہے۔",
+            elderly: "تحریر کا سائز نمایاں طور پر بڑھاتا ہے اور آسان مطالعہ کے لیے لے آؤٹ کو سادہ بناتا ہے۔",
+            lowvision: "بہتر بصارت کے لیے تحریر کا سائز بڑھاتا ہے، زیادہ تضاد استعمال کرتا ہے، اور میگنیفائر شامل کرتا ہے۔",
         }
     },
     ar: {

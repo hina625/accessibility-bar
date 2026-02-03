@@ -21,7 +21,7 @@ const LIGHT_THEMES: { id: BarTheme; label: string }[] = [
 
 export default function ThemeSelector() {
     const { barTheme, setBarTheme } = useAccessibility();
-    // Ensure we always have a valid theme, fallback to 'purple' if undefined
+
     const currentTheme = BAR_THEMES[barTheme] || BAR_THEMES.purple;
 
     const renderThemeButton = (themeOption: { id: BarTheme; label: string }) => {
@@ -61,7 +61,7 @@ export default function ThemeSelector() {
                     )}
                 </div>
 
-                <span className="text-[14px] font-bold uppercase tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
+                <span className="text-[14px] font-bold tracking-tight text-center leading-tight" style={{ color: currentTheme.text, opacity: isSelected ? 1 : 0.9 }}>
                     {themeOption.label}
                 </span>
             </button>
@@ -70,13 +70,13 @@ export default function ThemeSelector() {
 
     return (
         <div className="space-y-4">
-            <h3 className="text-[18px] font-bold uppercase tracking-wide mb-2" style={{ color: currentTheme.text }}>
+            <h3 className="text-[18px] font-bold tracking-wide mb-2" style={{ color: currentTheme.text }}>
                 6. Colour
             </h3>
-            
-            
+
+
             <div className="space-y-2">
-                <h4 className="text-[16px] font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
+                <h4 className="text-[16px] font-bold tracking-wide" style={{ color: currentTheme.text }}>
                     Dark
                 </h4>
                 <div className="grid grid-cols-3 gap-2">
@@ -86,7 +86,7 @@ export default function ThemeSelector() {
 
             {/* Light Themes Section */}
             <div className="space-y-2">
-                <h4 className="text-[16px] font-bold uppercase tracking-wide" style={{ color: currentTheme.text }}>
+                <h4 className="text-[16px] font-bold tracking-wide" style={{ color: currentTheme.text }}>
                     Light
                 </h4>
                 <div className="grid grid-cols-3 gap-2">

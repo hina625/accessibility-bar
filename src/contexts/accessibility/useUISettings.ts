@@ -66,7 +66,7 @@ export function useUISettings() {
         if (saved.panelPosition) setPanelPosition(saved.panelPosition as PanelPosition);
         if (saved.barTheme) {
             // Validate and migrate old theme values
-            const validThemes: BarTheme[] = ['white', 'grayscale', 'black', 'oceanBlue', 'Turquoise', 'navy', 'yellow', 'purple'];
+            const validThemes: BarTheme[] = ['white', 'grayscale', 'black', 'oceanBlue', 'Turquoise', 'navy', 'yellow', 'purple', 'pink'];
             // Check for old 'blue' value before casting to BarTheme
             let themeValue = saved.barTheme as string;
             // Migrate 'blue' to 'Turquoise' if found
@@ -185,8 +185,8 @@ export function useUISettings() {
                 let svgContent = '';
                 if (cursorStyle === 'circle') {
                     svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
-                        <circle cx="12" cy="12" r="10" fill="none" stroke="${stroke}" stroke-width="2" />
-                        <circle cx="12" cy="12" r="2" fill="${stroke}" />
+                        <circle cx="12" cy="12" r="10" fill="none" stroke="${color}" stroke-width="2" />
+                        <circle cx="12" cy="12" r="2" fill="${color}" />
                     </svg>`;
                     hotspotX = Math.round(size / 2);
                     hotspotY = Math.round(size / 2);
